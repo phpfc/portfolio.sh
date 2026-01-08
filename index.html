@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedro Henrique França - Portfolio</title>
+    <title>Pedro França - Interactive Terminal Portfolio</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,257 +14,215 @@
                 <span class="control minimize"></span>
                 <span class="control maximize"></span>
             </div>
-            <div class="terminal-title">portfolio.sh</div>
+            <div class="terminal-title">phfranca@portfolio: ~</div>
             <div class="theme-toggle">
                 <button id="theme-toggle" aria-label="Toggle theme">◐</button>
             </div>
         </div>
         
         <div class="terminal-body">
-            <div class="prompt-line">
-                <span class="prompt">phfranca@portfolio:~$</span>
-                <span class="command">whoami</span>
-            </div>
-            
-            <div class="output">
-                <h1>Pedro Henrique França</h1>
-                <p>Full Stack Developer | Creative Problem Solver</p>
-                <p>Welcome to my digital space. Navigate using the commands below.</p>
-            </div>
-            
-            <div class="navigation">
+            <!-- Welcome Message -->
+            <div class="welcome-section">
                 <div class="prompt-line">
                     <span class="prompt">phfranca@portfolio:~$</span>
-                    <span class="command">ls -la</span>
+                    <span class="command">whoami</span>
                 </div>
-                <div class="nav-output">
-                    <div class="nav-item" data-tab="about">
-                        <span class="permissions">drwxr-xr-x</span>
-                        <span class="file-name">about/</span>
-                        <span class="description">Personal information and skills</span>
-                    </div>
-                    <div class="nav-item" data-tab="projects">
-                        <span class="permissions">drwxr-xr-x</span>
-                        <span class="file-name">projects/</span>
-                        <span class="description">My work and creations</span>
-                    </div>
-                    <div class="nav-item" data-tab="blog">
-                        <span class="permissions">drwxr-xr-x</span>
-                        <span class="file-name">blog/</span>
-                        <span class="description">Thoughts and tutorials</span>
-                    </div>
-                    <div class="nav-item" data-tab="cv">
-                        <span class="permissions">-rw-r--r--</span>
-                        <span class="file-name">resume.pdf</span>
-                        <span class="description">Professional experience</span>
-                    </div>
+                <div class="output">
+                    <h1>Pedro Henrique França</h1>
+                    <p>Full Stack Developer | Software Architecture Enthusiast</p>
+                    <p>Welcome to my interactive terminal portfolio.</p>
+                </div>
+                
+                <div class="prompt-line">
+                    <span class="prompt">phfranca@portfolio:~$</span>
+                    <span class="command">echo "Type 'help' to get started"</span>
+                </div>
+                <div class="output">
+                    <p>Type 'help' to get started</p>
                 </div>
             </div>
             
-            <div class="content-area">
-                <div id="about" class="tab-content active">
-                    <div class="prompt-line">
-                        <span class="prompt">phfranca@portfolio:~$</span>
-                        <span class="command">cat about/README.md</span>
-                    </div>
-                    <div class="content">
-                        <h2>About Me</h2>
-                        <p>Full Stack Developer passionate about architecture and design patterns, with a strong foundation in
-                        software engineering fundamentals and principles. I combine architectural vision with practical execution,
-                        always thoughtful in technical decision-making and attentive to long-term impact. Comfortable designing
-                        systems from scratch and modernizing legacy applications in production. Self-taught with a self-critical
-                        posture in constant pursuit of improvement. Experience with systems at scale and complete individual
-                        deliveries. Fluent in English.</p>
-
-                        <h3>Skills</h3>
-                        <div class="skills">
-                            <span class="skill">React.js</span>
-                            <span class="skill">React Native</span>
-                            <span class="skill">Node.js</span>
-                            <span class="skill">Nest.js</span>
-                            <span class="skill">TypeScript</span>
-                            <span class="skill">MySQL</span>
-                            <span class="skill">PostgreSQL</span>
-                            <span class="skill">MongoDB</span>
-                            <span class="skill">Prisma</span>
-                            <span class="skill">AWS</span>
-                            <span class="skill">PHP</span>
-                            <span class="skill">Git</span>
-                        </div>
-
-                        <h3>Contact</h3>
-                        <p>📧 pedrofranca-tech@proton.me</p>
-                        <p>🐙 github.com/phpfc</p>
-                        <p>💼 linkedin.com/in/pedro-henrique-pfranca/</p>
-                        <p>📍 Caxias do Sul, RS | 🇧🇷 Brazil</p>
-                    </div>
-                </div>
-                
-                <div id="projects" class="tab-content">
-                    <div class="prompt-line">
-                        <span class="prompt">phfranca@portfolio:~$</span>
-                        <span class="command">find projects/ -type f -name "*.rs" -o -name "*.js" -o -name "*.py" | head -10</span>
-                    </div>
-                    <div class="content">
-                        <div class="project">
-                            <h3>Cleanser - macOS Storage Cleanup Tool</h3>
-                            <div class="tech-stack">
-                                <span class="tech">Rust</span>
-                                <span class="tech">Rayon</span>
-                                <span class="tech">SHA-256</span>
-                                <span class="tech">Homebrew</span>
-                                <span class="tech">CI/CD</span>
-                            </div>
-                            <p>High-performance CLI tool that helps macOS users reclaim storage space by intelligently identifying and removing unnecessary files. Features dynamic pattern-based discovery to detect cache directories, build artifacts, and duplicate files across the filesystem using parallel SHA-256 hashing.</p>
-                            <p>Implemented smart caching system, risk-based cleanup levels (Safe/Moderate/Risky), and configurable scan depths to balance thoroughness with performance. Leveraged Rust's Rayon library for concurrent operations, achieving fast scanning speeds.</p>
-                            <p>Published as a Homebrew package with comprehensive CI/CD pipelines. Emphasizes safety through validation checks, confirmation prompts, and dry-run modes to prevent accidental data loss.</p>
-                            <div class="project-links">
-                                <a href="https://github.com/phpfc/cleanser" class="link" target="_blank">View Code</a>
-                                <a href="https://github.com/phpfc/cleanser#installation" class="link" target="_blank">Install via Homebrew</a>
-                            </div>
-                        </div>
-                        
-                        <div class="project">
-                            <h3>HP12C Financial Calculator</h3>
-                            <div class="tech-stack">
-                                <span class="tech">JavaScript</span>
-                                <span class="tech">RPN Logic</span>
-                                <span class="tech">SEO</span>
-                                <span class="tech">Web</span>
-                            </div>
-                            <p>Web-based HP12C emulator designed for students preparing for CPA, CEA, and ANBIMA certifications. Reproduced RPN (Reverse Polish Notation) logic and hardware behavior with precision.</p>
-                            <p>Optimized the project for SEO as a lead-generation tool, focusing on performance and user experience for financial education.</p>
-                            <div class="project-links">
-                                <a href="https://topinvest.com.br/simulador-hp12c/" class="link">View Demo</a>
-                                <a href="#" class="link">Learn More</a>
-                            </div>
-                        </div>
-                        
-                        <div class="project placeholder">
-                            <h3>More Projects Coming Soon...</h3>
-                            <p>Currently working on new projects. Check back soon or follow me on GitHub for updates!</p>
-                            <div class="project-links">
-                                <a href="https://github.com/phpfc" class="link" target="_blank">GitHub Profile</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="blog" class="tab-content">
-                    <div class="prompt-line">
-                        <span class="prompt">phfranca@portfolio:~$</span>
-                        <span class="command">find blog/ -name "*.md" | head -5</span>
-                    </div>
-                    <div class="content">
-                        <article class="blog-post">
-                            <h3>Transforming Production Systems: Multi-Tenancy Migration</h3>
-                            <p class="date">2025-01-08</p>
-                            <p>How I architected and implemented a multi-tenant system in a live production LMS without downtime.
-                            Lessons learned about database design, middleware architecture, and the importance of flexibility in technical decisions...</p>
-                            <a href="#" class="link">Coming soon</a>
-                        </article>
-
-                        <article class="blog-post">
-                            <h3>Why We Migrated from Flutter to React Native</h3>
-                            <p class="date">2024-12-15</p>
-                            <p>The technical and strategic reasoning behind our mobile stack unification. From proof of concept to company-wide
-                            adoption, including challenges with offline video access and DRM implementation...</p>
-                            <a href="#" class="link">Coming soon</a>
-                        </article>
-
-                        <article class="blog-post">
-                            <h3>Building Vendor-Independent Authentication Systems</h3>
-                            <p class="date">2024-11-20</p>
-                            <p>Designing authentication architecture that avoids vendor lock-in. How to build fallback systems that make provider
-                            migration painless, featuring AWS Cognito, JWT, and security best practices...</p>
-                            <a href="#" class="link">Coming soon</a>
-                        </article>
-                    </div>
-                </div>
-                
-                <div id="cv" class="tab-content">
-                    <div class="prompt-line">
-                        <span class="prompt">phfranca@portfolio:~$</span>
-                        <span class="command">cat resume.pdf | head -30</span>
-                    </div>
-                    <div class="content">
-                        <h2>Experience</h2>
-                        <div class="experience">
-                            <h3>Junior Full Stack Developer - TopInvest (Grupo PRIMO)</h3>
-                            <p class="date">August 2024 - Present</p>
-                            <p>Worked across 5 production systems serving tens of thousands of MAU, gaining practical experience maintaining and improving products at scale.</p>
-                            
-                            <h4>Mobile Architecture & Stack Unification</h4>
-                            <ul>
-                                <li>Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
-                                <li>Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
-                                <li>Helped design and implement a new mobile client focused on maintainability and developer experience</li>
-                                <li>Collaborated with multiple business units to address offline video and content-protection challenges</li>
-                            </ul>
-                            
-                            <h4>Multi-Tenant Architecture Transformation</h4>
-                            <ul>
-                                <li>Participated in designing and implementing a zero-downtime multi-tenant system</li>
-                                <li>Learned how to support new clients on a shared codebase and infrastructure</li>
-                            </ul>
-                            
-                            <h4>Vendor-Independent Authentication</h4>
-                            <ul>
-                                <li>Helped build a flexible authentication system decoupled from cloud providers</li>
-                                <li>Implemented secure admin impersonation and DRM improvements</li>
-                            </ul>
-                            
-                            <h4>Legacy System Modernization</h4>
-                            <ul>
-                                <li>Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
-                                <li>Gained experience working with older codebases and incremental modernization</li>
-                            </ul>
-                            
-                            <h4>Engineering Practices</h4>
-                            <ul>
-                                <li>Participated in code reviews for maintainability, performance, and security</li>
-                                <li>Wrote tests and documentation</li>
-                                <li>Created architecture diagrams for alignment</li>
-                                <li>Monitored production with Grafana</li>
-                                <li>Advocated for improved developer experience and sustainable solutions</li>
-                            </ul>
-                            
-                            <p><strong>Stack:</strong> React.js, Flutter, Nest.js, Prisma, MySQL, AWS (Cognito, SES), CodeIgniter (PHP)</p>
-                        </div>
-
-                        <div class="experience">
-                            <h3>Full Stack Intern - FCODE</h3>
-                            <p class="date">August 2023 - March 2024</p>
-                            <ul>
-                                <li>Developed RESTful APIs and modeled relational databases</li>
-                                <li>Created responsive web interfaces with focus on usability</li>
-                                <li>Implemented third-party API integrations and payment systems</li>
-                                <li>Worked with PHP/CodeIgniter, jQuery, and Bootstrap</li>
-                            </ul>
-                        </div>
-
-                        <h2>Education</h2>
-                        <div class="education">
-                            <h3>Bachelor's in Software Engineering</h3>
-                            <p class="date">University of Caxias do Sul | March 2023 - August 2028 (in progress)</p>
-                        </div>
-
-                        <h2>Languages</h2>
-                        <div class="education">
-                            <p><strong>Portuguese:</strong> Native</p>
-                            <p><strong>English:</strong> Fluent</p>
-                        </div>
-
-                        <div class="download-cv">
-                            <a href="#" class="link">Download PDF Resume</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Terminal History -->
+            <div id="terminal-history"></div>
             
-            <div class="prompt-line current">
+            <!-- Current Input Line -->
+            <div class="input-line">
                 <span class="prompt">phfranca@portfolio:~$</span>
-                <span class="cursor">█</span>
+                <div class="input-container">
+                    <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
+                    <div class="autocomplete-suggestion" id="autocomplete"></div>
+                </div>
+            </div>
+            
+            <!-- Hidden Content Areas -->
+            <div class="content-storage" style="display: none;">
+                <div id="about-content">
+                    <h2>About Me</h2>
+                    <p>Full Stack Developer passionate about software architecture and engineering fundamentals.</p>
+                    <p>I value maintainable code, good design principles, and understanding the "why" behind technical decisions. I think about long-term impact and approach problems with care and attention to detail.</p>
+                    <p>Naturally curious - I enjoy exploring system design, architecture patterns, and deepening my understanding of computer science fundamentals. Always learning and improving.</p>
+                    
+                    <h3>Skills</h3>
+                    <div class="skills">
+                        <span class="skill">React.js</span>
+                        <span class="skill">React Native</span>
+                        <span class="skill">Node.js</span>
+                        <span class="skill">Nest.js</span>
+                        <span class="skill">TypeScript</span>
+                        <span class="skill">Rust</span>
+                        <span class="skill">MySQL</span>
+                        <span class="skill">PostgreSQL</span>
+                        <span class="skill">Prisma</span>
+                        <span class="skill">AWS</span>
+                        <span class="skill">Git</span>
+                    </div>
+                    
+                    <h3>Contact</h3>
+                    <p>📧 pedrofranca-tech@proton.me</p>
+                    <p>🐙 github.com/phpfc</p>
+                    <p>💼 linkedin.com/in/pedro-henrique-pfranca/</p>
+                    <p>📍 Caxias do Sul, RS | 🇧🇷 Brazil</p>
+                </div>
+                
+                <div id="projects-content">
+                    <div class="project">
+                        <h3>Cleanser - macOS Storage Cleanup Tool</h3>
+                        <div class="tech-stack">
+                            <span class="tech">Rust</span>
+                            <span class="tech">Rayon</span>
+                            <span class="tech">SHA-256</span>
+                            <span class="tech">Homebrew</span>
+                            <span class="tech">CI/CD</span>
+                        </div>
+                        <p>High-performance CLI tool that helps macOS users reclaim storage space by intelligently identifying and removing unnecessary files. Features dynamic pattern-based discovery to detect cache directories, build artifacts, and duplicate files across the filesystem using parallel SHA-256 hashing.</p>
+                        <p>Implemented smart caching system, risk-based cleanup levels (Safe/Moderate/Risky), and configurable scan depths to balance thoroughness with performance. Leveraged Rust's Rayon library for concurrent operations, achieving fast scanning speeds.</p>
+                        <p>Published as a Homebrew package with comprehensive CI/CD pipelines. Emphasizes safety through validation checks, confirmation prompts, and dry-run modes to prevent accidental data loss.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/phpfc/cleanser" class="link" target="_blank">View Code</a>
+                            <a href="https://github.com/phpfc/cleanser#installation" class="link" target="_blank">Install via Homebrew</a>
+                        </div>
+                    </div>
+                    
+                    <div class="project">
+                        <h3>HP12C Financial Calculator</h3>
+                        <div class="tech-stack">
+                            <span class="tech">JavaScript</span>
+                            <span class="tech">RPN Logic</span>
+                            <span class="tech">SEO</span>
+                            <span class="tech">Web</span>
+                        </div>
+                        <p>Web-based HP12C emulator designed for students preparing for CPA, CEA, and ANBIMA certifications. Reproduced RPN (Reverse Polish Notation) logic and hardware behavior with precision.</p>
+                        <p>Optimized the project for SEO as a lead-generation tool, focusing on performance and user experience for financial education.</p>
+                        <div class="project-links">
+                            <a href="#" class="link">View Demo</a>
+                            <a href="#" class="link">Learn More</a>
+                        </div>
+                    </div>
+                    
+                    <div class="project placeholder">
+                        <h3>More Projects Coming Soon...</h3>
+                        <p>Currently working on new open-source projects. Check back soon or follow me on GitHub for updates!</p>
+                        <div class="project-links">
+                            <a href="https://github.com/phpfc" class="link" target="_blank">GitHub Profile</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="blog-content">
+                    <article class="blog-post">
+                        <h3>Mobile Stack Unification: Flutter to React Native</h3>
+                        <p class="date">2024-12-15</p>
+                        <p>The technical and strategic reasoning behind our mobile stack unification. From proof of concept to company-wide adoption, including challenges with offline video access and DRM implementation...</p>
+                        <a href="#" class="link">Coming soon</a>
+                    </article>
+
+                    <article class="blog-post">
+                        <h3>Building Vendor-Independent Authentication Systems</h3>
+                        <p class="date">2024-11-20</p>
+                        <p>Designing authentication architecture that avoids vendor lock-in. How to build fallback systems that make provider migration painless, featuring AWS Cognito, JWT, and security best practices...</p>
+                        <a href="#" class="link">Coming soon</a>
+                    </article>
+                    
+                    <article class="blog-post">
+                        <h3>Rust for System Tools: Building Cleanser</h3>
+                        <p class="date">2024-10-10</p>
+                        <p>Deep dive into building high-performance CLI tools with Rust. Parallel processing, memory safety, and the journey from idea to Homebrew package...</p>
+                        <a href="#" class="link">Coming soon</a>
+                    </article>
+                </div>
+                
+                <div id="cv-content">
+                    <h2>Experience</h2>
+                    <div class="experience">
+                        <h3>Junior Full Stack Developer - TopInvest (Grupo PRIMO)</h3>
+                        <p class="date">August 2024 - Present</p>
+                        <p>Worked across 5 production systems serving tens of thousands of MAU, gaining practical experience maintaining and improving products at scale.</p>
+                        
+                        <h4>Mobile Architecture & Stack Unification</h4>
+                        <ul>
+                            <li>Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
+                            <li>Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
+                            <li>Helped design and implement a new mobile client focused on maintainability and developer experience</li>
+                            <li>Collaborated with multiple business units to address offline video and content-protection challenges</li>
+                        </ul>
+                        
+                        <h4>Multi-Tenant Architecture Transformation</h4>
+                        <ul>
+                            <li>Participated in designing and implementing a zero-downtime multi-tenant system</li>
+                            <li>Learned how to support new clients on a shared codebase and infrastructure</li>
+                        </ul>
+                        
+                        <h4>Vendor-Independent Authentication</h4>
+                        <ul>
+                            <li>Helped build a flexible authentication system decoupled from cloud providers</li>
+                            <li>Implemented secure admin impersonation and DRM improvements</li>
+                        </ul>
+                        
+                        <h4>Legacy System Modernization</h4>
+                        <ul>
+                            <li>Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
+                            <li>Gained experience working with older codebases and incremental modernization</li>
+                        </ul>
+                        
+                        <h4>Engineering Practices</h4>
+                        <ul>
+                            <li>Participated in code reviews for maintainability, performance, and security</li>
+                            <li>Wrote tests and documentation</li>
+                            <li>Created architecture diagrams for alignment</li>
+                            <li>Monitored production with Grafana</li>
+                            <li>Advocated for improved developer experience and sustainable solutions</li>
+                        </ul>
+                        
+                        <p><strong>Stack:</strong> React.js, Flutter, Nest.js, Prisma, MySQL, AWS (Cognito, SES), CodeIgniter (PHP)</p>
+                    </div>
+
+                    <div class="experience">
+                        <h3>Full Stack Intern - FCODE</h3>
+                        <p class="date">August 2023 - March 2024</p>
+                        <ul>
+                            <li>Developed RESTful APIs and modeled relational databases</li>
+                            <li>Created responsive web interfaces with focus on usability</li>
+                            <li>Implemented third-party API integrations and payment systems</li>
+                            <li>Worked with PHP/CodeIgniter, jQuery, and Bootstrap</li>
+                        </ul>
+                    </div>
+
+                    <h2>Education</h2>
+                    <div class="education">
+                        <h3>Bachelor's in Software Engineering</h3>
+                        <p class="date">University of Caxias do Sul | March 2023 - August 2028 (in progress)</p>
+                    </div>
+
+                    <h2>Languages</h2>
+                    <div class="education">
+                        <p><strong>Portuguese:</strong> Native</p>
+                        <p><strong>English:</strong> Fluent</p>
+                    </div>
+
+                    <div class="download-cv">
+                        <a href="#" class="link">Download PDF Resume</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
