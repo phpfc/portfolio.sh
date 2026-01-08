@@ -45,8 +45,8 @@ class InteractiveTerminal {
                 action: () => this.clearTerminal()
             },
             'theme': {
-                description: 'Toggle between dark and light theme',
-                action: () => this.toggleTheme()
+                description: 'Toggle theme or set specific theme (catppuccin, dracula, gruvbox, nord, tokyo-night, synthwave, matrix, light, dark)',
+                action: (args) => this.handleTheme(args)
             },
             'contact': {
                 description: 'Show contact information',
@@ -79,6 +79,10 @@ class InteractiveTerminal {
             'mode': {
                 description: 'Toggle between GUI and CLI modes',
                 action: () => this.toggleMode()
+            },
+            'neofetch': {
+                description: 'Display system information (easter egg)',
+                action: () => this.neofetch()
             }
         };
         
@@ -185,6 +189,19 @@ class InteractiveTerminal {
         if (!input) {
             this.showAutocomplete('help');
             return;
+        }
+        
+        // Check if it's a theme command with arguments
+        const parts = input.split(' ');
+        if (parts[0].toLowerCase() === 'theme' && parts.length > 1) {
+            const themeArg = parts[1].toLowerCase();
+            const availableThemes = ['list', 'catppuccin', 'dracula', 'gruvbox', 'nord', 'tokyo-night', 'synthwave', 'matrix', 'light', 'dark'];
+            const matches = availableThemes.filter(theme => theme.startsWith(themeArg));
+            
+            if (matches.length > 0 && matches[0] !== themeArg) {
+                this.showAutocomplete(`theme ${matches[0]}`);
+                return;
+            }
         }
         
         const matches = Object.keys(this.commands).filter(cmd => 
@@ -385,12 +402,99 @@ class InteractiveTerminal {
         this.addToHistory(null, `Theme switched to <span class="highlight">${this.currentTheme}</span> mode.`);
     }
     
-    applyTheme(theme) {
-        if (theme === 'light') {
-            document.documentElement.setAttribute('data-theme', 'light');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
+    handleTheme(args) {
+        const availableThemes = {
+            'dark': 'Default dark theme',
+            'light': 'Clean light theme',
+            'catppuccin': 'Catppuccin Mocha - Soothing pastel theme',
+            'dracula': 'Dracula - Dark theme with vibrant colors',
+            'gruvbox': 'Gruvbox - Retro groove colors',
+            'nord': 'Nord - Arctic, north-bluish color palette',
+            'tokyo-night': 'Tokyo Night - A clean, dark theme',
+            'synthwave': 'Synthwave \'84 - Neon cyberpunk vibes',
+            'matrix': 'Matrix - Green on black hacker aesthetic'
+        };
+        
+        if (args.length === 0) {
+            // No arguments, toggle between dark and light
+            this.toggleTheme();
+            return;
         }
+        
+        const requestedTheme = args[0].toLowerCase();
+        
+        if (requestedTheme === 'list' || requestedTheme === 'ls') {
+            // List available themes
+            const output = document.createElement('div');
+            output.innerHTML = `
+                <h3>Available Themes:</h3>
+                <div class="help-section">
+                    ${Object.entries(availableThemes).map(([theme, description]) => `
+                        <div class="help-command">
+                            <span class="help-command-name">${theme}</span>
+                            <span class="help-command-desc">${description}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <p>Usage: <span class="highlight">theme [theme-name]</span> or just <span class="highlight">theme</span> to toggle</p>
+            `;
+            this.addToHistory(null, output);
+            return;
+        }
+        
+        if (availableThemes[requestedTheme]) {
+            this.currentTheme = requestedTheme;
+            this.applyTheme(requestedTheme);
+            
+            // Add some fun messages for easter egg themes
+            let message = `Theme switched to <span class="highlight">${requestedTheme}</span>`;
+            
+            switch(requestedTheme) {
+                case 'catppuccin':
+                    message += ' ☕ Cozy and warm!';
+                    break;
+                case 'dracula':
+                    message += ' 🧛‍♂️ Welcome to the dark side!';
+                    break;
+                case 'gruvbox':
+                    message += ' 📼 Retro vibes activated!';
+                    break;
+                case 'nord':
+                    message += ' ❄️ Cool and minimal!';
+                    break;
+                case 'tokyo-night':
+                    message += ' 🌃 Neon lights of Tokyo!';
+                    break;
+                case 'synthwave':
+                    message += ' 🌈 Welcome to the 80s!';
+                    break;
+                case 'matrix':
+                    message += ' 💊 Follow the white rabbit...';
+                    break;
+                case 'light':
+                    message += ' ☀️ Clean and bright!';
+                    break;
+                case 'dark':
+                    message += ' 🌙 Back to the classics!';
+                    break;
+            }
+            
+            this.addToHistory(null, message);
+        } else {
+            this.addToHistory(null, `Unknown theme: <span class="highlight">${requestedTheme}</span>. Use <span class="highlight">theme list</span> to see available themes.`, true);
+        }
+    }
+    
+    applyTheme(theme) {
+        // Remove any existing theme attributes
+        document.documentElement.removeAttribute('data-theme');
+        
+        // Apply new theme (except for default dark)
+        if (theme !== 'dark') {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        
+        this.currentTheme = theme;
         localStorage.setItem('portfolio-theme', theme);
     }
     
@@ -544,6 +648,79 @@ class InteractiveTerminal {
                 }
             });
         });
+    }
+    
+    neofetch() {
+        const output = document.createElement('div');
+        const userAgent = navigator.userAgent;
+        const browser = this.getBrowserInfo();
+        const os = this.getOSInfo();
+        
+        output.innerHTML = `
+            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                <div style="color: var(--text-accent); font-size: 12px; line-height: 1.2;">
+<pre>    ██████╗ ██╗  ██╗███████╗
+    ██╔══██╗██║  ██║██╔════╝
+    ██████╔╝███████║█████╗  
+    ██╔═══╝ ██╔══██║██╔══╝  
+    ██║     ██║  ██║██║     
+    ╚═╝     ╚═╝  ╚═╝╚═╝     </pre>
+                </div>
+                <div style="flex: 1;">
+                    <h3 style="color: var(--text-accent); margin-bottom: 12px;">phfranca@portfolio</h3>
+                    <div style="font-size: 13px;">
+                        <p><span style="color: var(--text-success);">OS:</span> ${os}</p>
+                        <p><span style="color: var(--text-success);">Browser:</span> ${browser}</p>
+                        <p><span style="color: var(--text-success);">Theme:</span> ${this.currentTheme}</p>
+                        <p><span style="color: var(--text-success);">Shell:</span> Interactive Terminal v1.0</p>
+                        <p><span style="color: var(--text-success);">Resolution:</span> ${window.screen.width}x${window.screen.height}</p>
+                        <p><span style="color: var(--text-success);">Uptime:</span> ${this.getUptime()}</p>
+                        <p><span style="color: var(--text-success);">Memory:</span> ${this.getMemoryInfo()}</p>
+                        <p><span style="color: var(--text-success);">CPU:</span> ${navigator.hardwareConcurrency || 'Unknown'} cores</p>
+                        <p><span style="color: var(--text-success);">Terminal:</span> ${this.commandHistory.length} commands executed</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        this.addToHistory(null, output);
+    }
+    
+    getBrowserInfo() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Chrome')) return 'Chrome';
+        if (ua.includes('Firefox')) return 'Firefox';
+        if (ua.includes('Safari')) return 'Safari';
+        if (ua.includes('Edge')) return 'Edge';
+        return 'Unknown';
+    }
+    
+    getOSInfo() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Mac')) return 'macOS';
+        if (ua.includes('Windows')) return 'Windows';
+        if (ua.includes('Linux')) return 'Linux';
+        if (ua.includes('Android')) return 'Android';
+        if (ua.includes('iOS')) return 'iOS';
+        return 'Unknown';
+    }
+    
+    getUptime() {
+        const now = Date.now();
+        const start = performance.timeOrigin;
+        const uptime = Math.floor((now - start) / 1000);
+        const minutes = Math.floor(uptime / 60);
+        const seconds = uptime % 60;
+        return `${minutes}m ${seconds}s`;
+    }
+    
+    getMemoryInfo() {
+        if ('memory' in performance) {
+            const memory = performance.memory;
+            const used = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+            const total = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+            return `${used}MB / ${total}MB`;
+        }
+        return 'Unknown';
     }
 }
 
