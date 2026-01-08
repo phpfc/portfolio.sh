@@ -272,6 +272,24 @@ body {
     border: 1px solid var(--border-color);
 }
 
+/* Tech Stack */
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 12px 0;
+}
+
+.tech {
+    background: var(--bg-secondary);
+    color: var(--text-accent);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
 /* Projects */
 .project {
     background: var(--bg-primary);
@@ -279,6 +297,11 @@ body {
     margin: 16px 0;
     border-radius: 6px;
     border-left: 3px solid var(--text-accent);
+}
+
+.project.placeholder {
+    border-left-color: var(--text-secondary);
+    opacity: 0.8;
 }
 
 .project h3 {
@@ -290,6 +313,14 @@ body {
     margin-top: 12px;
     display: flex;
     gap: 16px;
+}
+
+/* CV Section Improvements */
+.experience h4 {
+    color: var(--text-accent);
+    font-size: 14px;
+    margin: 12px 0 6px 0;
+    font-weight: 600;
 }
 
 /* Blog Posts */
