@@ -84,6 +84,11 @@ class InteractiveTerminal {
                 description: 'Display system information (easter egg)',
                 action: () => this.neofetch(),
                 hidden: true
+            },
+            'easter': {
+                description: 'Show hidden easter eggs and commands',
+                action: () => this.showEasterEggs(),
+                hidden: true
             }
         };
         
@@ -111,19 +116,12 @@ class InteractiveTerminal {
         // Global keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
         
-        // Theme toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => this.toggleTheme());
-        }
+        // Global keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleGlobalKeydown(e));
         
         // Focus input when clicking anywhere in terminal
         document.addEventListener('click', () => {
-            // Only focus if not in GUI mode
-            const guiOverlay = document.getElementById('gui-overlay');
-            if (!guiOverlay || guiOverlay.style.display === 'none') {
-                this.input.focus();
-            }
+            this.input.focus();
         });
         
         // Prevent losing focus
@@ -740,6 +738,24 @@ class InteractiveTerminal {
         return 'Unknown';
     }
     
+    showEasterEggs() {
+        const output = document.createElement('div');
+        output.innerHTML = `
+            <h3>🥚 Hidden Easter Eggs Discovered!</h3>
+            <div style="margin: 16px 0;">
+                <h4 style="color: var(--text-accent); margin-bottom: 8px;">🎨 Secret Themes:</h4>
+                <p>Use <span class="highlight">theme list</span> to see all available themes with descriptions!</p>
+                <p>Try different theme names for surprises...</p>
+            </div>
+            <div style="margin: 16px 0;">
+                <h4 style="color: var(--text-accent); margin-bottom: 8px;">🖥️ Hidden Commands:</h4>
+                <p><span class="highlight">neofetch</span> - Display system information</p>
+            </div>
+            <p style="margin-top: 16px; font-size: 12px; opacity: 0.8;">🎉 You found the secret! Enjoy exploring the hidden features.</p>
+        `;
+        this.addToHistory(null, output);
+    }
+    
     isMobileDevice() {
         // Check for mobile user agents
         const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -772,6 +788,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ║  • blog - Technical articles         ║
     ║  • cv - Professional experience      ║
     ║  • theme - Toggle dark/light         ║
+    ║                                      ║
+    ║  🥚 Try 'easter' for hidden gems!   ║
     ║                                      ║
     ║  Use Tab for autocomplete!           ║
     ║  Use ↑/↓ for command history!        ║
