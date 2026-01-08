@@ -1,0 +1,8 @@
+# Blog files
+/blog/*.json
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/blog/posts/*.md
+  Content-Type: text/markdown; charset=utf-8
+  Cache-Control: public, max-age=3600
