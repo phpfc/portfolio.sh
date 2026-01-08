@@ -770,6 +770,22 @@ class InteractiveTerminal {
         // Consider it mobile if it matches UA pattern OR (has touch AND small screen)
         return isMobileUA || (isTouchDevice && isSmallScreen);
     }
+    
+    downloadResume() {
+        // Direct download of PDF file
+        const link = document.createElement('a');
+        link.href = 'resume.pdf';
+        link.download = 'Pedro_Henrique_Franca_Resume.pdf';
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show confirmation message
+        this.addToHistory(null, `
+            <p style="color: var(--text-success);">📄 Resume download started! Check your downloads folder.</p>
+        `);
+    }
 }
 
 // Initialize terminal when DOM is loaded
