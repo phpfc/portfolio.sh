@@ -45,7 +45,7 @@ class InteractiveTerminal {
                 action: () => this.clearTerminal()
             },
             'theme': {
-                description: 'Toggle theme or set specific theme (catppuccin, dracula, gruvbox, nord, tokyo-night, synthwave, matrix, light, dark)',
+                description: 'Toggle between dark and light theme',
                 action: (args) => this.handleTheme(args)
             },
             'contact': {
@@ -82,7 +82,8 @@ class InteractiveTerminal {
             },
             'neofetch': {
                 description: 'Display system information (easter egg)',
-                action: () => this.neofetch()
+                action: () => this.neofetch(),
+                hidden: true
             }
         };
         
@@ -93,6 +94,13 @@ class InteractiveTerminal {
         this.applyTheme(this.currentTheme);
         this.bindEvents();
         this.showInitialSuggestion();
+        
+        // Auto-trigger GUI mode on mobile devices
+        if (this.isMobileDevice()) {
+            setTimeout(() => {
+                this.showGUIMode();
+            }, 1000); // Small delay to let the terminal load first
+        }
     }
     
     bindEvents() {
@@ -331,10 +339,12 @@ class InteractiveTerminal {
     // Command implementations
     showHelp() {
         const helpContent = document.createElement('div');
+        const visibleCommands = Object.entries(this.commands).filter(([cmd, info]) => !info.hidden);
+        
         helpContent.innerHTML = `
             <h3>Available Commands:</h3>
             <div class="help-section">
-                ${Object.entries(this.commands).map(([cmd, info]) => `
+                ${visibleCommands.map(([cmd, info]) => `
                     <div class="help-command">
                         <span class="help-command-name">${cmd}</span>
                         <span class="help-command-desc">${info.description}</span>
@@ -542,7 +552,13 @@ class InteractiveTerminal {
     
     switchToCLI() {
         this.hideGUIMode();
-        this.addToHistory(null, 'Switched back to <span class="highlight">CLI mode</span>. Welcome back to the terminal!');
+        let message = 'Switched back to <span class="highlight">CLI mode</span>. Welcome back to the terminal!';
+        
+        if (this.isMobileDevice()) {
+            message += '<br><small style="opacity: 0.8;">💡 Tip: The GUI mode is optimized for mobile. Visit on desktop for the full terminal experience!</small>';
+        }
+        
+        this.addToHistory(null, message);
     }
     
     toggleMode() {
@@ -615,7 +631,8 @@ class InteractiveTerminal {
                 </div>
                 
                 <div class="gui-footer">
-                    <p>Press <code>Ctrl+C</code> or <code>Esc</code> to return to CLI mode • Click ✕ to close</p>
+                    <p>Press <code>Ctrl+C</code> or <code>Esc</code> to return to CLI mode • Click ✕ to close${this.isMobileDevice() ? ' • Auto-opened for mobile' : ''}</p>
+                    ${this.isMobileDevice() ? '<p style="margin-top: 8px; font-size: 11px; opacity: 0.8;">💡 <strong>Tip:</strong> Visit on desktop for the full interactive terminal experience!</p>' : ''}
                 </div>
             </div>
         `;
@@ -721,6 +738,21 @@ class InteractiveTerminal {
             return `${used}MB / ${total}MB`;
         }
         return 'Unknown';
+    }
+    
+    isMobileDevice() {
+        // Check for mobile user agents
+        const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+        const isMobileUA = mobileRegex.test(navigator.userAgent);
+        
+        // Check for touch capability
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Check screen size (mobile-like dimensions)
+        const isSmallScreen = window.innerWidth <= 768;
+        
+        // Consider it mobile if it matches UA pattern OR (has touch AND small screen)
+        return isMobileUA || (isTouchDevice && isSmallScreen);
     }
 }
 
