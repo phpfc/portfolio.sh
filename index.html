@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedro Henrique França - Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control maximize"></span>
+            </div>
+            <div class="terminal-title">portfolio.sh</div>
+            <div class="theme-toggle">
+                <button id="theme-toggle" aria-label="Toggle theme">◐</button>
+            </div>
+        </div>
+        
+        <div class="terminal-body">
+            <div class="prompt-line">
+                <span class="prompt">phfranca@portfolio:~$</span>
+                <span class="command">whoami</span>
+            </div>
+            
+            <div class="output">
+                <h1>Pedro Henrique França</h1>
+                <p>Full Stack Developer | Creative Problem Solver</p>
+                <p>Welcome to my digital space. Navigate using the commands below.</p>
+            </div>
+            
+            <div class="navigation">
+                <div class="prompt-line">
+                    <span class="prompt">phfranca@portfolio:~$</span>
+                    <span class="command">ls -la</span>
+                </div>
+                <div class="nav-output">
+                    <div class="nav-item" data-tab="about">
+                        <span class="permissions">drwxr-xr-x</span>
+                        <span class="file-name">about/</span>
+                        <span class="description">Personal information and skills</span>
+                    </div>
+                    <div class="nav-item" data-tab="projects">
+                        <span class="permissions">drwxr-xr-x</span>
+                        <span class="file-name">projects/</span>
+                        <span class="description">My work and creations</span>
+                    </div>
+                    <div class="nav-item" data-tab="blog">
+                        <span class="permissions">drwxr-xr-x</span>
+                        <span class="file-name">blog/</span>
+                        <span class="description">Thoughts and tutorials</span>
+                    </div>
+                    <div class="nav-item" data-tab="cv">
+                        <span class="permissions">-rw-r--r--</span>
+                        <span class="file-name">resume.pdf</span>
+                        <span class="description">Professional experience</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <div id="about" class="tab-content active">
+                    <div class="prompt-line">
+                        <span class="prompt">phfranca@portfolio:~$</span>
+                        <span class="command">cat about/README.md</span>
+                    </div>
+                    <div class="content">
+                        <h2>About Me</h2>
+                        <p>I'm a passionate developer who loves creating elegant solutions to complex problems. 
+                        When I'm not coding, you'll find me exploring new technologies, contributing to open source, 
+                        or enjoying a good cup of coffee.</p>
+                        
+                        <h3>Skills</h3>
+                        <div class="skills">
+                            <span class="skill">JavaScript</span>
+                            <span class="skill">Python</span>
+                            <span class="skill">React</span>
+                            <span class="skill">Node.js</span>
+                            <span class="skill">Git</span>
+                            <span class="skill">Docker</span>
+                        </div>
+                        
+                        <h3>Contact</h3>
+                        <p>📧 your.email@example.com</p>
+                        <p>🐙 github.com/yourusername</p>
+                        <p>💼 linkedin.com/in/yourprofile</p>
+                    </div>
+                </div>
+                
+                <div id="projects" class="tab-content">
+                    <div class="prompt-line">
+                        <span class="prompt">phfranca@portfolio:~$</span>
+                        <span class="command">ls projects/</span>
+                    </div>
+                    <div class="content">
+                        <div class="project">
+                            <h3>Project One</h3>
+                            <p>A brief description of your first project. What technologies did you use? What problem did it solve?</p>
+                            <div class="project-links">
+                                <a href="#" class="link">View Code</a>
+                                <a href="#" class="link">Live Demo</a>
+                            </div>
+                        </div>
+                        
+                        <div class="project">
+                            <h3>Project Two</h3>
+                            <p>Another project description. Highlight the key features and your role in the development.</p>
+                            <div class="project-links">
+                                <a href="#" class="link">View Code</a>
+                                <a href="#" class="link">Live Demo</a>
+                            </div>
+                        </div>
+                        
+                        <div class="project">
+                            <h3>Project Three</h3>
+                            <p>Your third project. What challenges did you overcome? What did you learn?</p>
+                            <div class="project-links">
+                                <a href="#" class="link">View Code</a>
+                                <a href="#" class="link">Live Demo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="blog" class="tab-content">
+                    <div class="prompt-line">
+                        <span class="prompt">phfranca@portfolio:~$</span>
+                        <span class="command">find blog/ -name "*.md" | head -5</span>
+                    </div>
+                    <div class="content">
+                        <article class="blog-post">
+                            <h3>Getting Started with Web Development</h3>
+                            <p class="date">2024-01-15</p>
+                            <p>A beginner's guide to starting your journey in web development. From choosing your first language to building your first project...</p>
+                            <a href="#" class="link">Read more</a>
+                        </article>
+                        
+                        <article class="blog-post">
+                            <h3>The Art of Clean Code</h3>
+                            <p class="date">2024-01-08</p>
+                            <p>Writing code that's not just functional, but readable and maintainable. Tips and tricks I've learned along the way...</p>
+                            <a href="#" class="link">Read more</a>
+                        </article>
+                        
+                        <article class="blog-post">
+                            <h3>My Development Setup</h3>
+                            <p class="date">2024-01-01</p>
+                            <p>A deep dive into my development environment, tools, and workflow. From terminal setup to VS Code extensions...</p>
+                            <a href="#" class="link">Read more</a>
+                        </article>
+                    </div>
+                </div>
+                
+                <div id="cv" class="tab-content">
+                    <div class="prompt-line">
+                        <span class="prompt">phfranca@portfolio:~$</span>
+                        <span class="command">cat resume.pdf | head -20</span>
+                    </div>
+                    <div class="content">
+                        <h2>Experience</h2>
+                        <div class="experience">
+                            <h3>Senior Developer - Tech Company</h3>
+                            <p class="date">2022 - Present</p>
+                            <ul>
+                                <li>Led development of key features for web application</li>
+                                <li>Mentored junior developers and conducted code reviews</li>
+                                <li>Improved application performance by 40%</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="experience">
+                            <h3>Full Stack Developer - Startup Inc</h3>
+                            <p class="date">2020 - 2022</p>
+                            <ul>
+                                <li>Built responsive web applications from scratch</li>
+                                <li>Collaborated with design team to implement UI/UX</li>
+                                <li>Maintained and optimized database performance</li>
+                            </ul>
+                        </div>
+                        
+                        <h2>Education</h2>
+                        <div class="education">
+                            <h3>Bachelor of Computer Science</h3>
+                            <p class="date">University Name - 2020</p>
+                        </div>
+                        
+                        <div class="download-cv">
+                            <a href="#" class="link">Download PDF Resume</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prompt-line current">
+                <span class="prompt">phfranca@portfolio:~$</span>
+                <span class="cursor">█</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

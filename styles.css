@@ -1,0 +1,416 @@
+/* CSS Custom Properties for Theming */
+:root {
+    /* Dark Theme (Default) */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-accent: #4a9eff;
+    --text-success: #5fb85f;
+    --text-warning: #f0ad4e;
+    --text-error: #d9534f;
+    --border-color: #404040;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --cursor-color: #4a9eff;
+}
+
+[data-theme="light"] {
+    /* Light Theme */
+    --bg-primary: #f8f8f2;
+    --bg-secondary: #ffffff;
+    --text-primary: #2d2d2d;
+    --text-secondary: #666666;
+    --text-accent: #0066cc;
+    --text-success: #2d7d2d;
+    --text-warning: #cc8800;
+    --text-error: #cc0000;
+    --border-color: #d0d0d0;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --cursor-color: #0066cc;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+/* Terminal Container */
+.terminal {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px var(--shadow);
+    overflow: hidden;
+    min-height: 80vh;
+}
+
+/* Terminal Header */
+.terminal-header {
+    background: var(--bg-primary);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+}
+
+.control.close { background: var(--text-error); }
+.control.minimize { background: var(--text-warning); }
+.control.maximize { background: var(--text-success); }
+
+.terminal-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.theme-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle button:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Terminal Body */
+.terminal-body {
+    padding: 20px;
+    font-size: 14px;
+}
+
+/* Prompt Styling */
+.prompt-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.prompt {
+    color: var(--text-success);
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.command {
+    color: var(--text-accent);
+    font-weight: 500;
+}
+
+.cursor {
+    color: var(--cursor-color);
+    animation: blink 1s infinite;
+    margin-left: 4px;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Output Styling */
+.output {
+    margin: 20px 0;
+    padding-left: 20px;
+}
+
+.output h1 {
+    color: var(--text-primary);
+    font-size: 24px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.output p {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+/* Navigation */
+.navigation {
+    margin: 30px 0;
+}
+
+.nav-output {
+    padding-left: 20px;
+    margin-top: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    gap: 12px;
+}
+
+.nav-item:hover {
+    background: var(--bg-primary);
+}
+
+.nav-item.active {
+    background: var(--bg-primary);
+    border-left: 3px solid var(--text-accent);
+}
+
+.permissions {
+    color: var(--text-secondary);
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.file-name {
+    color: var(--text-accent);
+    font-weight: 600;
+    min-width: 120px;
+}
+
+.description {
+    color: var(--text-secondary);
+    font-size: 12px;
+    flex: 1;
+}
+
+/* Content Area */
+.content-area {
+    margin: 30px 0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.content {
+    padding-left: 20px;
+    margin-top: 12px;
+}
+
+.content h2 {
+    color: var(--text-primary);
+    font-size: 20px;
+    margin: 20px 0 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.content h3 {
+    color: var(--text-primary);
+    font-size: 16px;
+    margin: 16px 0 8px 0;
+}
+
+.content p {
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.content ul {
+    color: var(--text-secondary);
+    margin-left: 20px;
+    margin-bottom: 12px;
+}
+
+.content li {
+    margin-bottom: 4px;
+}
+
+/* Skills */
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.skill {
+    background: var(--bg-primary);
+    color: var(--text-accent);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border-color);
+}
+
+/* Projects */
+.project {
+    background: var(--bg-primary);
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 6px;
+    border-left: 3px solid var(--text-accent);
+}
+
+.project h3 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.project-links {
+    margin-top: 12px;
+    display: flex;
+    gap: 16px;
+}
+
+/* Blog Posts */
+.blog-post {
+    background: var(--bg-primary);
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 6px;
+    border-left: 3px solid var(--text-success);
+}
+
+.blog-post h3 {
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.date {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 8px !important;
+}
+
+/* Experience */
+.experience, .education {
+    background: var(--bg-primary);
+    padding: 20px;
+    margin: 16px 0;
+    border-radius: 6px;
+    border-left: 3px solid var(--text-warning);
+}
+
+.experience h3, .education h3 {
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+/* Links */
+.link {
+    color: var(--text-accent);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.link:hover {
+    border-bottom-color: var(--text-accent);
+}
+
+/* Download CV */
+.download-cv {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* Current Prompt */
+.current {
+    margin-top: 30px;
+    opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .terminal-body {
+        padding: 15px;
+    }
+    
+    .nav-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .permissions, .file-name {
+        min-width: auto;
+    }
+    
+    .description {
+        font-size: 11px;
+    }
+    
+    .project-links {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .skills {
+        gap: 6px;
+    }
+    
+    .skill {
+        font-size: 11px;
+        padding: 3px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-header {
+        padding: 8px 15px;
+    }
+    
+    .terminal-title {
+        font-size: 12px;
+    }
+    
+    .terminal-body {
+        font-size: 13px;
+    }
+    
+    .output h1 {
+        font-size: 20px;
+    }
+    
+    .content h2 {
+        font-size: 18px;
+    }
+}
