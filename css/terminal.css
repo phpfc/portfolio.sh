@@ -1,0 +1,404 @@
+/* Terminal Styles */
+.terminal {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px var(--shadow);
+    overflow: hidden;
+    min-height: 80vh;
+}
+
+.terminal-header {
+    background: var(--bg-primary);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.terminal-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+}
+
+.control.close { background: var(--text-error); }
+.control.minimize { background: var(--text-warning); }
+.control.maximize { background: var(--text-success); }
+
+.terminal-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.theme-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle button:hover {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.terminal-body {
+    padding: 20px;
+    font-size: 14px;
+    min-height: 400px;
+}
+
+/* Prompt Styling */
+.prompt-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.prompt {
+    color: var(--text-success);
+    margin-right: 8px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.command {
+    color: var(--text-accent);
+    font-weight: 500;
+}
+
+/* Input Line */
+.input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    position: relative;
+}
+
+.input-container {
+    position: relative;
+    flex: 1;
+}
+
+#terminal-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    caret-color: var(--cursor-color);
+}
+
+#terminal-input::selection {
+    background: var(--highlight-bg);
+}
+
+/* Autocomplete Suggestion */
+.autocomplete-suggestion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--text-secondary);
+    pointer-events: none;
+    opacity: 0.8;
+    z-index: 1;
+    display: none;
+}
+
+.autocomplete-suggestion.show {
+    opacity: 0.8;
+}
+
+/* Terminal History */
+#terminal-history {
+    margin: 20px 0;
+}
+
+.history-item {
+    margin-bottom: 16px;
+}
+
+.history-command {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.command-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.history-output {
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+.history-output.error {
+    color: var(--text-error);
+}
+
+/* Output Styling */
+.output {
+    margin: 8px 0 16px 20px;
+}
+
+.output h1 {
+    color: var(--text-primary);
+    font-size: 24px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.output h2 {
+    color: var(--text-primary);
+    font-size: 20px;
+    margin: 20px 0 12px 0;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.output h3 {
+    color: var(--text-primary);
+    font-size: 16px;
+    margin: 16px 0 8px 0;
+}
+
+.output h4 {
+    color: var(--text-accent);
+    font-size: 14px;
+    margin: 12px 0 6px 0;
+    font-weight: 600;
+}
+
+.output p {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.output ul {
+    color: var(--text-secondary);
+    margin-left: 20px;
+    margin-bottom: 12px;
+}
+
+.output li {
+    margin-bottom: 4px;
+}
+
+/* Help Commands */
+.help-commands {
+    display: grid;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.help-command {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 20px;
+    padding: 8px 0;
+}
+
+.help-command-name {
+    color: var(--text-accent);
+    font-weight: bold;
+}
+
+.help-command-desc {
+    color: var(--text-secondary);
+}
+
+/* History Display */
+.history-list {
+    margin: 15px 0;
+}
+
+.history-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-family: monospace;
+}
+
+.history-number {
+    color: var(--text-secondary);
+    margin-right: 10px;
+    min-width: 30px;
+    text-align: right;
+    font-size: 0.9em;
+}
+
+/* Skills */
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.skill {
+    background: var(--highlight-bg);
+    color: var(--text-accent);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* Projects */
+.project {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.project:last-child {
+    border-bottom: none;
+}
+
+.project h3 {
+    color: var(--text-accent);
+    margin-bottom: 10px;
+}
+
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.tech {
+    background: var(--bg-secondary);
+    color: var(--text-success);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.project-links {
+    margin-top: 15px;
+}
+
+.project-links .link {
+    margin-right: 20px;
+}
+
+/* Experience */
+.experience {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.experience:last-child {
+    border-bottom: none;
+}
+
+.date {
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+/* Blog */
+.blog-post-item {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.blog-post-item:last-child {
+    border-bottom: none;
+}
+
+.blog-date {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.blog-description {
+    margin-bottom: 10px;
+}
+
+.blog-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0;
+}
+
+.tag {
+    background: var(--highlight-bg);
+    color: var(--text-accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+}
+
+.coming-soon-badge {
+    background: var(--text-warning);
+    color: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+.coming-soon-text {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .terminal {
+        margin: 10px;
+        border-radius: 8px;
+        min-height: 90vh;
+    }
+    
+    .terminal-body {
+        padding: 15px;
+    }
+    
+    .help-command {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    
+    .help-command-name {
+        margin-bottom: 2px;
+    }
+    
+    .skills, .tech-stack, .blog-tags {
+        gap: 4px;
+    }
+    
+    .project-links .link {
+        display: block;
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+}

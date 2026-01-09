@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="64" fill="#1a1a1a"/>
+  <rect x="32" y="32" width="448" height="448" rx="32" fill="#000000"/>
+  <rect x="32" y="32" width="448" height="80" rx="32" fill="#333333"/>
+  <circle cx="80" cy="72" r="16" fill="#ff5f56"/>
+  <circle cx="128" cy="72" r="16" fill="#ffbd2e"/>
+  <circle cx="176" cy="72" r="16" fill="#27ca3f"/>
+  
+  <!-- Terminal content -->
+  <text x="64" y="160" font-family="monospace" font-size="32" fill="#00ff00">phfranca@portfolio:~$</text>
+  <rect x="64" y="180" width="300" height="4" fill="#00ff00"/>
+  
+  <text x="64" y="220" font-family="monospace" font-size="24" fill="#ffffff">Pedro Henrique França</text>
+  <text x="64" y="260" font-family="monospace" font-size="20" fill="#888888">Full Stack Developer</text>
+  <text x="64" y="290" font-family="monospace" font-size="20" fill="#888888">Software Architecture Enthusiast</text>
+  
+  <!-- Another command -->
+  <text x="64" y="340" font-family="monospace" font-size="32" fill="#00ff00">></text>
+  <rect x="100" y="325" width="200" height="4" fill="#00ff00"/>
+  <rect x="310" y="325" width="8" height="20" fill="#00ff00" opacity="0.8"/>
+  
+  <!-- Skills -->
+  <text x="64" y="380" font-family="monospace" font-size="16" fill="#888888">React.js • React Native • Node.js</text>
+  <text x="64" y="410" font-family="monospace" font-size="16" fill="#888888">Nest.js • TypeScript • Rust</text>
+  <text x="64" y="440" font-family="monospace" font-size="16" fill="#888888">AWS • PostgreSQL • Prisma</text>
+</svg>

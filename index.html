@@ -3,9 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Language and Translation Meta Tags -->
+    <meta name="language" content="en">
+    <meta name="content-language" content="en">
+    <meta name="google-translate-customization" content="enabled">
+    <meta name="google" content="notranslate">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Language -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pt_BR">
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231a1a1a'/><rect x='2' y='2' width='28' height='28' rx='2' fill='%23000'/><rect x='2' y='2' width='28' height='6' rx='2' fill='%23333'/><circle cx='6' cy='5' r='1.5' fill='%23ff5f56'/><circle cx='10' cy='5' r='1.5' fill='%23ffbd2e'/><circle cx='14' cy='5' r='1.5' fill='%2327ca3f'/><text x='4' y='16' font-family='monospace' font-size='8' fill='%2300ff00'>$</text><rect x='8' y='13' width='6' height='1' fill='%2300ff00'/><text x='4' y='24' font-family='monospace' font-size='8' fill='%2300ff00'>&gt;</text><rect x='8' y='21' width='4' height='1' fill='%2300ff00'/><rect x='13' y='21' width='1' height='1' fill='%2300ff00'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="manifest" href="site.webmanifest">
+    
     <title>Pedro França - Interactive Terminal Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/terminal.css">
+    <link rel="stylesheet" href="css/email.css">
+    <link rel="stylesheet" href="css/gui.css">
+    
+    <!-- External Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
     <div class="terminal">
@@ -31,11 +61,11 @@
                     <p>Welcome to my interactive terminal portfolio.</p>
                 </div>
                 
-                <div class="prompt-line">
+                <div class="prompt-line help-message">
                     <span class="prompt">phfranca@portfolio:~$</span>
                     <span class="command">echo "Type 'help' to get started"</span>
                 </div>
-                <div class="output">
+                <div class="output help-message">
                     <p>Type 'help' to get started</p>
                 </div>
             </div>
@@ -190,6 +220,12 @@
         </div>
     </div>
     
-    <script src="script.js"></script>
+    <!-- JavaScript Modules -->
+    <script src="js/email-module.js"></script>
+    <script src="js/blog-module.js"></script>
+    <script src="js/gui-module.js"></script>
+    <script src="js/utils-module.js"></script>
+    <script src="js/theme-module.js"></script>
+    <script src="js/terminal.js"></script>
 </body>
 </html>
