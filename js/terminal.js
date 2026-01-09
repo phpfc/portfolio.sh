@@ -55,8 +55,8 @@ class InteractiveTerminal {
                 action: (args) => this.clearTerminal(args)
             },
             'reset': {
-                description: 'Reset help suggestion',
-                action: () => this.resetHelp()
+                description: 'Reset terminal to default state',
+                action: () => this.resetTerminal()
             },
             'history': {
                 description: 'Show command history',
@@ -220,7 +220,7 @@ class InteractiveTerminal {
         // Handle theme autocomplete
         if (input.startsWith('theme ') && window.ThemeModule) {
             const themeArg = input.substring(6);
-            let availableThemes = Object.keys(window.ThemeModule.availableThemes);
+            let availableThemes = Object.keys(window.ThemeModule.getListableThemes(this.easterUnlocked));
             
             // If easter is unlocked, prioritize 'list' as the first suggestion
             if (this.easterUnlocked) {
@@ -503,6 +503,55 @@ class InteractiveTerminal {
             msg.style.display = 'none';
         });
         localStorage.setItem('portfolio-help-cleared', 'true');
+    }
+
+    resetTerminal() {
+        // Clear all portfolio-related localStorage
+        const keysToRemove = [
+            'portfolio-theme',
+            'portfolio-mode', 
+            'portfolio-command-history',
+            'portfolio-help-cleared',
+            'portfolio-easter-unlocked'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        
+        // Reset terminal state
+        this.currentTheme = 'dark';
+        this.currentMode = 'cli';
+        this.commandHistory = [];
+        this.historyIndex = 0;
+        this.easterUnlocked = false;
+        
+        // Apply default theme
+        this.applyTheme('dark');
+        
+        // Clear terminal history
+        this.history.innerHTML = '';
+        
+        // Hide GUI if active
+        const guiOverlay = document.getElementById('gui-overlay');
+        if (guiOverlay) {
+            guiOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Show welcome section
+        const welcomeSection = document.querySelector('.welcome-section');
+        if (welcomeSection) {
+            welcomeSection.style.display = 'block';
+        }
+        
+        // Show help messages
+        const helpMessages = document.querySelectorAll('.help-message');
+        helpMessages.forEach(msg => {
+            msg.style.display = 'block';
+        });
+        
+        this.addToHistory(null, 'Terminal reset to default state. Theme, history, and settings cleared.');
     }
 
     resetHelp() {

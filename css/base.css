@@ -47,6 +47,22 @@
     --highlight-bg: rgba(137, 180, 250, 0.2);
 }
 
+[data-theme="catppuccin-light"] {
+    /* Catppuccin Latte - Pastel */
+    --bg-primary: #eff1f5;
+    --bg-secondary: #ffffff;
+    --text-primary: #4c4f69;
+    --text-secondary: #6c6f85;
+    --text-accent: #7287fd;
+    --text-success: #40a02b;
+    --text-warning: #fe640b;
+    --text-error: #e64553;
+    --border-color: #dce0e8;
+    --shadow: rgba(76, 79, 105, 0.1);
+    --cursor-color: #8839ef;
+    --highlight-bg: rgba(136, 57, 239, 0.1);
+}
+
 [data-theme="dracula"] {
     /* Dracula Theme */
     --bg-primary: #282a36;
@@ -61,6 +77,22 @@
     --shadow: rgba(0, 0, 0, 0.5);
     --cursor-color: #8be9fd;
     --highlight-bg: rgba(139, 233, 253, 0.2);
+}
+
+[data-theme="dracula-light"] {
+    /* Dracula Light */
+    --bg-primary: #f8f8f2;
+    --bg-secondary: #ffffff;
+    --text-primary: #282a36;
+    --text-secondary: #44475a;
+    --text-accent: #0080ff;
+    --text-success: #00cc44;
+    --text-warning: #cc9900;
+    --text-error: #cc2222;
+    --border-color: #e6e6e6;
+    --shadow: rgba(40, 42, 54, 0.1);
+    --cursor-color: #0080ff;
+    --highlight-bg: rgba(0, 128, 255, 0.1);
 }
 
 [data-theme="gruvbox"] {
@@ -79,6 +111,22 @@
     --highlight-bg: rgba(131, 165, 152, 0.2);
 }
 
+[data-theme="gruvbox-light"] {
+    /* Gruvbox Light */
+    --bg-primary: #fbf1c7;
+    --bg-secondary: #ffffff;
+    --text-primary: #3c3836;
+    --text-secondary: #504945;
+    --text-accent: #076678;
+    --text-success: #79740e;
+    --text-warning: #b57614;
+    --text-error: #cc241d;
+    --border-color: #d5c4a1;
+    --shadow: rgba(60, 56, 54, 0.1);
+    --cursor-color: #076678;
+    --highlight-bg: rgba(7, 102, 120, 0.1);
+}
+
 [data-theme="nord"] {
     /* Nord Theme */
     --bg-primary: #2e3440;
@@ -93,6 +141,22 @@
     --shadow: rgba(0, 0, 0, 0.3);
     --cursor-color: #88c0d0;
     --highlight-bg: rgba(136, 192, 208, 0.2);
+}
+
+[data-theme="nord-light"] {
+    /* Nord Light */
+    --bg-primary: #eceff4;
+    --bg-secondary: #ffffff;
+    --text-primary: #2e3440;
+    --text-secondary: #3b4252;
+    --text-accent: #5e81ac;
+    --text-success: #8fbcbb;
+    --text-warning: #d08770;
+    --text-error: #bf616a;
+    --border-color: #d8dee9;
+    --shadow: rgba(46, 52, 64, 0.1);
+    --cursor-color: #5e81ac;
+    --highlight-bg: rgba(94, 129, 172, 0.1);
 }
 
 [data-theme="tokyo-night"] {
@@ -111,6 +175,22 @@
     --highlight-bg: rgba(122, 162, 247, 0.2);
 }
 
+[data-theme="tokyo-light"] {
+    /* Tokyo Light */
+    --bg-primary: #d5d6db;
+    --bg-secondary: #ffffff;
+    --text-primary: #343b58;
+    --text-secondary: #565a6e;
+    --text-accent: #34548a;
+    --text-success: #485e30;
+    --text-warning: #8f5e15;
+    --text-error: #8c4351;
+    --border-color: #c4c8da;
+    --shadow: rgba(52, 59, 88, 0.1);
+    --cursor-color: #34548a;
+    --highlight-bg: rgba(52, 84, 138, 0.1);
+}
+
 [data-theme="synthwave"] {
     /* Synthwave '84 */
     --bg-primary: #2a2139;
@@ -127,6 +207,22 @@
     --highlight-bg: rgba(114, 241, 184, 0.2);
 }
 
+[data-theme="synthwave-light"] {
+    /* Synthwave Light - Retro neon on bright */
+    --bg-primary: #f5f0ff;
+    --bg-secondary: #ffffff;
+    --text-primary: #2a2139;
+    --text-secondary: #495495;
+    --text-accent: #d91a7a;
+    --text-success: #00a86b;
+    --text-warning: #cc9900;
+    --text-error: #cc1122;
+    --border-color: #d0c4e9;
+    --shadow: rgba(42, 33, 57, 0.1);
+    --cursor-color: #d91a7a;
+    --highlight-bg: rgba(217, 26, 122, 0.1);
+}
+
 [data-theme="matrix"] {
     /* Matrix Theme */
     --bg-primary: #000000;
@@ -141,6 +237,22 @@
     --shadow: rgba(0, 255, 0, 0.3);
     --cursor-color: #00ff41;
     --highlight-bg: rgba(0, 255, 65, 0.2);
+}
+
+[data-theme="matrix-light"] {
+    /* Matrix Light - Green terminal on white */
+    --bg-primary: #f8fff8;
+    --bg-secondary: #ffffff;
+    --text-primary: #003300;
+    --text-secondary: #006600;
+    --text-accent: #00aa00;
+    --text-success: #00cc00;
+    --text-warning: #cc8800;
+    --text-error: #cc0000;
+    --border-color: #ccffcc;
+    --shadow: rgba(0, 51, 0, 0.1);
+    --cursor-color: #00aa00;
+    --highlight-bg: rgba(0, 170, 0, 0.1);
 }
 
 /* Base Styles */
