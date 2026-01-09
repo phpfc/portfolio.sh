@@ -439,12 +439,30 @@ class InteractiveTerminal {
     showHelp() {
         const visibleCommands = Object.entries(this.commands).filter(([cmd, info]) => !info.hidden);
         
+        // Define logical order for commands
+        const commandOrder = [
+            'help', 'about', 'projects', 'cv', 'resume', 'blog', 
+            'mail', 'contact', 'theme', 'gui', 'cli', 'mode',
+            'clear', 'history', 'reset', 'download'
+        ];
+        
+        // Sort commands by the defined order, putting unlisted commands at the end
+        const sortedCommands = visibleCommands.sort(([a], [b]) => {
+            const indexA = commandOrder.indexOf(a);
+            const indexB = commandOrder.indexOf(b);
+            
+            if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+        
         const helpOutput = document.createElement('div');
         helpOutput.className = 'output';
         helpOutput.innerHTML = `
             <h3>Available Commands:</h3>
             <div class="help-commands">
-                ${visibleCommands.map(([cmd, info]) => `
+                ${sortedCommands.map(([cmd, info]) => `
                     <div class="help-command">
                         <span class="help-command-name">${cmd}</span>
                         <span class="help-command-desc">${info.description}</span>
