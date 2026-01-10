@@ -418,8 +418,11 @@ class InteractiveTerminal {
                 
                 if (typeof output === 'string') {
                     outputDiv.innerHTML = output;
-                } else {
+                } else if (output && output.nodeType === Node.ELEMENT_NODE) {
                     outputDiv.appendChild(output);
+                } else {
+                    // Handle other types (null, undefined, etc.)
+                    outputDiv.innerHTML = String(output || '');
                 }
                 
                 historyItem.appendChild(outputDiv);

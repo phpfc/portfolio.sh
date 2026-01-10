@@ -71,62 +71,67 @@ window.BlogModule = {
 
     // Show blog post list
     async showBlogList(terminal) {
-        const output = document.createElement('div');
-        
-        if (terminal.blogConfig.posts.length === 0) {
-            output.innerHTML = '<p>No blog posts available yet.</p>';
-            terminal.addToHistory(null, output);
-            return;
-        }
-        
-        let postsHtml = '<h3>Blog Posts</h3><div class="blog-list">';
-        
-        for (const post of terminal.blogConfig.posts) {
-            try {
-                const metadata = await this.loadPostMetadata(post.file);
-                if (metadata && (metadata.published || metadata.status === 'coming-soon')) {
-                    const isComingSoon = metadata.status === 'coming-soon';
-                    postsHtml += `
-                        <article class="blog-post-item ${isComingSoon ? 'coming-soon' : ''}">
-                            <h4>
-                                ${isComingSoon ? 
-                                    `<span class="coming-soon-title">${metadata.title} <span class="coming-soon-badge">Coming Soon</span></span>` :
-                                    `<span class="link" onclick="BlogModule.showBlogPost(terminal, '${post.slug}')" style="cursor: pointer;">${metadata.title}</span>`
-                                }
-                            </h4>
-                            <p class="blog-date">${metadata.date}</p>
-                            <p class="blog-description">${metadata.description}</p>
-                            <div class="blog-tags">
-                                ${metadata.tags ? metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
-                            </div>
-                            ${isComingSoon ? 
-                                '<p><span class="coming-soon-text">This post is currently being written...</span></p>' :
-                                `<p><span class="highlight">blog read ${post.slug}</span> to read the full post</p>`
-                            }
-                        </article>
-                    `;
-                }
-            } catch (error) {
-                console.warn(`Failed to load metadata for ${post.file}:`, error);
+        try {
+            const output = document.createElement('div');
+            
+            if (terminal.blogConfig.posts.length === 0) {
+                output.innerHTML = '<p>No blog posts available yet.</p>';
+                terminal.addToHistory(null, output);
+                return;
             }
+            
+            let postsHtml = '<h3>Blog Posts</h3><div class="blog-list">';
+            
+            for (const post of terminal.blogConfig.posts) {
+                try {
+                    const metadata = await this.loadPostMetadata(post.file);
+                    if (metadata && (metadata.published || metadata.status === 'coming-soon')) {
+                        const isComingSoon = metadata.status === 'coming-soon';
+                        postsHtml += `
+                            <article class="blog-post-item ${isComingSoon ? 'coming-soon' : ''}">
+                                <h4>
+                                    ${isComingSoon ? 
+                                        `<span class="coming-soon-title">${metadata.title} <span class="coming-soon-badge">Coming Soon</span></span>` :
+                                        `<span class="link" onclick="window.BlogModule.showBlogPost(window.terminal, '${post.slug}')" style="cursor: pointer;">${metadata.title}</span>`
+                                    }
+                                </h4>
+                                <p class="blog-date">${metadata.date}</p>
+                                <p class="blog-description">${metadata.description}</p>
+                                <div class="blog-tags">
+                                    ${metadata.tags ? metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
+                                </div>
+                                ${isComingSoon ? 
+                                    '<p><span class="coming-soon-text">This post is currently being written...</span></p>' :
+                                    `<p><span class="highlight">blog read ${post.slug}</span> to read the full post</p>`
+                                }
+                            </article>
+                        `;
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load metadata for ${post.file}:`, error);
+                }
+            }
+            
+            postsHtml += '</div>';
+            postsHtml += '<p style="margin-top: 20px;">Use <span class="highlight">blog read [slug]</span> to read a specific post.</p>';
+            
+            output.innerHTML = postsHtml;
+            terminal.addToHistory(null, output);
+        } catch (error) {
+            console.error('Error in showBlogList:', error);
+            terminal.addToHistory(null, 'Error loading blog posts. Please try again.', true);
         }
-        
-        postsHtml += '</div>';
-        postsHtml += '<p style="margin-top: 20px;">Use <span class="highlight">blog read [slug]</span> to read a specific post.</p>';
-        
-        output.innerHTML = postsHtml;
-        terminal.addToHistory(null, output);
     },
 
     // Show specific blog post
     async showBlogPost(terminal, slug) {
-        const post = terminal.blogConfig.posts.find(p => p.slug === slug);
-        if (!post) {
-            terminal.addToHistory(null, `Blog post '${slug}' not found. Use <span class="highlight">blog list</span> to see available posts.`, true);
-            return;
-        }
-        
         try {
+            const post = terminal.blogConfig.posts.find(p => p.slug === slug);
+            if (!post) {
+                terminal.addToHistory(null, `Blog post '${slug}' not found. Use <span class="highlight">blog list</span> to see available posts.`, true);
+                return;
+            }
+            
             const metadata = await this.loadPostMetadata(post.file);
             
             // Check if post is coming soon
@@ -152,6 +157,7 @@ window.BlogModule = {
             output.innerHTML = content;
             terminal.addToHistory(null, output);
         } catch (error) {
+            console.error('Error in showBlogPost:', error);
             terminal.addToHistory(null, `Failed to load blog post: ${error.message}`, true);
         }
     },
@@ -207,6 +213,11 @@ window.BlogModule = {
         const contentWithoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
         
         // Parse markdown to HTML
+        if (typeof marked === 'undefined') {
+            console.error('Marked library not loaded');
+            return `<p>Error: Markdown parser not available. Content:</p><pre>${contentWithoutFrontmatter}</pre>`;
+        }
+        
         const html = marked.parse(contentWithoutFrontmatter);
         
         return html;
