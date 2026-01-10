@@ -49,7 +49,6 @@ window.UtilsModule = {
             <p>🐙 <a href="https://github.com/phpfc" class="link" target="_blank">github.com/phpfc</a></p>
             <p>💼 <a href="https://linkedin.com/in/pedro-henrique-pfranca/" class="link" target="_blank">linkedin.com/in/pedro-henrique-pfranca/</a></p>
             <p>📍 Caxias do Sul, RS | 🇧🇷 Brazil</p>
-            <p style="margin-top: 15px;">💡 <span class="highlight">Try 'mail' or 'contact' commands to send me a message directly!</span></p>
         `;
         terminal.addToHistory(null, output);
     },

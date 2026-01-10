@@ -65,9 +65,9 @@ class InteractiveTerminal {
         };
 
         // Add commands from modules
-        if (window.EmailModule) {
-            Object.assign(this.commands, window.EmailModule.getCommands(this));
-        }
+        // if (window.EmailModule) {
+        //     Object.assign(this.commands, window.EmailModule.getCommands(this));
+        // }
         if (window.BlogModule) {
             Object.assign(this.commands, window.BlogModule.getCommands(this));
         }

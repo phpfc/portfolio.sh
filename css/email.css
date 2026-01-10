@@ -17,6 +17,36 @@
     gap: 8px;
 }
 
+/* Contact Info */
+.contact-info {
+    margin: 20px 0;
+}
+
+.contact-item {
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item strong {
+    color: var(--text-success);
+    display: inline-block;
+    min-width: 120px;
+}
+
+.contact-note {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--bg-primary);
+    border-left: 3px solid var(--text-accent);
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
 .form-group {
     margin-bottom: 15px;
 }
