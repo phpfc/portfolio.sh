@@ -82,33 +82,41 @@ window.BlogModule = {
             
             let postsHtml = '<h3>Blog Posts</h3><div class="blog-list">';
             
-            for (const post of terminal.blogConfig.posts) {
+            // Load all metadata in parallel to avoid sequential delays
+            const metadataPromises = terminal.blogConfig.posts.map(async (post) => {
                 try {
                     const metadata = await this.loadPostMetadata(post.file);
-                    if (metadata && (metadata.published || metadata.status === 'coming-soon')) {
-                        const isComingSoon = metadata.status === 'coming-soon';
-                        postsHtml += `
-                            <article class="blog-post-item ${isComingSoon ? 'coming-soon' : ''}">
-                                <h4>
-                                    ${isComingSoon ? 
-                                        `<span class="coming-soon-title">${metadata.title} <span class="coming-soon-badge">Coming Soon</span></span>` :
-                                        `<span class="link" onclick="window.BlogModule.showBlogPost(window.terminal, '${post.slug}')" style="cursor: pointer;">${metadata.title}</span>`
-                                    }
-                                </h4>
-                                <p class="blog-date">${metadata.date}</p>
-                                <p class="blog-description">${metadata.description}</p>
-                                <div class="blog-tags">
-                                    ${metadata.tags ? metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
-                                </div>
-                                ${isComingSoon ? 
-                                    '<p><span class="coming-soon-text">This post is currently being written...</span></p>' :
-                                    `<p><span class="highlight">blog read ${post.slug}</span> to read the full post</p>`
-                                }
-                            </article>
-                        `;
-                    }
+                    return { post, metadata };
                 } catch (error) {
                     console.warn(`Failed to load metadata for ${post.file}:`, error);
+                    return { post, metadata: null };
+                }
+            });
+            
+            const results = await Promise.all(metadataPromises);
+            
+            for (const { post, metadata } of results) {
+                if (metadata && (metadata.published || metadata.status === 'coming-soon')) {
+                    const isComingSoon = metadata.status === 'coming-soon';
+                    postsHtml += `
+                        <article class="blog-post-item ${isComingSoon ? 'coming-soon' : ''}">
+                            <h4>
+                                ${isComingSoon ? 
+                                    `<span class="coming-soon-title">${metadata.title} <span class="coming-soon-badge">Coming Soon</span></span>` :
+                                    `<span class="link" onclick="window.BlogModule.showBlogPost(window.terminal, '${post.slug}')" style="cursor: pointer;">${metadata.title}</span>`
+                                }
+                            </h4>
+                            <p class="blog-date">${metadata.date}</p>
+                            <p class="blog-description">${metadata.description}</p>
+                            <div class="blog-tags">
+                                ${metadata.tags ? metadata.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
+                            </div>
+                            ${isComingSoon ? 
+                                '<p><span class="coming-soon-text">This post is currently being written...</span></p>' :
+                                `<p><span class="highlight">blog read ${post.slug}</span> to read the full post</p>`
+                            }
+                        </article>
+                    `;
                 }
             }
             

@@ -40,16 +40,22 @@ window.UtilsModule = {
         };
     },
 
-    // Show contact information
-    showContact(terminal) {
-        const output = document.createElement('div');
-        output.innerHTML = `
-            <h3>Contact Information</h3>
+    // Get contact information HTML (shared between about and contact commands)
+    getContactHTML(includeTitle = true) {
+        const title = includeTitle ? '<h3>Contact Information</h3>' : '';
+        return `
+            ${title}
             <p>📧 <a href="mailto:pedrofranca-tech@proton.me" class="link">pedrofranca-tech@proton.me</a></p>
             <p>🐙 <a href="https://github.com/phpfc" class="link" target="_blank">github.com/phpfc</a></p>
             <p>💼 <a href="https://linkedin.com/in/pedro-henrique-pfranca/" class="link" target="_blank">linkedin.com/in/pedro-henrique-pfranca/</a></p>
             <p>📍 Caxias do Sul, RS | 🇧🇷 Brazil</p>
         `;
+    },
+
+    // Show contact information
+    showContact(terminal) {
+        const output = document.createElement('div');
+        output.innerHTML = this.getContactHTML(true);
         terminal.addToHistory(null, output);
     },
 

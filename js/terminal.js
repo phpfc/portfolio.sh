@@ -322,7 +322,7 @@ class InteractiveTerminal {
         }
     }
 
-    executeCommand() {
+    async executeCommand() {
         const input = this.input.value.trim();
         if (!input) return;
 
@@ -349,7 +349,7 @@ class InteractiveTerminal {
                     this.addToHistory(null, loadingDiv);
                 }
                 
-                const output = cmd.action(args);
+                const output = await cmd.action(args);
                 
                 // Remove loading indicator
                 if (command === 'blog') {
@@ -483,7 +483,21 @@ class InteractiveTerminal {
         if (content) {
             const output = document.createElement('div');
             output.className = 'output';
-            output.innerHTML = content.innerHTML;
+            
+            // Handle contact section dynamically to avoid duplication
+            if (section === 'about') {
+                let aboutHTML = content.innerHTML;
+                // Replace the contact section with dynamic content
+                const contactHTML = window.UtilsModule.getContactHTML(false);
+                aboutHTML = aboutHTML.replace(
+                    /<h3>Contact<\/h3>[\s\S]*?(?=<\/div>|$)/,
+                    `<h3>Contact</h3>${contactHTML}`
+                );
+                output.innerHTML = aboutHTML;
+            } else {
+                output.innerHTML = content.innerHTML;
+            }
+            
             this.addToHistory(null, output);
         } else {
             this.addToHistory(null, `Section '${section}' not found.`, true);
