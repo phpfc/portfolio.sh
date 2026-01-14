@@ -9,11 +9,13 @@ window.GUIModule = {
             },
             'cli': {
                 description: 'Switch to command line interface mode',
-                action: () => this.switchToCLI(terminal)
+                action: () => this.switchToCLI(terminal),
+                hidden: true
             },
             'mode': {
                 description: 'Toggle between GUI and CLI modes',
-                action: () => this.toggleMode(terminal)
+                action: () => this.toggleMode(terminal),
+                hidden: true
             }
         };
     },
@@ -123,7 +125,7 @@ window.GUIModule = {
                 
                 <div class="gui-content">
                     <div id="gui-about" class="gui-section active">
-                        ${document.getElementById('about-content').innerHTML}
+                        ${this.getAboutContentWithContact()}
                     </div>
                     <div id="gui-projects" class="gui-section">
                         ${document.getElementById('projects-content').innerHTML}
@@ -149,6 +151,18 @@ window.GUIModule = {
         }, 100);
         
         return overlay;
+    },
+
+    // Get about content with contact info injected
+    getAboutContentWithContact() {
+        let aboutHTML = document.getElementById('about-content').innerHTML;
+        // Replace the contact section placeholder with dynamic content
+        const contactHTML = window.UtilsModule.getContactHTML(false);
+        aboutHTML = aboutHTML.replace(
+            /<h3>Contact<\/h3>[\s\S]*?<!-- Contact information will be injected dynamically -->/,
+            `<h3>Contact</h3>${contactHTML}`
+        );
+        return aboutHTML;
     },
 
     // Setup GUI navigation

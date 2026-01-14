@@ -9,23 +9,28 @@ window.UtilsModule = {
             },
             'whoami': {
                 description: 'Display user information',
-                action: (args) => this.whoami(terminal, args)
+                action: (args) => this.whoami(terminal, args),
+                hidden: true
             },
             'pwd': {
                 description: 'Print working directory',
-                action: (args) => this.pwd(terminal, args)
+                action: (args) => this.pwd(terminal, args),
+                hidden: true
             },
             'date': {
                 description: 'Show current date and time',
-                action: (args) => this.showDate(terminal, args)
+                action: (args) => this.showDate(terminal, args),
+                hidden: true
             },
             'echo': {
                 description: 'Display a line of text',
-                action: (args) => this.echo(terminal, args)
+                action: (args) => this.echo(terminal, args),
+                hidden: true
             },
             'ls': {
                 description: 'List available sections',
-                action: () => this.listSections(terminal)
+                action: () => this.listSections(terminal),
+                hidden: true
             },
             'neofetch': {
                 description: 'Display system information (easter egg)',

@@ -44,15 +44,17 @@ class InteractiveTerminal {
             },
             'cv': {
                 description: 'Display my CV/resume',
-                action: () => this.showContent('cv')
+                action: () => this.showContent('cv'),
+                hidden: true
             },
             'resume': {
-                description: 'Alias for cv command',
+                description: 'Display my CV/resume',
                 action: () => this.showContent('cv')
             },
             'clear': {
                 description: 'Clear the terminal',
-                action: (args) => this.clearTerminal(args)
+                action: (args) => this.clearTerminal(args),
+                hidden: true
             },
             'reset': {
                 description: 'Reset terminal to default state',
