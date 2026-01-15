@@ -4,6 +4,10 @@
   "postsPerPage": 10,
   "posts": [
     {
+      "slug": "cymatic-audiovisual-synthesizer",
+      "file": "cymatic-audiovisual-synthesizer.md"
+    },
+    {
       "slug": "mobile-stack-unification",
       "file": "mobile-stack-unification.md"
     },
