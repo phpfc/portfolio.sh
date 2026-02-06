@@ -170,15 +170,17 @@ ul, ol {
 /* Add backlight glow effects to different sections */
 #about {
     background:
+        linear-gradient(180deg, transparent 0%, var(--color-bg-primary) 15%, var(--color-bg-primary) 85%, transparent 100%),
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(74, 158, 255, 0.12), transparent 70%),
         var(--color-bg-primary);
     position: relative;
+    --parallax-y: 0px;
 }
 
 #about::before {
     content: '';
     position: absolute;
-    top: -200px;
+    top: calc(-200px + var(--parallax-y, 0px));
     left: 50%;
     transform: translateX(-50%);
     width: 600px;
@@ -187,6 +189,8 @@ ul, ol {
     filter: blur(80px);
     pointer-events: none;
     z-index: 0;
+    animation: drift 20s ease-in-out infinite;
+    transition: top 0.1s ease-out;
 }
 
 #about > .container {
@@ -196,6 +200,7 @@ ul, ol {
 
 #experience {
     position: relative;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-secondary) 10%, var(--color-bg-secondary) 90%, transparent 100%);
 }
 
 #experience::before {
@@ -209,6 +214,7 @@ ul, ol {
     filter: blur(100px);
     pointer-events: none;
     z-index: 0;
+    animation: floatReverse 28s ease-in-out infinite;
 }
 
 #experience > .container {
@@ -217,14 +223,15 @@ ul, ol {
 }
 
 #projects {
-    background: var(--color-bg-primary);
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-primary) 10%, var(--color-bg-primary) 90%, transparent 100%);
     position: relative;
+    --parallax-y: 0px;
 }
 
 #projects::before {
     content: '';
     position: absolute;
-    top: 20%;
+    top: calc(20% + var(--parallax-y, 0px));
     right: 10%;
     width: 600px;
     height: 600px;
@@ -232,12 +239,14 @@ ul, ol {
     filter: blur(100px);
     pointer-events: none;
     z-index: 0;
+    animation: drift 32s ease-in-out infinite;
+    transition: top 0.1s ease-out;
 }
 
 #projects::after {
     content: '';
     position: absolute;
-    bottom: 10%;
+    bottom: calc(10% - var(--parallax-y, 0px));
     left: 10%;
     width: 500px;
     height: 500px;
@@ -245,6 +254,8 @@ ul, ol {
     filter: blur(100px);
     pointer-events: none;
     z-index: 0;
+    animation: floatReverse 26s ease-in-out infinite;
+    transition: bottom 0.1s ease-out;
 }
 
 #projects > .container {
@@ -254,6 +265,7 @@ ul, ol {
 
 #writing {
     position: relative;
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-secondary) 10%, var(--color-bg-secondary) 90%, transparent 100%);
 }
 
 #writing::before {
@@ -267,6 +279,7 @@ ul, ol {
     filter: blur(100px);
     pointer-events: none;
     z-index: 0;
+    animation: drift 24s ease-in-out infinite;
 }
 
 #writing > .container {
@@ -275,7 +288,7 @@ ul, ol {
 }
 
 #contact {
-    background: var(--color-bg-primary);
+    background: linear-gradient(180deg, transparent 0%, var(--color-bg-primary) 10%, var(--color-bg-primary) 100%);
     position: relative;
 }
 
@@ -291,6 +304,7 @@ ul, ol {
     filter: blur(80px);
     pointer-events: none;
     z-index: 0;
+    animation: floatReverse 22s ease-in-out infinite;
 }
 
 #contact > .container {
@@ -353,11 +367,28 @@ ul, ol {
 }
 
 .nav-brand {
-    font-size: var(--text-lg);
-    font-weight: 700;
-    font-family: var(--font-mono);
-    color: var(--color-text-primary);
-    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    transition: transform var(--duration-base) var(--ease-smooth);
+}
+
+.nav-brand:hover {
+    transform: scale(1.05);
+}
+
+.nav-brand-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-border);
+    transition: all var(--duration-base) var(--ease-smooth);
+    box-shadow: 0 0 0 0 rgba(74, 158, 255, 0);
+}
+
+.nav-brand:hover .nav-brand-img {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2);
 }
 
 .nav-menu {
@@ -435,43 +466,85 @@ ul, ol {
         radial-gradient(ellipse 100% 60% at 50% 0%, rgba(74, 158, 255, 0.15) 0%, transparent 70%),
         var(--color-bg-primary);
     overflow: hidden;
+    --parallax-y: 0px;
 }
 
-/* Backlight glow orbs */
+/* Backlight glow orbs with fluid animation and parallax */
 .hero::before {
     content: '';
     position: absolute;
-    top: 15%;
+    top: calc(15% + var(--parallax-y, 0px));
     right: 10%;
     width: 600px;
     height: 600px;
     background: radial-gradient(circle, rgba(74, 158, 255, 0.2) 0%, transparent 60%);
     border-radius: 50%;
-    animation: float 20s ease-in-out infinite;
+    animation: drift 25s ease-in-out infinite;
     pointer-events: none;
     filter: blur(80px);
+    transition: top 0.1s ease-out;
 }
 
 .hero::after {
     content: '';
     position: absolute;
-    bottom: 15%;
+    bottom: calc(15% - var(--parallax-y, 0px));
     left: 10%;
     width: 500px;
     height: 500px;
     background: radial-gradient(circle, rgba(138, 99, 210, 0.15) 0%, transparent 60%);
     border-radius: 50%;
-    animation: float 25s ease-in-out infinite reverse;
+    animation: floatReverse 30s ease-in-out infinite;
     pointer-events: none;
     filter: blur(80px);
+    transition: bottom 0.1s ease-out;
 }
 
 @keyframes float {
     0%, 100% {
-        transform: translate(0, 0);
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(-30px, 30px) scale(1.1);
+    }
+    66% {
+        transform: translate(20px, -20px) scale(0.95);
+    }
+}
+
+@keyframes floatReverse {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(40px, -30px) scale(1.05);
+    }
+    66% {
+        transform: translate(-25px, 25px) scale(0.9);
+    }
+}
+
+@keyframes drift {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    25% {
+        transform: translate(20px, 15px) scale(1.08);
     }
     50% {
-        transform: translate(-30px, 30px);
+        transform: translate(-15px, 30px) scale(0.92);
+    }
+    75% {
+        transform: translate(25px, -20px) scale(1.05);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(74, 158, 255, 0.6), 0 0 4px rgba(74, 158, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(74, 158, 255, 0.8), 0 0 6px rgba(74, 158, 255, 0.6);
     }
 }
 
@@ -1208,6 +1281,90 @@ ul, ol {
 
 .contact-link svg {
     flex-shrink: 0;
+}
+
+/* ============================================
+   GITHUB ACTIVITY - COMPACT VERSION
+   ============================================ */
+.github-activity-compact {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-2xl);
+    border-top: 1px solid var(--color-border);
+}
+
+.github-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+}
+
+.github-profile-link {
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    transition: all var(--duration-base) var(--ease-smooth);
+    opacity: 0.8;
+}
+
+.github-profile-link:hover {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+.github-stats-compact {
+    display: flex;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+}
+
+.stat-compact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.stat-compact-value {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+}
+
+.stat-compact-label {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-mono);
+}
+
+.github-contribution-graph {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: linear-gradient(135deg, rgba(22, 22, 26, 0.5) 0%, rgba(15, 15, 18, 0.3) 100%);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all var(--duration-base) var(--ease-smooth);
+}
+
+.github-contribution-graph:hover {
+    border-color: var(--color-border-hover);
+    background: linear-gradient(135deg, rgba(22, 22, 26, 0.7) 0%, rgba(15, 15, 18, 0.5) 100%);
+}
+
+.github-contribution-graph img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    opacity: 0.9;
+    transition: opacity var(--duration-base) var(--ease-smooth);
+}
+
+.github-contribution-graph:hover img {
+    opacity: 1;
 }
 
 /* ============================================

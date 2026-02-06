@@ -238,11 +238,40 @@
     };
 
     // ============================================
-    // PARALLAX EFFECT FOR HERO (DISABLED - CAUSES OVERLAP)
+    // PARALLAX EFFECT FOR BACKLIGHT ORBS
     // ============================================
     const initParallax = () => {
-        // Parallax disabled to prevent hero/about overlap
-        return;
+        const sections = document.querySelectorAll('section[id]');
+        if (sections.length === 0) return;
+
+        let ticking = false;
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+
+                    sections.forEach(section => {
+                        const rect = section.getBoundingClientRect();
+                        const sectionTop = rect.top + scrolled;
+                        const sectionHeight = rect.height;
+
+                        // Only apply parallax when section is in viewport
+                        if (rect.top < window.innerHeight && rect.bottom > 0) {
+                            const relativeScroll = scrolled - sectionTop;
+                            const parallaxAmount = relativeScroll * 0.15; // Very subtle
+
+                            // Apply to pseudo-elements via CSS custom property
+                            section.style.setProperty('--parallax-y', `${parallaxAmount}px`);
+                        }
+                    });
+
+                    ticking = false;
+                });
+
+                ticking = true;
+            }
+        });
     };
 
     // ============================================
