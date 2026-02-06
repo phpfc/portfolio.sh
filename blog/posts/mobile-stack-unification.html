@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="The technical and strategic reasoning behind our mobile stack unification. From proof of concept to company-wide adoption, including challenges with offline video access and DRM implementation.">
+
+    <title>Mobile Stack Unification: Flutter to React Native - Pedro França</title>
+
+    <link rel="icon" href="../../favicon.svg">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../blog.css">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="../../" class="nav-brand">PF</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../../#about" class="nav-link">About</a></li>
+                <li><a href="../../#experience" class="nav-link">Experience</a></li>
+                <li><a href="../../#projects" class="nav-link">Projects</a></li>
+                <li><a href="../../#writing" class="nav-link">Writing</a></li>
+                <li><a href="../../#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="section">
+        <div class="container">
+            <div class="article-content">
+                <header class="article-header">
+                    <div class="article-meta">
+                        <time datetime="2024-12-15">December 14, 2024</time>
+                        <span class="article-tag">React Native</span><span class="article-tag">Flutter</span><span class="article-tag">Mobile Development</span><span class="article-tag">Architecture</span>
+                    </div>
+                    <h1>Mobile Stack Unification: Flutter to React Native</h1>
+                </header>
+
+                <div class="article-body">
+                    
+<p>The decision to migrate from Flutter to React Native wasn't taken lightly. It involved careful analysis of our technical debt, developer experience, and long-term maintainability goals.</p>
+<h2>The Problem</h2>
+<p>Our mobile development was fragmented across multiple technologies:<br>- Flutter for the main mobile app<br>- React Native for specific features<br>- Native iOS/Android for legacy components</p>
+<p>This fragmentation led to:<br>- Duplicated effort across teams<br>- Inconsistent user experiences<br>- Higher maintenance overhead<br>- Slower feature delivery</p>
+<h2>The Solution</h2>
+<p>We decided to unify around React Native for several key reasons:</p>
+<h3>Developer Experience</h3>
+- Shared codebase with our web React applications
+- Faster development cycles with hot reload
+- Better debugging tools and ecosystem
+<h3>Technical Benefits</h3>
+- Easier integration with existing backend services
+- Better performance for our specific use cases
+- More flexible architecture for future needs
+<h2>Implementation Challenges</h2>
+<h3>Offline Video Access</h3>
+One of the biggest challenges was maintaining offline video functionality while ensuring content protection.
+<p><strong>Solution</strong>: We implemented a hybrid approach using encrypted local storage with time-based access tokens.</p>
+<h3>DRM Integration</h3>
+Content protection required careful consideration of both iOS and Android DRM systems.
+<p><strong>Solution</strong>: Created a unified DRM wrapper that abstracts platform-specific implementations.</p>
+<h2>Results</h2>
+<p>After 6 months of migration:<br>- 40% faster feature delivery<br>- Reduced codebase complexity by 60%<br>- Improved developer satisfaction scores<br>- Better user experience consistency</p>
+<h2>Lessons Learned</h2>
+<p>1. <strong>Start with a proof of concept</strong> - Validate assumptions early<br>2. <strong>Involve all stakeholders</strong> - Get buy-in from business units<br>3. <strong>Plan for gradual migration</strong> - Don't try to change everything at once<br>4. <strong>Invest in tooling</strong> - Good developer tools pay dividends</p>
+<p>The migration was ultimately successful because we focused on solving real problems rather than chasing technology trends.</p>
+                </div>
+
+                <footer class="article-footer">
+                    <a href="../" class="back-link">
+                        ← Back to all posts
+                    </a>
+                </footer>
+            </div>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Pedro Henrique França. <a href="../../">Back to home</a></p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-glsl.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</body>
+</html>

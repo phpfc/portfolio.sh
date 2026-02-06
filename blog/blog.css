@@ -1,0 +1,334 @@
+/* ============================================
+   BLOG STYLES
+   ============================================ */
+
+/* Blog Header */
+.blog-header {
+    padding: calc(var(--nav-height) + var(--space-3xl)) 0 var(--space-2xl);
+    text-align: center;
+}
+
+.blog-title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.blog-subtitle {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Blog Posts Grid */
+.blog-posts {
+    display: grid;
+    gap: var(--space-xl);
+    max-width: var(--content-max);
+    margin: 0 auto;
+}
+
+/* Article Styles for Blog Post Content */
+.article-content {
+    max-width: var(--content-max);
+    margin: 0 auto;
+}
+
+.article-header {
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.article-meta {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    margin-bottom: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--color-text-tertiary);
+    font-family: var(--font-mono);
+}
+
+.article-content h1 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-md);
+}
+
+.article-content h2 {
+    font-size: var(--text-2xl);
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-md);
+}
+
+.article-content h3 {
+    font-size: var(--text-xl);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+}
+
+.article-content h4 {
+    font-size: var(--text-lg);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+}
+
+.article-content p {
+    margin-bottom: var(--space-md);
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+}
+
+.article-content ul,
+.article-content ol {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+    list-style: disc;
+}
+
+.article-content ol {
+    list-style: decimal;
+}
+
+.article-content li {
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+}
+
+.article-content a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color var(--duration-base) var(--ease-smooth);
+}
+
+.article-content a:hover {
+    text-decoration-color: var(--color-accent);
+}
+
+.article-content code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background-color: var(--color-bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--color-accent);
+}
+
+.article-content pre {
+    background: linear-gradient(135deg, #0a0a0a 0%, #0d0d0d 100%);
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: var(--space-lg);
+    margin: var(--space-xl) 0;
+    overflow-x: auto;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.article-content pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    display: block;
+    color: #c9d1d9;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Add line numbers effect with gradient on left */
+.article-content pre::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--color-accent) 0%, transparent 100%);
+    border-radius: 8px 0 0 8px;
+}
+
+/* Override Prism.js theme with custom styling */
+.article-content pre[class*="language-"] {
+    background: linear-gradient(135deg, #0a0a0a 0%, #0d0d0d 100%);
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.article-content code[class*="language-"] {
+    color: #c9d1d9;
+    text-shadow: none;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+}
+
+/* Prism token colors - professional palette */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #7d8590;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: #c9d1d9;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #79c0ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #a5d6ff;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #ff7b72;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+    color: #ff7b72;
+}
+
+.token.function,
+.token.class-name {
+    color: #d2a8ff;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #ffa657;
+}
+
+/* Language badges for code blocks */
+.article-content pre[class*="language-"]::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 0.7rem;
+    color: #6e7681;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    z-index: 1;
+}
+
+.article-content pre[class*="language-typescript"]::before {
+    content: 'TS';
+    color: #3178c6;
+}
+
+.article-content pre[class*="language-javascript"]::before {
+    content: 'JS';
+    color: #f7df1e;
+}
+
+.article-content pre[class*="language-rust"]::before {
+    content: 'RUST';
+    color: #ce422b;
+}
+
+.article-content pre[class*="language-glsl"]::before {
+    content: 'GLSL';
+    color: #5586a4;
+}
+
+.article-content pre[class*="language-bash"]::before {
+    content: 'BASH';
+    color: #89e051;
+}
+
+.article-content pre[class*="language-json"]::before {
+    content: 'JSON';
+    color: #a5d6ff;
+}
+
+/* Better scrollbar for code blocks */
+.article-content pre::-webkit-scrollbar {
+    height: 8px;
+}
+
+.article-content pre::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+    border-radius: 4px;
+}
+
+.article-content pre::-webkit-scrollbar-thumb {
+    background: var(--color-border-hover);
+    border-radius: 4px;
+}
+
+.article-content pre::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+.article-content blockquote {
+    border-left: 3px solid var(--color-accent);
+    padding-left: var(--space-md);
+    margin: var(--space-lg) 0;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: var(--space-lg) 0;
+}
+
+.article-content hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-2xl) 0;
+}
+
+/* Article Footer */
+.article-footer {
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--color-accent);
+    font-weight: 500;
+    transition: transform var(--duration-base) var(--ease-smooth);
+}
+
+.back-link:hover {
+    transform: translateX(-4px);
+}

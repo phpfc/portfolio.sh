@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="description" content="Designing authentication architecture that avoids vendor lock-in. How to build fallback systems that make provider migration painless, featuring AWS Cognito, JWT, and security best practices.">
+
+    <title>Building Vendor-Independent Authentication Systems - Pedro França</title>
+
+    <link rel="icon" href="../../favicon.svg">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../blog.css">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="../../" class="nav-brand">PF</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="../../#about" class="nav-link">About</a></li>
+                <li><a href="../../#experience" class="nav-link">Experience</a></li>
+                <li><a href="../../#projects" class="nav-link">Projects</a></li>
+                <li><a href="../../#writing" class="nav-link">Writing</a></li>
+                <li><a href="../../#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="section">
+        <div class="container">
+            <div class="article-content">
+                <header class="article-header">
+                    <div class="article-meta">
+                        <time datetime="2024-11-20">November 19, 2024</time>
+                        <span class="article-tag">Authentication</span><span class="article-tag">AWS</span><span class="article-tag">Security</span><span class="article-tag">Architecture</span>
+                    </div>
+                    <h1>Building Vendor-Independent Authentication Systems</h1>
+                </header>
+
+                <div class="article-body">
+                    
+<p>Vendor lock-in is one of the biggest risks in modern software architecture. When it comes to authentication, this risk is particularly high because changing auth providers often requires significant application changes.</p>
+<h2>The Challenge</h2>
+<p>Most authentication solutions tie you deeply to their ecosystem:<br>- AWS Cognito with its specific JWT format<br>- Auth0 with proprietary APIs<br>- Firebase Auth with Google-specific integrations</p>
+<p>While these services are excellent, what happens when you need to migrate?</p>
+<h2>Design Principles</h2>
+<h3>1. Abstract the Provider</h3>
+Never let your application code directly depend on provider-specific APIs.
+<pre><code class="language-javascript">// Bad: Direct Cognito dependency
+import { CognitoUserPool } from &#039;amazon-cognito-identity-js&#039;;
+
+// Good: Abstract interface
+interface AuthProvider {
+  signIn(email: string, password: string): Promise&lt;AuthResult&gt;;
+  signOut(): Promise&lt;void&gt;;
+  getCurrentUser(): Promise&lt;User | null&gt;;
+}</code></pre>
+<h3>2. Standardize Token Format</h3>
+Use standard JWT claims regardless of the provider:
+<pre><code class="language-javascript">interface StandardClaims {
+  sub: string;        // User ID
+  email: string;      // Email address
+  roles: string[];    // User roles
+  exp: number;        // Expiration
+  iat: number;        // Issued at
+}</code></pre>
+<h3>3. Build Fallback Mechanisms</h3>
+Always have a backup plan:
+<pre><code class="language-javascript">class AuthService {
+  private providers: AuthProvider[] = [
+    new CognitoProvider(),
+    new CustomJWTProvider(),
+    new DatabaseProvider()
+  ];
+
+  async authenticate(credentials: Credentials): Promise&lt;AuthResult&gt; {
+    for (const provider of this.providers) {
+      try {
+        return await provider.authenticate(credentials);
+      } catch (error) {
+        console.warn(`Provider ${provider.name} failed:`, error);
+        // Continue to next provider
+      }
+    }
+    throw new Error(&#039;All authentication providers failed&#039;);
+  }
+}</code></pre>
+<h2>Implementation Strategy</h2>
+<h3>Phase 1: Abstraction Layer</h3>
+Create interfaces that hide provider specifics:
+<pre><code class="language-typescript">interface AuthProvider {
+  name: string;
+  authenticate(credentials: Credentials): Promise&lt;AuthResult&gt;;
+  refresh(token: string): Promise&lt;AuthResult&gt;;
+  validate(token: string): Promise&lt;boolean&gt;;
+}</code></pre>
+<h3>Phase 2: Token Normalization</h3>
+Transform provider tokens into standard format:
+<pre><code class="language-typescript">class TokenNormalizer {
+  normalize(providerToken: any, provider: string): StandardToken {
+    switch (provider) {
+      case &#039;cognito&#039;:
+        return this.normalizeCognito(providerToken);
+      case &#039;auth0&#039;:
+        return this.normalizeAuth0(providerToken);
+      default:
+        return providerToken; // Already standard
+    }
+  }
+}</code></pre>
+<h3>Phase 3: Graceful Degradation</h3>
+Handle provider failures gracefully:
+<pre><code class="language-typescript">class ResilientAuthService {
+  async signIn(email: string, password: string): Promise&lt;AuthResult&gt; {
+    // Try primary provider
+    try {
+      return await this.primaryProvider.signIn(email, password);
+    } catch (primaryError) {
+      // Log but don&#039;t fail immediately
+      this.logger.warn(&#039;Primary auth failed&#039;, primaryError);
+      
+      // Try fallback provider
+      try {
+        return await this.fallbackProvider.signIn(email, password);
+      } catch (fallbackError) {
+        // Both failed - this is a real error
+        throw new AuthenticationError(&#039;All providers failed&#039;);
+      }
+    }
+  }
+}</code></pre>
+<h2>Security Considerations</h2>
+<h3>1. Token Validation</h3>
+Always validate tokens regardless of source:
+<pre><code class="language-typescript">class TokenValidator {
+  async validate(token: string): Promise&lt;boolean&gt; {
+    try {
+      const decoded = jwt.verify(token, this.getPublicKey());
+      return this.validateClaims(decoded);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private validateClaims(claims: any): boolean {
+    return (
+      claims.exp &gt; Date.now() / 1000 &amp;&amp;
+      claims.iss === this.expectedIssuer &amp;&amp;
+      this.isValidAudience(claims.aud)
+    );
+  }
+}</code></pre>
+<h3>2. Secure Token Storage</h3>
+Store tokens securely regardless of provider:
+<pre><code class="language-typescript">class SecureTokenStorage {
+  async store(token: string): Promise&lt;void&gt; {
+    const encrypted = await this.encrypt(token);
+    localStorage.setItem(&#039;auth_token&#039;, encrypted);
+  }
+
+  async retrieve(): Promise&lt;string | null&gt; {
+    const encrypted = localStorage.getItem(&#039;auth_token&#039;);
+    return encrypted ? await this.decrypt(encrypted) : null;
+  }
+}</code></pre>
+<h2>Migration Strategy</h2>
+<p>When you need to change providers:</p>
+<p>1. <strong>Deploy new provider alongside old one</strong><br>2. <strong>Gradually migrate users</strong> (feature flags)<br>3. <strong>Validate both systems work</strong><br>4. <strong>Switch traffic incrementally</strong><br>5. <strong>Remove old provider when safe</strong></p>
+<h2>Real-World Benefits</h2>
+<p>This approach has saved us multiple times:<br>- Migrated from Auth0 to Cognito with zero downtime<br>- Handled Cognito outages with database fallback<br>- Reduced vendor costs by 70% through competition</p>
+<h2>Conclusion</h2>
+<p>Building vendor-independent auth systems requires upfront investment but pays huge dividends. The key is abstraction, standardization, and always having a backup plan.</p>
+<p>Your future self will thank you when you need to migrate providers in production.</p>
+                </div>
+
+                <footer class="article-footer">
+                    <a href="../" class="back-link">
+                        ← Back to all posts
+                    </a>
+                </footer>
+            </div>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Pedro Henrique França. <a href="../../">Back to home</a></p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-glsl.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</body>
+</html>

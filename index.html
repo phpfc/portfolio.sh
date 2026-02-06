@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Language and Translation Meta Tags -->
     <meta name="language" content="en">
     <meta name="content-language" content="en">
     <meta name="google-translate-customization" content="enabled">
     <meta name="google" content="notranslate">
     <meta name="robots" content="index, follow">
-    
+
     <!-- Open Graph Language -->
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="pt_BR">
-    
+
     <!-- Favicon and Icons -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%231a1a1a'/><rect x='2' y='2' width='28' height='28' rx='2' fill='%23000'/><rect x='2' y='2' width='28' height='6' rx='2' fill='%23333'/><circle cx='6' cy='5' r='1.5' fill='%23ff5f56'/><circle cx='10' cy='5' r='1.5' fill='%23ffbd2e'/><circle cx='14' cy='5' r='1.5' fill='%2327ca3f'/><text x='4' y='16' font-family='monospace' font-size='8' fill='%2300ff00'>$</text><rect x='8' y='13' width='6' height='1' fill='%2300ff00'/><text x='4' y='24' font-family='monospace' font-size='8' fill='%2300ff00'>&gt;</text><rect x='8' y='21' width='4' height='1' fill='%2300ff00'/><rect x='13' y='21' width='1' height='1' fill='%2300ff00'/></svg>">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -24,209 +24,194 @@
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     <link rel="manifest" href="site.webmanifest">
-    
-    <title>Pedro França - Interactive Terminal Portfolio</title>
-    
+
+    <title>Pedro França - Software Developer</title>
+
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/terminal.css">
-    <link rel="stylesheet" href="css/email.css">
-    <link rel="stylesheet" href="css/gui.css">
-    
-    <!-- External Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="terminal">
-        <div class="terminal-header">
-            <div class="terminal-controls">
-                <span class="control close"></span>
-                <span class="control minimize"></span>
-                <span class="control maximize"></span>
-            </div>
-            <div class="terminal-title">phfranca@portfolio: ~</div>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">PF</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#writing" class="nav-link">Writing</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
-        
-        <div class="terminal-body">
-            <!-- Welcome Message -->
-            <div class="welcome-section">
-                <div class="prompt-line">
-                    <span class="prompt">phfranca@portfolio:~$</span>
-                    <span class="command">whoami</span>
-                </div>
-                <div class="output">
-                    <h1>Pedro Henrique França</h1>
-                    <p>Full Stack Developer | Software Architecture Enthusiast</p>
-                    <p>Welcome to my interactive terminal portfolio.</p>
-                    
-                    <h4>Quick Start</h4>
-                    <p>Try these commands to explore:</p>
-                    <div class="help-commands">
-                        <div class="help-command">
-                            <span class="help-command-name">resume</span>
-                            <span class="help-command-desc">View my professional experience</span>
-                        </div>
-                        <div class="help-command">
-                            <span class="help-command-name">projects</span>
-                            <span class="help-command-desc">See my latest work</span>
-                        </div>
-                        <div class="help-command">
-                            <span class="help-command-name">contact</span>
-                            <span class="help-command-desc">Get in touch with me</span>
-                        </div>
-                        <div class="help-command">
-                            <span class="help-command-name">about</span>
-                            <span class="help-command-desc">Learn more about me</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="prompt-line help-message">
-                    <span class="prompt">phfranca@portfolio:~$</span>
-                    <span class="command">echo "Type 'help' to see all commands"</span>
-                </div>
-                <div class="output help-message">
-                    <p>Type 'help' to see all commands</p>
-                </div>
-            </div>
-            
-            <!-- Terminal History -->
-            <div id="terminal-history"></div>
-            
-            <!-- Current Input Line -->
-            <div class="input-line">
-                <span class="prompt">phfranca@portfolio:~$</span>
-                <div class="input-container">
-                    <input type="text" id="terminal-input" autocomplete="off" spellcheck="false" autofocus>
-                    <div class="autocomplete-suggestion" id="autocomplete"></div>
-                </div>
-            </div>
-            
-            <!-- Hidden Content Areas -->
-            <div class="content-storage" style="display: none;">
-                <div id="about-content">
-                    <h2>About Me</h2>
-                    <p>Full Stack Developer passionate about software architecture and engineering fundamentals.</p>
-                    <p>I value maintainable code, good design principles, and understanding the "why" behind technical decisions. I think about long-term impact and approach problems with care and attention to detail.</p>
-                    <p>Naturally curious - I enjoy exploring system design, architecture patterns, and deepening my understanding of computer science fundamentals. Always learning and improving.</p>
-                    
-                    <h3>Skills</h3>
-                    <div class="skills">
-                        <span class="skill">React.js</span>
-                        <span class="skill">React Native</span>
-                        <span class="skill">Node.js</span>
-                        <span class="skill">Nest.js</span>
-                        <span class="skill">TypeScript</span>
-                        <span class="skill">Rust</span>
-                        <span class="skill">MySQL</span>
-                        <span class="skill">PostgreSQL</span>
-                        <span class="skill">Prisma</span>
-                        <span class="skill">AWS</span>
-                        <span class="skill">Git</span>
-                    </div>
-                    
-                    <h3>Contact</h3>
-                    <!-- Contact information will be injected dynamically -->
-                </div>
-                
-                <div id="projects-content">
-                    <div class="project">
-                        <h3>Cleanser - macOS Storage Cleanup Tool</h3>
-                        <div class="tech-stack">
-                            <span class="tech">Rust</span>
-                            <span class="tech">Rayon</span>
-                            <span class="tech">SHA-256</span>
-                            <span class="tech">Homebrew</span>
-                            <span class="tech">CI/CD</span>
-                        </div>
-                        <p>High-performance CLI tool that helps macOS users reclaim storage space by intelligently identifying and removing unnecessary files. Features dynamic pattern-based discovery to detect cache directories, build artifacts, and duplicate files across the filesystem using parallel SHA-256 hashing.</p>
-                        <p>Implemented smart caching system, risk-based cleanup levels (Safe/Moderate/Risky), and configurable scan depths to balance thoroughness with performance. Leveraged Rust's Rayon library for concurrent operations, achieving fast scanning speeds.</p>
-                        <p>Published as a Homebrew package with comprehensive CI/CD pipelines. Emphasizes safety through validation checks, confirmation prompts, and dry-run modes to prevent accidental data loss.</p>
-                        <div class="project-links">
-                            <a href="https://github.com/phpfc/cleanser" class="link" target="_blank">View Code</a>
-                            <a href="https://github.com/phpfc/cleanser#installation" class="link" target="_blank">Install via Homebrew</a>
-                        </div>
-                    </div>
-                    
-                    <div class="project">
-                        <h3>Cymatic — Real-time Audiovisual Synthesizer</h3>
-                        <div class="tech-stack">
-                            <span class="tech">TypeScript</span>
-                            <span class="tech">Web Audio API</span>
-                            <span class="tech">WebGL2</span>
-                            <span class="tech">GLSL</span>
-                            <span class="tech">Vite</span>
-                        </div>
-                        <p>A browser-based audiovisual synthesis system inspired by cymatics — the study of visible sound vibrations. The application generates synchronized audio and visual patterns where the graphics directly represent the harmonic content being played.</p>
-                        <p>Real-time audio synthesis with configurable harmonic layers using musical intervals (perfect fifths, major thirds, etc.). WebGL2 fragment shader implementing physics-based cymatic field equations with frame-perfect audio-visual synchronization via shared AudioContext timing. Features interactive UI with terminal/oscilloscope aesthetic.</p>
-                        <p>Built with immutable state architecture and pub-sub pattern for reactive updates. Custom GLSL shader computing radial interference and nodal patterns from up to 8 harmonic layers. Includes comprehensive test suite with property-based testing using fast-check. Production deployment with security headers and optimized caching. Zero external audio or graphics dependencies — pure Web APIs.</p>
-                        <div class="project-links">
-                            <a href="https://cymatic-audiovisual.netlify.app/" class="link" target="_blank">Launch Application</a>
-                        </div>
-                    </div>
-                    
-                    <div class="project placeholder">
-                        <h3>More Projects Coming Soon...</h3>
-                        <p>Currently working on new open-source projects. Check back soon or follow me on GitHub for updates!</p>
-                        <div class="project-links">
-                            <a href="https://github.com/phpfc" class="link" target="_blank">GitHub Profile</a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="blog-content">
-                    <p>Loading blog posts... Use the <span class="highlight">blog</span> command to see my latest posts!</p>
-                </div>
-                
-                <div id="cv-content">
-                    <h2>Experience</h2>
-                    <div class="experience">
-                        <h3>Junior Full Stack Developer - TopInvest (Grupo PRIMO)</h3>
-                        <p class="date">August 2024 - Present</p>
-                        <p>Worked across 5 production systems serving tens of thousands of MAU, gaining practical experience maintaining and improving products at scale.</p>
-                        
-                        <h4>Mobile Architecture & Stack Unification</h4>
-                        <ul>
-                            <li>Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
-                            <li>Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
-                            <li>Helped design and implement a new mobile client focused on maintainability and developer experience</li>
-                            <li>Collaborated with multiple business units to address offline video and content-protection challenges</li>
-                        </ul>
-                        
-                        <h4>Multi-Tenant Architecture Transformation</h4>
-                        <ul>
-                            <li>Participated in designing and implementing a zero-downtime multi-tenant system</li>
-                            <li>Learned how to support new clients on a shared codebase and infrastructure</li>
-                        </ul>
-                        
-                        <h4>Vendor-Independent Authentication</h4>
-                        <ul>
-                            <li>Helped build a flexible authentication system decoupled from cloud providers</li>
-                            <li>Implemented secure admin impersonation and DRM improvements</li>
-                        </ul>
-                        
-                        <h4>Legacy System Modernization</h4>
-                        <ul>
-                            <li>Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
-                            <li>Gained experience working with older codebases and incremental modernization</li>
-                        </ul>
-                        
-                        <h4>Engineering Practices</h4>
-                        <ul>
-                            <li>Participated in code reviews for maintainability, performance, and security</li>
-                            <li>Wrote tests and documentation</li>
-                            <li>Created architecture diagrams for alignment</li>
-                            <li>Monitored production with Grafana</li>
-                            <li>Advocated for improved developer experience and sustainable solutions</li>
-                        </ul>
-                        
-                        <p><strong>Stack:</strong> React.js, Flutter, Nest.js, Prisma, MySQL, AWS (Cognito, SES), CodeIgniter (PHP)</p>
-                    </div>
+    </nav>
 
-                    <div class="experience">
-                        <h3>Full Stack Intern - FCODE</h3>
-                        <p class="date">August 2023 - March 2024</p>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Pedro Henrique França</h1>
+                <p class="hero-subtitle">Software Developer</p>
+                <p class="hero-description">
+                    Building maintainable systems with attention to architecture and engineering fundamentals.
+                    Focused on mobile and backend development.
+                </p>
+                <div class="hero-links">
+                    <a href="https://github.com/phpfc" target="_blank" rel="noopener noreferrer" class="hero-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                        GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/phpfc" target="_blank" rel="noopener noreferrer" class="hero-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                            <rect x="2" y="9" width="4" height="12"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                        LinkedIn
+                    </a>
+                    <a href="resume.pdf" target="_blank" class="hero-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                        Resume
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About</h2>
+            <div class="about-content">
+                <p>
+                    Full Stack Developer passionate about software architecture and engineering fundamentals.
+                    I value maintainable code, good design principles, and understanding the "why" behind technical decisions.
+                </p>
+                <p>
+                    My focus is on backend and mobile development, though I work across the full stack. I think about
+                    long-term impact and approach problems with care and attention to detail.
+                </p>
+                <p>
+                    Naturally curious — I enjoy exploring system design, architecture patterns, and deepening my
+                    understanding of computer science fundamentals. Always learning and improving.
+                </p>
+            </div>
+
+            <div class="skills">
+                <h3 class="skills-title">Technologies I work with</h3>
+                <div class="skills-grid">
+                    <span class="skill-tag">React.js</span>
+                    <span class="skill-tag">React Native</span>
+                    <span class="skill-tag">Node.js</span>
+                    <span class="skill-tag">Nest.js</span>
+                    <span class="skill-tag">TypeScript</span>
+                    <span class="skill-tag">Rust</span>
+                    <span class="skill-tag">MySQL</span>
+                    <span class="skill-tag">PostgreSQL</span>
+                    <span class="skill-tag">Prisma</span>
+                    <span class="skill-tag">AWS</span>
+                    <span class="skill-tag">Git</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Experience</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3 class="timeline-title">Junior Full Stack Developer</h3>
+                            <span class="timeline-company">TopInvest (Grupo PRIMO)</span>
+                            <span class="timeline-date">August 2024 - Present</span>
+                        </div>
+                        <p class="timeline-description">
+                            Working across 5 production systems serving tens of thousands of MAU, gaining practical experience
+                            maintaining and improving products at scale.
+                        </p>
+
+                        <div class="timeline-section">
+                            <h4>Mobile Architecture & Stack Unification</h4>
+                            <ul>
+                                <li>Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
+                                <li>Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
+                                <li>Helped design and implement a new mobile client focused on maintainability and developer experience</li>
+                                <li>Collaborated with multiple business units to address offline video and content-protection challenges</li>
+                            </ul>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h4>Multi-Tenant Architecture Transformation</h4>
+                            <ul>
+                                <li>Participated in designing and implementing a zero-downtime multi-tenant system</li>
+                                <li>Learned how to support new clients on a shared codebase and infrastructure</li>
+                            </ul>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h4>Vendor-Independent Authentication</h4>
+                            <ul>
+                                <li>Helped build a flexible authentication system decoupled from cloud providers</li>
+                                <li>Implemented secure admin impersonation and DRM improvements</li>
+                            </ul>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h4>Legacy System Modernization</h4>
+                            <ul>
+                                <li>Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
+                                <li>Gained experience working with older codebases and incremental modernization</li>
+                            </ul>
+                        </div>
+
+                        <div class="timeline-section">
+                            <h4>Engineering Practices</h4>
+                            <ul>
+                                <li>Participated in code reviews for maintainability, performance, and security</li>
+                                <li>Wrote tests and documentation</li>
+                                <li>Created architecture diagrams for alignment</li>
+                                <li>Monitored production with Grafana</li>
+                                <li>Advocated for improved developer experience and sustainable solutions</li>
+                            </ul>
+                        </div>
+
+                        <div class="tech-stack">
+                            <span class="tech-tag">React.js</span>
+                            <span class="tech-tag">Flutter</span>
+                            <span class="tech-tag">Nest.js</span>
+                            <span class="tech-tag">Prisma</span>
+                            <span class="tech-tag">MySQL</span>
+                            <span class="tech-tag">AWS</span>
+                            <span class="tech-tag">CodeIgniter</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h3 class="timeline-title">Full Stack Intern</h3>
+                            <span class="timeline-company">FCODE</span>
+                            <span class="timeline-date">August 2023 - March 2024</span>
+                        </div>
                         <ul>
                             <li>Developed RESTful APIs and modeled relational databases</li>
                             <li>Created responsive web interfaces with focus on usability</li>
@@ -234,33 +219,202 @@
                             <li>Worked with PHP/CodeIgniter, jQuery, and Bootstrap</li>
                         </ul>
                     </div>
+                </div>
+            </div>
 
-                    <h2>Education</h2>
-                    <div class="education">
-                        <h3>Bachelor's in Software Engineering</h3>
-                        <p class="date">University of Caxias do Sul | March 2023 - August 2028 (in progress)</p>
-                    </div>
-
-                    <h2>Languages</h2>
-                    <div class="education">
-                        <p><strong>Portuguese:</strong> Native</p>
-                        <p><strong>English:</strong> Fluent</p>
-                    </div>
-
-                    <div class="download-cv">
-                        <a href="#" class="link" onclick="terminal.downloadResume(); return false;">Download PDF Resume</a>
-                    </div>
+            <div class="education">
+                <h3 class="education-title">Education</h3>
+                <div class="education-item">
+                    <h4>Bachelor's in Software Engineering</h4>
+                    <p class="education-institution">University of Caxias do Sul</p>
+                    <p class="education-date">March 2023 - August 2028 (in progress)</p>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- JavaScript Modules -->
-    <script src="js/email-module.js"></script>
-    <script src="js/blog-module.js"></script>
-    <script src="js/gui-module.js"></script>
-    <script src="js/utils-module.js"></script>
-    <script src="js/theme-module.js"></script>
-    <script src="js/terminal.js"></script>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+
+            <div class="projects-grid">
+                <article class="project-card">
+                    <div class="project-content">
+                        <h3 class="project-title">Cleanser</h3>
+                        <p class="project-subtitle">macOS Storage Cleanup Tool</p>
+                        <p class="project-description">
+                            High-performance CLI tool that helps macOS users reclaim storage space by intelligently
+                            identifying and removing unnecessary files. Features dynamic pattern-based discovery to
+                            detect cache directories, build artifacts, and duplicate files across the filesystem using
+                            parallel SHA-256 hashing.
+                        </p>
+                        <p class="project-description">
+                            Implemented smart caching system, risk-based cleanup levels (Safe/Moderate/Risky), and
+                            configurable scan depths to balance thoroughness with performance. Published as a Homebrew
+                            package with comprehensive CI/CD pipelines.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Rust</span>
+                            <span class="tech-tag">Rayon</span>
+                            <span class="tech-tag">SHA-256</span>
+                            <span class="tech-tag">Homebrew</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://github.com/phpfc/cleanser" target="_blank" rel="noopener noreferrer" class="project-link">
+                                View Code →
+                            </a>
+                            <a href="https://github.com/phpfc/cleanser#installation" target="_blank" rel="noopener noreferrer" class="project-link">
+                                Install →
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="project-card">
+                    <div class="project-content">
+                        <h3 class="project-title">Cymatic</h3>
+                        <p class="project-subtitle">Real-time Audiovisual Synthesizer</p>
+                        <p class="project-description">
+                            Browser-based audiovisual synthesis system inspired by cymatics — the study of visible sound
+                            vibrations. The application generates synchronized audio and visual patterns where the graphics
+                            directly represent the harmonic content being played.
+                        </p>
+                        <p class="project-description">
+                            Real-time audio synthesis with configurable harmonic layers using musical intervals. WebGL2
+                            fragment shader implementing physics-based cymatic field equations with frame-perfect audio-visual
+                            synchronization. Built with immutable state architecture and pub-sub pattern for reactive updates.
+                        </p>
+                        <div class="project-tech">
+                            <span class="tech-tag">TypeScript</span>
+                            <span class="tech-tag">Web Audio API</span>
+                            <span class="tech-tag">WebGL2</span>
+                            <span class="tech-tag">GLSL</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://cymatic-audiovisual.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-link">
+                                Launch App →
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Writing Section -->
+    <section id="writing" class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">Writing</h2>
+            <div class="writing-intro">
+                <p>Thoughts on software architecture, system design, and engineering practices.</p>
+            </div>
+
+            <div class="articles-grid" id="articles-grid">
+                <article class="article-card">
+                    <div class="article-date">January 15, 2025</div>
+                    <h3 class="article-title">
+                        <a href="blog/posts/cymatic-audiovisual-synthesizer.html">
+                            Building Cymatic: Where Music Theory Meets WebGL
+                        </a>
+                    </h3>
+                    <p class="article-excerpt">
+                        From music teacher to developer: building a browser-based audiovisual synthesizer that
+                        visualizes the science of sound. Exploring cymatics, harmonic ratios, and real-time
+                        audio-visual synchronization.
+                    </p>
+                    <div class="article-tags">
+                        <span class="article-tag">TypeScript</span>
+                        <span class="article-tag">WebGL</span>
+                        <span class="article-tag">Audio</span>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-date">December 15, 2024</div>
+                    <h3 class="article-title">
+                        <a href="blog/posts/mobile-stack-unification.html">
+                            Mobile Stack Unification: Flutter to React Native
+                        </a>
+                    </h3>
+                    <p class="article-excerpt">
+                        The technical and strategic reasoning behind our mobile stack unification. From proof of concept
+                        to company-wide adoption, including challenges with offline video access and DRM implementation.
+                    </p>
+                    <div class="article-tags">
+                        <span class="article-tag">React Native</span>
+                        <span class="article-tag">Flutter</span>
+                        <span class="article-tag">Mobile</span>
+                    </div>
+                </article>
+
+                <article class="article-card">
+                    <div class="article-date">November 20, 2024</div>
+                    <h3 class="article-title">
+                        <a href="blog/posts/vendor-independent-auth.html">
+                            Building Vendor-Independent Authentication Systems
+                        </a>
+                    </h3>
+                    <p class="article-excerpt">
+                        Designing authentication architecture that avoids vendor lock-in. How to build fallback systems
+                        that make provider migration painless, featuring AWS Cognito, JWT, and security best practices.
+                    </p>
+                    <div class="article-tags">
+                        <span class="article-tag">Authentication</span>
+                        <span class="article-tag">AWS</span>
+                        <span class="article-tag">Security</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="writing-cta">
+                <a href="blog/" class="cta-link">View all posts →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <p class="contact-text">
+                    I'm always interested in discussing software architecture, system design, or potential collaborations.
+                </p>
+                <div class="contact-links">
+                    <a href="mailto:pedrohenriquefrancadossantos@gmail.com" class="contact-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        pedrohenriquefrancadossantos@gmail.com
+                    </a>
+                    <a href="https://github.com/phpfc" target="_blank" rel="noopener noreferrer" class="contact-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                        github.com/phpfc
+                    </a>
+                    <a href="https://www.linkedin.com/in/phpfc" target="_blank" rel="noopener noreferrer" class="contact-link">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                            <rect x="2" y="9" width="4" height="12"/>
+                            <circle cx="4" cy="4" r="2"/>
+                        </svg>
+                        linkedin.com/in/phpfc
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Pedro Henrique França. Built with care.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
