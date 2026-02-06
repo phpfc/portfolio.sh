@@ -38,12 +38,33 @@
                 <img src="https://github.com/phpfc.png" alt="Pedro França" class="nav-brand-img">
             </a>
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#experience" class="nav-link">Experience</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#writing" class="nav-link">Writing</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
+                <li><a href="#experience" class="nav-link" data-i18n="nav.experience">Experience</a></li>
+                <li><a href="#projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
+                <li><a href="#writing" class="nav-link" data-i18n="nav.writing">Writing</a></li>
+                <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
             </ul>
+            <div class="nav-controls">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                    <svg class="theme-icon theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg class="theme-icon theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+                <button class="language-toggle" id="language-toggle" aria-label="Toggle language">
+                    <span class="language-label">EN</span>
+                </button>
+            </div>
             <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
                 <span></span>
                 <span></span>
@@ -56,9 +77,9 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h1 class="hero-title">Pedro Henrique França</h1>
-                <p class="hero-subtitle">Software Developer</p>
-                <p class="hero-description">
+                <h1 class="hero-title" data-i18n="hero.title">Pedro Henrique França</h1>
+                <p class="hero-subtitle" data-i18n="hero.subtitle">Software Developer</p>
+                <p class="hero-description" data-i18n="hero.description">
                     Building maintainable systems with attention to architecture and engineering fundamentals.
                     Focused on mobile and backend development.
                 </p>
@@ -95,24 +116,24 @@
     <!-- About Section -->
     <section id="about" class="section">
         <div class="container">
-            <h2 class="section-title">About</h2>
+            <h2 class="section-title" data-i18n="about.title">About</h2>
             <div class="about-content">
-                <p>
+                <p data-i18n="about.p1">
                     Full Stack Developer passionate about software architecture and engineering fundamentals.
                     I value maintainable code, good design principles, and understanding the "why" behind technical decisions.
                 </p>
-                <p>
+                <p data-i18n="about.p2">
                     My focus is on backend and mobile development, though I work across the full stack. I think about
                     long-term impact and approach problems with care and attention to detail.
                 </p>
-                <p>
+                <p data-i18n="about.p3">
                     Naturally curious — I enjoy exploring system design, architecture patterns, and deepening my
                     understanding of computer science fundamentals. Always learning and improving.
                 </p>
             </div>
 
             <div class="skills">
-                <h3 class="skills-title">Technologies I work with</h3>
+                <h3 class="skills-title" data-i18n="about.skills-title">Technologies I work with</h3>
                 <div class="skills-grid">
                     <span class="skill-tag">React.js</span>
                     <span class="skill-tag">React Native</span>
@@ -131,7 +152,7 @@
             <!-- GitHub Activity - Discrete Integration -->
             <div class="github-activity-compact">
                 <div class="github-header">
-                    <h3 class="skills-title">GitHub Activity</h3>
+                    <h3 class="skills-title" data-i18n="about.github-title">GitHub Activity</h3>
                     <a href="https://github.com/phpfc" target="_blank" rel="noopener noreferrer" class="github-profile-link">
                         @phpfc →
                     </a>
@@ -140,15 +161,15 @@
                 <div class="github-stats-compact">
                     <div class="stat-compact">
                         <span class="stat-compact-value" id="gh-repos">0</span>
-                        <span class="stat-compact-label">repos</span>
+                        <span class="stat-compact-label" data-i18n="about.github.repos">repos</span>
                     </div>
                     <div class="stat-compact">
                         <span class="stat-compact-value" id="gh-stars">0</span>
-                        <span class="stat-compact-label">stars</span>
+                        <span class="stat-compact-label" data-i18n="about.github.stars">stars</span>
                     </div>
                     <div class="stat-compact">
                         <span class="stat-compact-value" id="gh-commits">0</span>
-                        <span class="stat-compact-label">commits</span>
+                        <span class="stat-compact-label" data-i18n="about.github.commits">commits</span>
                     </div>
                 </div>
 
@@ -164,64 +185,64 @@
     <!-- Experience Section -->
     <section id="experience" class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Experience</h2>
+            <h2 class="section-title" data-i18n="experience.title">Experience</h2>
 
             <div class="timeline">
                 <div class="timeline-item">
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <div class="timeline-header">
-                            <h3 class="timeline-title">Junior Full Stack Developer</h3>
-                            <span class="timeline-company">TopInvest (Grupo PRIMO)</span>
-                            <span class="timeline-date">August 2024 - Present</span>
+                            <h3 class="timeline-title" data-i18n="experience.topinvest.title">Junior Full Stack Developer</h3>
+                            <span class="timeline-company" data-i18n="experience.topinvest.company">TopInvest (Grupo PRIMO)</span>
+                            <span class="timeline-date" data-i18n="experience.topinvest.date">August 2024 - Present</span>
                         </div>
-                        <p class="timeline-description">
+                        <p class="timeline-description" data-i18n="experience.topinvest.description">
                             Working across 5 production systems serving tens of thousands of MAU, gaining practical experience
                             maintaining and improving products at scale.
                         </p>
 
                         <div class="timeline-section">
-                            <h4>Mobile Architecture & Stack Unification</h4>
+                            <h4 data-i18n="experience.topinvest.mobile-arch">Mobile Architecture & Stack Unification</h4>
                             <ul>
-                                <li>Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
-                                <li>Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
-                                <li>Helped design and implement a new mobile client focused on maintainability and developer experience</li>
-                                <li>Collaborated with multiple business units to address offline video and content-protection challenges</li>
+                                <li data-i18n="experience.topinvest.mobile-1">Contributed to the migration from Flutter to React Native to unify the mobile stack and reduce technical debt</li>
+                                <li data-i18n="experience.topinvest.mobile-2">Built the proof of concept and proposal showing workflow gains while preserving deployment compatibility</li>
+                                <li data-i18n="experience.topinvest.mobile-3">Helped design and implement a new mobile client focused on maintainability and developer experience</li>
+                                <li data-i18n="experience.topinvest.mobile-4">Collaborated with multiple business units to address offline video and content-protection challenges</li>
                             </ul>
                         </div>
 
                         <div class="timeline-section">
-                            <h4>Multi-Tenant Architecture Transformation</h4>
+                            <h4 data-i18n="experience.topinvest.multitenant">Multi-Tenant Architecture Transformation</h4>
                             <ul>
-                                <li>Participated in designing and implementing a zero-downtime multi-tenant system</li>
-                                <li>Learned how to support new clients on a shared codebase and infrastructure</li>
+                                <li data-i18n="experience.topinvest.multitenant-1">Participated in designing and implementing a zero-downtime multi-tenant system</li>
+                                <li data-i18n="experience.topinvest.multitenant-2">Learned how to support new clients on a shared codebase and infrastructure</li>
                             </ul>
                         </div>
 
                         <div class="timeline-section">
-                            <h4>Vendor-Independent Authentication</h4>
+                            <h4 data-i18n="experience.topinvest.auth">Vendor-Independent Authentication</h4>
                             <ul>
-                                <li>Helped build a flexible authentication system decoupled from cloud providers</li>
-                                <li>Implemented secure admin impersonation and DRM improvements</li>
+                                <li data-i18n="experience.topinvest.auth-1">Helped build a flexible authentication system decoupled from cloud providers</li>
+                                <li data-i18n="experience.topinvest.auth-2">Implemented secure admin impersonation and DRM improvements</li>
                             </ul>
                         </div>
 
                         <div class="timeline-section">
-                            <h4>Legacy System Modernization</h4>
+                            <h4 data-i18n="experience.topinvest.legacy">Legacy System Modernization</h4>
                             <ul>
-                                <li>Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
-                                <li>Gained experience working with older codebases and incremental modernization</li>
+                                <li data-i18n="experience.topinvest.legacy-1">Updated the authentication flow in a CodeIgniter legacy application to unify users across company products and support SSO</li>
+                                <li data-i18n="experience.topinvest.legacy-2">Gained experience working with older codebases and incremental modernization</li>
                             </ul>
                         </div>
 
                         <div class="timeline-section">
-                            <h4>Engineering Practices</h4>
+                            <h4 data-i18n="experience.topinvest.practices">Engineering Practices</h4>
                             <ul>
-                                <li>Participated in code reviews for maintainability, performance, and security</li>
-                                <li>Wrote tests and documentation</li>
-                                <li>Created architecture diagrams for alignment</li>
-                                <li>Monitored production with Grafana</li>
-                                <li>Advocated for improved developer experience and sustainable solutions</li>
+                                <li data-i18n="experience.topinvest.practices-1">Participated in code reviews for maintainability, performance, and security</li>
+                                <li data-i18n="experience.topinvest.practices-2">Wrote tests and documentation</li>
+                                <li data-i18n="experience.topinvest.practices-3">Created architecture diagrams for alignment</li>
+                                <li data-i18n="experience.topinvest.practices-4">Monitored production with Grafana</li>
+                                <li data-i18n="experience.topinvest.practices-5">Advocated for improved developer experience and sustainable solutions</li>
                             </ul>
                         </div>
 
@@ -241,26 +262,26 @@
                     <div class="timeline-marker"></div>
                     <div class="timeline-content">
                         <div class="timeline-header">
-                            <h3 class="timeline-title">Full Stack Intern</h3>
-                            <span class="timeline-company">FCODE</span>
-                            <span class="timeline-date">August 2023 - March 2024</span>
+                            <h3 class="timeline-title" data-i18n="experience.fcode.title">Full Stack Intern</h3>
+                            <span class="timeline-company" data-i18n="experience.fcode.company">FCODE</span>
+                            <span class="timeline-date" data-i18n="experience.fcode.date">August 2023 - March 2024</span>
                         </div>
                         <ul>
-                            <li>Developed RESTful APIs and modeled relational databases</li>
-                            <li>Created responsive web interfaces with focus on usability</li>
-                            <li>Implemented third-party API integrations and payment systems</li>
-                            <li>Worked with PHP/CodeIgniter, jQuery, and Bootstrap</li>
+                            <li data-i18n="experience.fcode.item-1">Developed RESTful APIs and modeled relational databases</li>
+                            <li data-i18n="experience.fcode.item-2">Created responsive web interfaces with focus on usability</li>
+                            <li data-i18n="experience.fcode.item-3">Implemented third-party API integrations and payment systems</li>
+                            <li data-i18n="experience.fcode.item-4">Worked with PHP/CodeIgniter, jQuery, and Bootstrap</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div class="education">
-                <h3 class="education-title">Education</h3>
+                <h3 class="education-title" data-i18n="experience.education.title">Education</h3>
                 <div class="education-item">
-                    <h4>Bachelor's in Software Engineering</h4>
-                    <p class="education-institution">University of Caxias do Sul</p>
-                    <p class="education-date">March 2023 - August 2028 (in progress)</p>
+                    <h4 data-i18n="experience.education.degree">Bachelor's in Software Engineering</h4>
+                    <p class="education-institution" data-i18n="experience.education.institution">University of Caxias do Sul</p>
+                    <p class="education-date" data-i18n="experience.education.date">March 2023 - August 2028 (in progress)</p>
                 </div>
             </div>
         </div>
@@ -269,20 +290,20 @@
     <!-- Projects Section -->
     <section id="projects" class="section">
         <div class="container">
-            <h2 class="section-title">Projects</h2>
+            <h2 class="section-title" data-i18n="projects.title">Projects</h2>
 
             <div class="projects-grid">
                 <article class="project-card">
                     <div class="project-content">
-                        <h3 class="project-title">Cleanser</h3>
-                        <p class="project-subtitle">macOS Storage Cleanup Tool</p>
-                        <p class="project-description">
+                        <h3 class="project-title" data-i18n="projects.cleanser.title">Cleanser</h3>
+                        <p class="project-subtitle" data-i18n="projects.cleanser.subtitle">macOS Storage Cleanup Tool</p>
+                        <p class="project-description" data-i18n="projects.cleanser.desc-1">
                             High-performance CLI tool that helps macOS users reclaim storage space by intelligently
                             identifying and removing unnecessary files. Features dynamic pattern-based discovery to
                             detect cache directories, build artifacts, and duplicate files across the filesystem using
                             parallel SHA-256 hashing.
                         </p>
-                        <p class="project-description">
+                        <p class="project-description" data-i18n="projects.cleanser.desc-2">
                             Implemented smart caching system, risk-based cleanup levels (Safe/Moderate/Risky), and
                             configurable scan depths to balance thoroughness with performance. Published as a Homebrew
                             package with comprehensive CI/CD pipelines.
@@ -294,10 +315,10 @@
                             <span class="tech-tag">Homebrew</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://github.com/phpfc/cleanser" target="_blank" rel="noopener noreferrer" class="project-link">
+                            <a href="https://github.com/phpfc/cleanser" target="_blank" rel="noopener noreferrer" class="project-link" data-i18n="projects.cleanser.link-code">
                                 View Code →
                             </a>
-                            <a href="https://github.com/phpfc/cleanser#installation" target="_blank" rel="noopener noreferrer" class="project-link">
+                            <a href="https://github.com/phpfc/cleanser#installation" target="_blank" rel="noopener noreferrer" class="project-link" data-i18n="projects.cleanser.link-install">
                                 Install →
                             </a>
                         </div>
@@ -306,14 +327,14 @@
 
                 <article class="project-card">
                     <div class="project-content">
-                        <h3 class="project-title">Cymatic</h3>
-                        <p class="project-subtitle">Real-time Audiovisual Synthesizer</p>
-                        <p class="project-description">
+                        <h3 class="project-title" data-i18n="projects.cymatic.title">Cymatic</h3>
+                        <p class="project-subtitle" data-i18n="projects.cymatic.subtitle">Real-time Audiovisual Synthesizer</p>
+                        <p class="project-description" data-i18n="projects.cymatic.desc-1">
                             Browser-based audiovisual synthesis system inspired by cymatics — the study of visible sound
                             vibrations. The application generates synchronized audio and visual patterns where the graphics
                             directly represent the harmonic content being played.
                         </p>
-                        <p class="project-description">
+                        <p class="project-description" data-i18n="projects.cymatic.desc-2">
                             Real-time audio synthesis with configurable harmonic layers using musical intervals. WebGL2
                             fragment shader implementing physics-based cymatic field equations with frame-perfect audio-visual
                             synchronization. Built with immutable state architecture and pub-sub pattern for reactive updates.
@@ -325,7 +346,7 @@
                             <span class="tech-tag">GLSL</span>
                         </div>
                         <div class="project-links">
-                            <a href="https://cymatic-audiovisual.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-link">
+                            <a href="https://cymatic-audiovisual.netlify.app/" target="_blank" rel="noopener noreferrer" class="project-link" data-i18n="projects.cymatic.link">
                                 Launch App →
                             </a>
                         </div>
@@ -338,20 +359,20 @@
     <!-- Writing Section -->
     <section id="writing" class="section section-alt">
         <div class="container">
-            <h2 class="section-title">Writing</h2>
+            <h2 class="section-title" data-i18n="writing.title">Writing</h2>
             <div class="writing-intro">
-                <p>Thoughts on software architecture, system design, and engineering practices.</p>
+                <p data-i18n="writing.intro">Thoughts on software architecture, system design, and engineering practices.</p>
             </div>
 
             <div class="articles-grid" id="articles-grid">
                 <article class="article-card">
-                    <div class="article-date">January 15, 2025</div>
+                    <div class="article-date" data-i18n="writing.cymatic.date">January 15, 2025</div>
                     <h3 class="article-title">
-                        <a href="blog/posts/cymatic-audiovisual-synthesizer.html">
+                        <a href="blog/posts/cymatic-audiovisual-synthesizer.html" data-i18n="writing.cymatic.title">
                             Building Cymatic: Where Music Theory Meets WebGL
                         </a>
                     </h3>
-                    <p class="article-excerpt">
+                    <p class="article-excerpt" data-i18n="writing.cymatic.excerpt">
                         From music teacher to developer: building a browser-based audiovisual synthesizer that
                         visualizes the science of sound. Exploring cymatics, harmonic ratios, and real-time
                         audio-visual synchronization.
@@ -364,13 +385,13 @@
                 </article>
 
                 <article class="article-card">
-                    <div class="article-date">December 15, 2024</div>
+                    <div class="article-date" data-i18n="writing.mobile.date">December 15, 2024</div>
                     <h3 class="article-title">
-                        <a href="blog/posts/mobile-stack-unification.html">
+                        <a href="blog/posts/mobile-stack-unification.html" data-i18n="writing.mobile.title">
                             Mobile Stack Unification: Flutter to React Native
                         </a>
                     </h3>
-                    <p class="article-excerpt">
+                    <p class="article-excerpt" data-i18n="writing.mobile.excerpt">
                         The technical and strategic reasoning behind our mobile stack unification. From proof of concept
                         to company-wide adoption, including challenges with offline video access and DRM implementation.
                     </p>
@@ -382,13 +403,13 @@
                 </article>
 
                 <article class="article-card">
-                    <div class="article-date">November 20, 2024</div>
+                    <div class="article-date" data-i18n="writing.auth.date">November 20, 2024</div>
                     <h3 class="article-title">
-                        <a href="blog/posts/vendor-independent-auth.html">
+                        <a href="blog/posts/vendor-independent-auth.html" data-i18n="writing.auth.title">
                             Building Vendor-Independent Authentication Systems
                         </a>
                     </h3>
-                    <p class="article-excerpt">
+                    <p class="article-excerpt" data-i18n="writing.auth.excerpt">
                         Designing authentication architecture that avoids vendor lock-in. How to build fallback systems
                         that make provider migration painless, featuring AWS Cognito, JWT, and security best practices.
                     </p>
@@ -401,7 +422,7 @@
             </div>
 
             <div class="writing-cta">
-                <a href="blog/" class="cta-link">View all posts →</a>
+                <a href="blog/" class="cta-link" data-i18n="writing.view-all">View all posts →</a>
             </div>
         </div>
     </section>
@@ -409,9 +430,9 @@
     <!-- Contact Section -->
     <section id="contact" class="section">
         <div class="container">
-            <h2 class="section-title">Get in Touch</h2>
+            <h2 class="section-title" data-i18n="contact.title">Get in Touch</h2>
             <div class="contact-content">
-                <p class="contact-text">
+                <p class="contact-text" data-i18n="contact.text">
                     I'm always interested in discussing software architecture, system design, or potential collaborations.
                 </p>
                 <div class="contact-links">
@@ -444,10 +465,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Pedro Henrique França. Built with care.</p>
+            <p data-i18n="footer.text">&copy; 2025 Pedro Henrique França. Built with care.</p>
         </div>
     </footer>
 
+    <script src="js/theme-module.js"></script>
+    <script src="js/language-module.js"></script>
     <script src="js/main.js"></script>
     <script src="js/github-stats.js"></script>
 </body>

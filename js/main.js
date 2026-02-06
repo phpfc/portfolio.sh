@@ -275,6 +275,36 @@
     };
 
     // ============================================
+    // THEME TOGGLE
+    // ============================================
+    const initThemeToggle = () => {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (!themeToggle) return;
+
+        // Load saved theme from localStorage
+        const savedTheme = localStorage.getItem('portfolio-theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        }
+
+        // Toggle theme on button click
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            localStorage.setItem('portfolio-theme', newTheme);
+        });
+    };
+
+    const applyTheme = (theme) => {
+        if (theme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+    };
+
+    // ============================================
     // INITIALIZE ALL
     // ============================================
     const init = () => {
@@ -294,6 +324,12 @@
         initKeyboardNav();
         initParallax();
         respectReducedMotion();
+        initThemeToggle();
+
+        // Initialize language module if available
+        if (window.LanguageModule) {
+            window.LanguageModule.init();
+        }
 
         // Log initialization (remove in production)
         console.log('Portfolio initialized');
