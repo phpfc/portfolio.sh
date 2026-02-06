@@ -141,19 +141,16 @@
         const nav = document.querySelector('.nav');
         if (!nav) return;
 
-        let lastScroll = 0;
-        const scrollThreshold = 100;
+        const scrollThreshold = 50;
 
         window.addEventListener('scroll', () => {
             const currentScroll = window.pageYOffset;
 
             if (currentScroll > scrollThreshold) {
-                nav.style.backgroundColor = 'rgba(10, 10, 10, 0.95)';
+                nav.classList.add('scrolled');
             } else {
-                nav.style.backgroundColor = 'rgba(10, 10, 10, 0.85)';
+                nav.classList.remove('scrolled');
             }
-
-            lastScroll = currentScroll;
         });
     };
 
@@ -241,6 +238,14 @@
     };
 
     // ============================================
+    // PARALLAX EFFECT FOR HERO (DISABLED - CAUSES OVERLAP)
+    // ============================================
+    const initParallax = () => {
+        // Parallax disabled to prevent hero/about overlap
+        return;
+    };
+
+    // ============================================
     // INITIALIZE ALL
     // ============================================
     const init = () => {
@@ -258,6 +263,7 @@
         initScrollAnimations();
         initExternalLinks();
         initKeyboardNav();
+        initParallax();
         respectReducedMotion();
 
         // Log initialization (remove in production)
