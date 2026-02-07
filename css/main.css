@@ -292,6 +292,25 @@
     opacity: 0.2;
 }
 
+/* Light Theme - Scroll Helpers */
+[data-theme="light"] .scroll-to-top {
+    background: var(--color-bg-primary);
+    border-color: var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .scroll-to-top:hover {
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="light"] .section-dot {
+    border-color: var(--color-border);
+}
+
+[data-theme="light"] .scroll-progress {
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+}
+
 /* ============================================
    RESET & BASE STYLES
    ============================================ */
@@ -1974,6 +1993,157 @@ body:not(.keyboard-nav) *:focus {
 
     .github-stats-compact {
         gap: var(--space-sm);
+    }
+}
+
+/* ============================================
+   SCROLL HELPERS
+   ============================================ */
+
+/* Scroll Progress Indicator */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-bright, #6bb3ff));
+    z-index: 10001;
+    transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px var(--color-accent);
+}
+
+/* Scroll-to-Top Button */
+.scroll-to-top {
+    position: fixed;
+    bottom: var(--space-xl);
+    right: var(--space-xl);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all var(--duration-base) var(--ease-smooth);
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-bg-primary);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(74, 158, 255, 0.3);
+}
+
+.scroll-to-top:active {
+    transform: translateY(-2px);
+}
+
+.scroll-to-top svg {
+    transition: transform var(--duration-base) var(--ease-smooth);
+}
+
+.scroll-to-top:hover svg {
+    transform: translateY(-2px);
+}
+
+/* Section Navigation Dots */
+.section-dots {
+    position: fixed;
+    right: var(--space-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    z-index: 1000;
+    padding: var(--space-sm);
+}
+
+.section-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--color-border);
+    cursor: pointer;
+    transition: all var(--duration-base) var(--ease-smooth);
+    position: relative;
+}
+
+.section-dot::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    transform: scale(0);
+    transition: transform var(--duration-base) var(--ease-smooth);
+}
+
+.section-dot:hover {
+    border-color: var(--color-accent);
+    transform: scale(1.2);
+}
+
+.section-dot.active {
+    border-color: var(--color-accent);
+}
+
+.section-dot.active::before {
+    transform: scale(1);
+}
+
+/* Hide dots on mobile for cleaner experience */
+@media (max-width: 768px) {
+    .section-dots {
+        display: none;
+    }
+
+    .scroll-to-top {
+        right: var(--space-md);
+        bottom: var(--space-lg);
+        width: 44px;
+        height: 44px;
+    }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .scroll-progress {
+        transition: none;
+    }
+
+    .scroll-to-top {
+        transition: opacity var(--duration-base) var(--ease-smooth),
+                    visibility var(--duration-base) var(--ease-smooth);
+    }
+
+    .scroll-to-top:hover {
+        transform: translateY(0);
+    }
+
+    .section-dot {
+        transition: border-color var(--duration-base) var(--ease-smooth);
+    }
+
+    .section-dot:hover {
+        transform: none;
     }
 }
 
