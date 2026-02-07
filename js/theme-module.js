@@ -6,6 +6,42 @@ window.ThemeModule = {
         'light': 'Clean light theme'
     },
 
+    // Time-based theme settings
+    // Light theme: 6:00 AM - 6:00 PM (6-18)
+    // Dark theme: 6:00 PM - 6:00 AM (18-6)
+    dayStartHour: 6,
+    dayEndHour: 18,
+
+    // Determine theme based on current time
+    getTimeBasedTheme() {
+        const hour = new Date().getHours();
+        // Light during the day (6 AM to 6 PM)
+        if (hour >= this.dayStartHour && hour < this.dayEndHour) {
+            return 'light';
+        }
+        return 'dark';
+    },
+
+    // Check if user has manually set a theme preference
+    hasUserPreference() {
+        return localStorage.getItem('portfolio-theme') !== null;
+    },
+
+    // Initialize theme on page load (called from main.js or directly)
+    initAutoTheme() {
+        const savedTheme = localStorage.getItem('portfolio-theme');
+
+        if (savedTheme) {
+            // User has explicitly chosen a theme - respect that
+            this.applyTheme(savedTheme);
+        } else {
+            // No preference - use time-based theme
+            const autoTheme = this.getTimeBasedTheme();
+            this.applyTheme(autoTheme);
+            // Don't save to localStorage so it remains automatic
+        }
+    },
+
     // Secret themes (hidden until easter is unlocked)
     secretThemes: {
         'catppuccin': 'Catppuccin Mocha - cozy and warm',

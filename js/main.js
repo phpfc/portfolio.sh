@@ -649,23 +649,34 @@
     };
 
     // ============================================
-    // THEME TOGGLE
+    // THEME TOGGLE (Time-aware)
     // ============================================
     const initThemeToggle = () => {
         const themeToggle = document.getElementById('theme-toggle');
         if (!themeToggle) return;
 
-        // Load saved theme from localStorage
-        const savedTheme = localStorage.getItem('portfolio-theme');
-        if (savedTheme) {
-            applyTheme(savedTheme);
+        // Use ThemeModule for auto theme if available, otherwise fallback
+        if (window.ThemeModule && window.ThemeModule.initAutoTheme) {
+            window.ThemeModule.initAutoTheme();
+        } else {
+            // Fallback: time-based theme
+            const savedTheme = localStorage.getItem('portfolio-theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                // Auto-detect based on time
+                const hour = new Date().getHours();
+                const autoTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+                applyTheme(autoTheme);
+            }
         }
 
-        // Toggle theme on button click
+        // Toggle theme on button click - this saves preference
         themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
+            // Save to localStorage so user preference is remembered
             localStorage.setItem('portfolio-theme', newTheme);
         });
     };
@@ -676,6 +687,69 @@
         } else {
             document.documentElement.removeAttribute('data-theme');
         }
+    };
+
+    // ============================================
+    // MOBILE ZOOM RESET
+    // ============================================
+    const initMobileZoomReset = () => {
+        // Only apply on touch devices
+        if (!('ontouchstart' in window)) return;
+
+        let zoomResetTimeout = null;
+        let lastTouchEnd = 0;
+
+        // Detect pinch zoom by checking visual viewport scale
+        const checkZoomLevel = () => {
+            if (window.visualViewport) {
+                const scale = window.visualViewport.scale;
+                // If zoomed in (scale > 1), schedule a reset
+                if (scale > 1.05) {
+                    if (zoomResetTimeout) clearTimeout(zoomResetTimeout);
+                    zoomResetTimeout = setTimeout(() => {
+                        // Only reset if user hasn't interacted recently
+                        if (Date.now() - lastTouchEnd > 1500) {
+                            resetZoom();
+                        }
+                    }, 2000); // Wait 2 seconds after zoom before resetting
+                }
+            }
+        };
+
+        const resetZoom = () => {
+            if (window.visualViewport && window.visualViewport.scale > 1.05) {
+                // Smoothly reset zoom by scrolling to trigger reflow
+                const scrollX = window.scrollX;
+                const scrollY = window.scrollY;
+
+                // Force viewport reset
+                document.body.style.transform = 'scale(1)';
+                document.body.style.transformOrigin = '0 0';
+
+                // Reset after a frame
+                requestAnimationFrame(() => {
+                    document.body.style.transform = '';
+                    document.body.style.transformOrigin = '';
+                    window.scrollTo(scrollX, scrollY);
+                });
+            }
+        };
+
+        // Track touch end for interaction timing
+        document.addEventListener('touchend', () => {
+            lastTouchEnd = Date.now();
+        }, { passive: true });
+
+        // Listen for visual viewport changes
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', checkZoomLevel);
+            window.visualViewport.addEventListener('scroll', checkZoomLevel);
+        }
+
+        // Also check on orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resetZoom, 500);
+        });
     };
 
     // ============================================
@@ -701,6 +775,7 @@
         initScrollHelpers();
         respectReducedMotion();
         initThemeToggle();
+        initMobileZoomReset();
 
         // Initialize language module if available
         if (window.LanguageModule) {

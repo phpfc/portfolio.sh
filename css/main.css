@@ -334,6 +334,11 @@ body {
     background-color: var(--color-bg-primary);
     overflow-x: hidden;
     position: relative;
+    min-width: 320px;
+}
+
+html {
+    overflow-x: hidden;
 }
 
 /* Subtle noise texture and grid for depth */
@@ -401,6 +406,7 @@ ul, ol {
 .section {
     padding: var(--space-3xl) 0;
     position: relative;
+    overflow: hidden;
 }
 
 .section-alt {
@@ -427,6 +433,7 @@ ul, ol {
         radial-gradient(ellipse 80% 50% at 50% 0%, rgba(74, 158, 255, 0.12), transparent 70%),
         var(--color-bg-primary);
     position: relative;
+    overflow: hidden;
     --parallax-y: 0px;
 }
 
@@ -453,6 +460,7 @@ ul, ol {
 
 #experience {
     position: relative;
+    overflow: hidden;
     background: linear-gradient(180deg, transparent 0%, var(--color-bg-secondary) 10%, var(--color-bg-secondary) 90%, transparent 100%);
 }
 
@@ -478,6 +486,7 @@ ul, ol {
 #projects {
     background: linear-gradient(180deg, transparent 0%, var(--color-bg-primary) 10%, var(--color-bg-primary) 90%, transparent 100%);
     position: relative;
+    overflow: hidden;
     --parallax-y: 0px;
 }
 
@@ -518,6 +527,7 @@ ul, ol {
 
 #writing {
     position: relative;
+    overflow: hidden;
     background: linear-gradient(180deg, transparent 0%, var(--color-bg-secondary) 10%, var(--color-bg-secondary) 90%, transparent 100%);
 }
 
@@ -543,6 +553,7 @@ ul, ol {
 #contact {
     background: linear-gradient(180deg, transparent 0%, var(--color-bg-primary) 10%, var(--color-bg-primary) 100%);
     position: relative;
+    overflow: hidden;
 }
 
 #contact::before {
@@ -1746,6 +1757,7 @@ ul, ol {
     border-top: 1px solid var(--color-border);
     background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
     position: relative;
+    overflow: hidden;
 }
 
 .footer::before {
@@ -2024,14 +2036,16 @@ body:not(.keyboard-nav) *:focus {
         gap: var(--space-xs);
     }
 
-    /* GitHub contribution graph - horizontal scroll on mobile */
+    /* GitHub contribution graph - scale to fit on mobile */
     .github-contribution-graph {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        max-width: 100%;
     }
 
     .github-contribution-graph img {
-        min-width: 600px;
+        min-width: 500px;
+        max-width: none;
     }
 
     /* Education cards */
@@ -2348,6 +2362,33 @@ body:not(.keyboard-nav) *:focus {
     }
 
     .contact-link {
+        font-size: var(--text-base);
+    }
+}
+
+/* Standard iPhone sizes (375-414px) */
+@media (min-width: 375px) and (max-width: 480px) {
+    .container {
+        padding: 0 var(--space-md);
+    }
+
+    .hero-link {
+        flex: 1 1 calc(50% - var(--space-xs));
+        min-width: 120px;
+        font-size: var(--text-sm);
+    }
+
+    .github-stats-compact {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .stat-compact {
+        flex: 1;
+        text-align: center;
+    }
+
+    .stat-compact-value {
         font-size: var(--text-base);
     }
 }

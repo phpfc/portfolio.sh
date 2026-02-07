@@ -213,12 +213,53 @@ window.LanguageModule = {
         }
     },
 
+    // Detect if user is likely from Brazil
+    detectBrazilianUser() {
+        // Check browser language
+        const browserLang = navigator.language || navigator.userLanguage || '';
+        if (browserLang.toLowerCase().startsWith('pt-br') || browserLang.toLowerCase() === 'pt') {
+            return true;
+        }
+
+        // Check all browser languages
+        const languages = navigator.languages || [];
+        for (const lang of languages) {
+            if (lang.toLowerCase().startsWith('pt-br') || lang.toLowerCase() === 'pt') {
+                return true;
+            }
+        }
+
+        // Check timezone (Brazil timezones)
+        try {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (timezone && timezone.startsWith('America/') &&
+                ['Sao_Paulo', 'Rio_Branco', 'Manaus', 'Cuiaba', 'Campo_Grande',
+                 'Fortaleza', 'Recife', 'Belem', 'Bahia', 'Maceio', 'Araguaina',
+                 'Noronha', 'Porto_Velho', 'Boa_Vista', 'Santarem'].some(city => timezone.includes(city))) {
+                return true;
+            }
+        } catch (e) {
+            // Timezone detection failed, continue
+        }
+
+        return false;
+    },
+
     // Initialize language module
     init() {
         // Load saved language from localStorage
         const savedLanguage = localStorage.getItem('portfolio-language');
+
         if (savedLanguage && this.availableLanguages[savedLanguage]) {
+            // User has explicitly chosen a language before
             this.currentLanguage = savedLanguage;
+        } else {
+            // First visit - detect based on location/browser
+            if (this.detectBrazilianUser()) {
+                this.currentLanguage = 'pt';
+            } else {
+                this.currentLanguage = 'en';
+            }
         }
 
         // Apply initial language
