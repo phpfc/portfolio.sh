@@ -1,0 +1,13 @@
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Disallow drafts
+Disallow: /blog/posts/example-draft.md
+Disallow: /*.md$
+
+# Sitemap location
+Sitemap: https://phfranca.com/sitemap.xml
+
+# Crawl-delay (optional - helps avoid overloading server)
+Crawl-delay: 1
