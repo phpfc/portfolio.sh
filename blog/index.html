@@ -3,96 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Technical writing and articles by Pedro França on software development, architecture, mobile development, and engineering best practices.">
-    <meta name="keywords" content="blog, technical writing, software development, mobile development, architecture, engineering">
-    <meta name="author" content="Pedro Henrique França">
-    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-    <link rel="canonical" href="https://phfranca.com/blog/">
-    
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://phfranca.com/blog/">
-    <meta property="og:title" content="Writing - Pedro França">
-    <meta property="og:description" content="Technical writing and articles on software development, architecture, and engineering.">
-    <meta property="og:image" content="https://github.com/phpfc.png">
-
+    <meta name="description" content="Technical writing by Pedro França on software development and architecture.">
     <title>Writing - Pedro França</title>
-
     <link rel="icon" href="../favicon.svg">
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="blog.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+        
+        h1, h2 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+        
+        h1 { font-size: 32px; margin: 40px 0 10px; }
+        h2 { font-size: 18px; margin: 20px 0 5px; }
+        
+        p { margin: 10px 0; }
+        
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+        
+        body.dark a { color: #fff; }
+        
+        .meta {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .post {
+            margin: 30px 0;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        body.dark .post {
+            border-bottom-color: #333;
+        }
+        
+        .post:last-child {
+            border-bottom: none;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+        
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+        
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+        
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="../" class="nav-brand">
-                <img src="https://github.com/phpfc.png" alt="Pedro França" class="nav-brand-img">
-            </a>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="../#about" class="nav-link" data-i18n="nav.about">About</a></li>
-                <li><a href="../#experience" class="nav-link" data-i18n="nav.experience">Experience</a></li>
-                <li><a href="../#projects" class="nav-link" data-i18n="nav.projects">Projects</a></li>
-                <li><a href="../#writing" class="nav-link" data-i18n="nav.writing">Writing</a></li>
-                <li><a href="../#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
-            </ul>
-            <div class="nav-controls">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                    <svg class="theme-icon theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                    <svg class="theme-icon theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/>
-                        <line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/>
-                        <line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                </button>
-                <button class="language-toggle" id="language-toggle" aria-label="Toggle language">
-                    <span class="language-label">EN</span>
-                </button>
-            </div>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- Blog Header -->
-    <section class="blog-header">
-        <div class="container">
-            <h1 class="blog-title" data-i18n="writing.title">Writing</h1>
-            <p class="blog-subtitle" data-i18n="writing.intro">Thoughts on software architecture, system design, and engineering practices.</p>
-        </div>
-    </section>
-
-    <!-- Blog Posts -->
-    <section class="section">
-        <div class="container">
-            <div class="blog-posts" id="blog-posts">
-                <!-- Posts will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Pedro Henrique França. <a href="../">Back to home</a></p>
-        </div>
-    </footer>
-
-    <script src="../js/theme-module.js"></script>
-    <script src="../js/language-module.js"></script>
-    <script src="../js/main.js"></script>
-    <script src="blog-list.js"></script>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+        <button id="lang-toggle">PT</button>
+    </div>
+    
+    <p><a href="../">← Back</a></p>
+    
+    <h1>Writing</h1>
+    <p>Thoughts on software architecture, system design, and engineering practices.</p>
+    
+    <div id="posts"></div>
+    
+    <script>
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+        
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+        
+        const langBtn = document.getElementById('lang-toggle');
+        const savedLang = localStorage.getItem('portfolio-language') || 'en';
+        let currentLang = savedLang;
+        
+        langBtn.textContent = currentLang === 'en' ? 'PT' : 'EN';
+        
+        langBtn.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'pt' : 'en';
+            langBtn.textContent = currentLang === 'en' ? 'PT' : 'EN';
+            localStorage.setItem('portfolio-language', currentLang);
+            
+            updateContent();
+        });
+        
+        function updateContent() {
+            const h1 = document.querySelector('h1');
+            const intro = document.querySelector('p:nth-of-type(2)');
+            
+            if (currentLang === 'pt') {
+                h1.textContent = 'Escrita';
+                intro.textContent = 'Reflexões sobre arquitetura de software, design de sistemas e práticas de engenharia.';
+            } else {
+                h1.textContent = 'Writing';
+                intro.textContent = 'Thoughts on software architecture, system design, and engineering practices.';
+            }
+        }
+        
+        updateContent();
+        
+        const postsContainer = document.getElementById('posts');
+        const posts = [
+            {
+                slug: 'cymatic-audiovisual-synthesizer',
+                title: 'Building Cymatic: Where Music Theory Meets WebGL',
+                excerpt: 'From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound.',
+                date: '2025-01-15'
+            },
+            {
+                slug: 'mobile-stack-unification',
+                title: 'Mobile Stack Unification: Flutter to React Native',
+                excerpt: 'The technical and strategic reasoning behind our mobile stack unification. From proof of concept to company-wide adoption.',
+                date: '2024-12-15'
+            },
+            {
+                slug: 'vendor-independent-auth',
+                title: 'Building Vendor-Independent Authentication Systems',
+                excerpt: 'Designing authentication architecture that avoids vendor lock-in. How to build fallback systems that make provider migration painless.',
+                date: '2024-11-20'
+            }
+        ];
+        
+        posts.forEach(post => {
+            const postEl = document.createElement('div');
+            postEl.className = 'post';
+            postEl.innerHTML = `
+                <p class="meta">${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <h2><a href="posts/${post.slug}.html">${post.title}</a></h2>
+                <p>${post.excerpt}</p>
+            `;
+            postsContainer.appendChild(postEl);
+        });
+    </script>
 </body>
 </html>

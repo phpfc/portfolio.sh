@@ -3,104 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
-    <meta name="description" content="From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound. Exploring cymatics, harmonic ratios, and real-time audio-visual synchronization.">
-
+    <meta name="description" content="From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound.">
     <title>Building Cymatic: Where Music Theory Meets WebGL - Pedro França</title>
-
     <link rel="icon" href="../../favicon.svg">
-    <link rel="stylesheet" href="../../css/main.css">
-    <link rel="stylesheet" href="../blog.css">
-
+    
     <!-- Prism.js for syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+        
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+        
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+        
+        p { margin: 15px 0; }
+        
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+        
+        body.dark a { color: #fff; }
+        
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+        
+        body.dark code {
+            background: #1a1a1a;
+        }
+        
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        body.dark pre {
+            background: #1a1a1a;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+        
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+        
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+        
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+        
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+        
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <a href="../../" class="nav-brand">
-                <img src="https://github.com/phpfc.png" alt="Pedro França" class="nav-brand-img">
-            </a>
-            <ul class="nav-menu" id="nav-menu">
-                <li><a href="../../#about" class="nav-link">About</a></li>
-                <li><a href="../../#experience" class="nav-link">Experience</a></li>
-                <li><a href="../../#projects" class="nav-link">Projects</a></li>
-                <li><a href="../../#writing" class="nav-link">Writing</a></li>
-                <li><a href="../../#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="nav-controls">
-                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-                    <svg class="theme-icon theme-icon-dark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                    </svg>
-                    <svg class="theme-icon theme-icon-light" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="5"/>
-                        <line x1="12" y1="1" x2="12" y2="3"/>
-                        <line x1="12" y1="21" x2="12" y2="23"/>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                        <line x1="1" y1="12" x2="3" y2="12"/>
-                        <line x1="21" y1="12" x2="23" y2="12"/>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                    </svg>
-                </button>
-                <button class="language-toggle" id="language-toggle" aria-label="Toggle language">
-                    <span class="language-label">EN</span>
-                </button>
-            </div>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </nav>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+    
+    <p><a href="../">← All posts</a></p>
+    
+    <article>
+        <p class="meta">January 15, 2025</p>
+        <h1>Building Cymatic: Where Music Theory Meets WebGL</h1>
+        
+        <p>Before I wrote my first line of code professionally, I spent years teaching and studying music. Piano lessons, music theory classes, endless hours understanding why certain notes sound good together. When I transitioned to software development, I thought I was leaving that world behind. Turns out, I was just finding a new way back to it.</p>
 
-    <!-- Article -->
-    <article class="section">
-        <div class="container">
-            <div class="article-content">
-                <header class="article-header">
-                    <div class="article-meta">
-                        <time datetime="2025-01-15">January 14, 2025</time>
-                        <span class="article-tag">TypeScript</span><span class="article-tag">WebGL</span><span class="article-tag">Audio</span><span class="article-tag">Music</span><span class="article-tag">Creative Coding</span>
-                    </div>
-                    <h1>Building Cymatic: Where Music Theory Meets WebGL</h1>
-                </header>
+        <p>Cymatic is a browser-based audiovisual synthesizer that makes sound visible. It's named after cymatics — the study of visible sound vibrations, famously demonstrated by Ernst Chladni's experiments with vibrating plates covered in sand. The patterns that emerge aren't random; they're direct visualizations of the mathematical relationships between frequencies.</p>
 
-                <div class="article-body">
-                    
-<p>Before I wrote my first line of code professionally, I spent years teaching and studying music. Piano lessons, music theory classes, endless hours understanding why certain notes sound good together. When I transitioned to software development, I thought I was leaving that world behind. Turns out, I was just finding a new way back to it.</p>
-<p>Cymatic is a browser-based audiovisual synthesizer that makes sound visible. It's named after cymatics — the study of visible sound vibrations, famously demonstrated by Ernst Chladni's experiments with vibrating plates covered in sand. The patterns that emerge aren't random; they're direct visualizations of the mathematical relationships between frequencies.</p>
-<h2>The Science: What Are Cymatics?</h2>
-<p>When a surface vibrates at a specific frequency, it creates standing wave patterns. Some areas oscillate intensely (antinodes), while others remain still (nodes). If you scatter sand on a vibrating plate, particles collect at the nodes, revealing geometric patterns that correspond directly to the frequency being played.</p>
-<p>What fascinated me most was how these patterns relate to music theory. The ratios that create pleasing musical intervals — the same ratios I taught students for years — produce specific visual geometries. A perfect fifth (3:2 ratio) creates different patterns than a major third (5:4). The mathematics of harmony becomes visible.</p>
-<h2>From Music Theory to Code</h2>
-<p>In my teaching days, I explained harmony through ratios. Why does a perfect fifth sound consonant? Because the frequencies relate as 3:2 — every third peak of one wave aligns with every second peak of another. Simple ratios create stable interference patterns; complex ratios create tension.</p>
-<p>This understanding directly shaped the architecture:</p>
-<pre><code class="language-typescript">export const MUSICAL_INTERVALS: Record&lt;string, number&gt; = {
-  &#039;unison&#039;: 1/1,
-  &#039;minor-second&#039;: 16/15,
-  &#039;major-second&#039;: 9/8,
-  &#039;minor-third&#039;: 6/5,
-  &#039;major-third&#039;: 5/4,
-  &#039;perfect-fourth&#039;: 4/3,
-  &#039;tritone&#039;: 45/32,
-  &#039;perfect-fifth&#039;: 3/2,
-  &#039;minor-sixth&#039;: 8/5,
-  &#039;major-sixth&#039;: 5/3,
-  &#039;minor-seventh&#039;: 16/9,
-  &#039;major-seventh&#039;: 15/8,
-  &#039;octave&#039;: 2/1
+        <h2>The Science: What Are Cymatics?</h2>
+
+        <p>When a surface vibrates at a specific frequency, it creates standing wave patterns. Some areas oscillate intensely (antinodes), while others remain still (nodes). If you scatter sand on a vibrating plate, particles collect at the nodes, revealing geometric patterns that correspond directly to the frequency being played.</p>
+
+        <p>What fascinated me most was how these patterns relate to music theory. The ratios that create pleasing musical intervals — the same ratios I taught students for years — produce specific visual geometries. A perfect fifth (3:2 ratio) creates different patterns than a major third (5:4). The mathematics of harmony becomes visible.</p>
+
+        <h2>From Music Theory to Code</h2>
+
+        <p>In my teaching days, I explained harmony through ratios. Why does a perfect fifth sound consonant? Because the frequencies relate as 3:2 — every third peak of one wave aligns with every second peak of another. Simple ratios create stable interference patterns; complex ratios create tension.</p>
+
+        <p>This understanding directly shaped the architecture:</p>
+
+        <pre><code class="language-typescript">export const MUSICAL_INTERVALS: Record&lt;string, number&gt; = {
+  'unison': 1/1,
+  'minor-second': 16/15,
+  'major-second': 9/8,
+  'minor-third': 6/5,
+  'major-third': 5/4,
+  'perfect-fourth': 4/3,
+  'tritone': 45/32,
+  'perfect-fifth': 3/2,
+  'minor-sixth': 8/5,
+  'major-sixth': 5/3,
+  'minor-seventh': 16/9,
+  'major-seventh': 15/8,
+  'octave': 2/1
 };</code></pre>
-<p>These are just intonation ratios — the pure mathematical relationships that predate equal temperament tuning. When you play a major third on a well-tuned piano, you're hearing an approximation. When Cymatic plays it, you're hearing (and seeing) the real 5:4 ratio.</p>
-<h2>Architecture: The Three Engines</h2>
-<p>The system has three core components that must stay perfectly synchronized:</p>
-<h3>StateManager: The Single Source of Truth</h3>
-<p>Every parameter — base frequency, harmonic layers, amplitudes — lives in an immutable state object. When anything changes, both the audio and visual engines receive the update simultaneously.</p>
-<pre><code class="language-typescript">export interface SystemState {
+
+        <p>These are just intonation ratios — the pure mathematical relationships that predate equal temperament tuning. When you play a major third on a well-tuned piano, you're hearing an approximation. When Cymatic plays it, you're hearing (and seeing) the real 5:4 ratio.</p>
+
+        <h2>Architecture: The Three Engines</h2>
+
+        <p>The system has three core components that must stay perfectly synchronized:</p>
+
+        <h3>StateManager: The Single Source of Truth</h3>
+
+        <p>Every parameter — base frequency, harmonic layers, amplitudes — lives in an immutable state object. When anything changes, both the audio and visual engines receive the update simultaneously.</p>
+
+        <pre><code class="language-typescript">export interface SystemState {
   baseFrequency: number;  // Hz (e.g., 110)
   layers: Layer[];
 }
@@ -112,14 +195,18 @@ export interface Layer {
   phase: number;        // radians
   enabled: boolean;
 }</code></pre>
-<p>This pub-sub pattern ensures that what you hear always matches what you see. No drift, no desynchronization.</p>
-<h3>AudioEngine: Web Audio API Synthesis</h3>
-<p>Each harmonic layer creates one oscillator with frequency calculated as <code>baseFrequency <em> ratio</code>. A base frequency of 110Hz with a perfect fifth layer (1.5 ratio) produces 165Hz.</p>
-<pre><code class="language-typescript">private createOscillator(layer: Layer, baseFrequency: number): void {
+
+        <p>This pub-sub pattern ensures that what you hear always matches what you see. No drift, no desynchronization.</p>
+
+        <h3>AudioEngine: Web Audio API Synthesis</h3>
+
+        <p>Each harmonic layer creates one oscillator with frequency calculated as <code>baseFrequency * ratio</code>. A base frequency of 110Hz with a perfect fifth layer (1.5 ratio) produces 165Hz.</p>
+
+        <pre><code class="language-typescript">private createOscillator(layer: Layer, baseFrequency: number): void {
   const frequency = baseFrequency * layer.ratio;
 
   const osc = this.context.createOscillator();
-  osc.type = &#039;sine&#039;;
+  osc.type = 'sine';
   osc.frequency.value = frequency;
 
   const gain = this.context.createGain();
@@ -134,10 +221,14 @@ export interface Layer {
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(layer.amplitude, now + 0.01);
 }</code></pre>
-<p>The choice of sine waves is deliberate. Pure tones without overtones let the harmonic relationships between layers create all the timbral complexity. It's additive synthesis at its most fundamental — the same principle behind pipe organs and Hammond organs.</p>
-<h3>VisualEngine: GLSL Fragment Shaders</h3>
-<p>This is where the math becomes visible. The fragment shader computes a cymatic field for every pixel on screen, 60 times per second:</p>
-<pre><code class="language-glsl">float field(vec2 p, float t) {
+
+        <p>The choice of sine waves is deliberate. Pure tones without overtones let the harmonic relationships between layers create all the timbral complexity. It's additive synthesis at its most fundamental — the same principle behind pipe organs and Hammond organs.</p>
+
+        <h3>VisualEngine: GLSL Fragment Shaders</h3>
+
+        <p>This is where the math becomes visible. The fragment shader computes a cymatic field for every pixel on screen, 60 times per second:</p>
+
+        <pre><code class="language-glsl">float field(vec2 p, float t) {
   float r = length(p);
   float theta = atan(p.y, p.x);
   float v = 0.0;
@@ -162,12 +253,17 @@ export interface Layer {
 
   return v;
 }</code></pre>
-<p>The key insight: the same ratio that determines pitch also determines the visual pattern's geometry. A layer with ratio 2.0 (octave) creates patterns with mode number 4, producing four-fold symmetry. Ratio 1.5 (perfect fifth) produces three-fold patterns. The visual complexity emerges from the interference of these different symmetries.</p>
-<h2>The Synchronization Problem</h2>
-<p>Getting audio and visuals to stay perfectly aligned is harder than it sounds. The Web Audio API runs on its own high-priority thread with sample-accurate timing. <code>requestAnimationFrame</code> runs at display refresh rate, typically 60fps but variable.</p>
-<p>The solution: use <code>audioContext.currentTime</code> as the single source of temporal truth.</p>
-<pre><code class="language-typescript">private startRenderLoop(): void {
-  const render = () =&gt; {
+
+        <p>The key insight: the same ratio that determines pitch also determines the visual pattern's geometry. A layer with ratio 2.0 (octave) creates patterns with mode number 4, producing four-fold symmetry. Ratio 1.5 (perfect fifth) produces three-fold patterns. The visual complexity emerges from the interference of these different symmetries.</p>
+
+        <h2>The Synchronization Problem</h2>
+
+        <p>Getting audio and visuals to stay perfectly aligned is harder than it sounds. The Web Audio API runs on its own high-priority thread with sample-accurate timing. <code>requestAnimationFrame</code> runs at display refresh rate, typically 60fps but variable.</p>
+
+        <p>The solution: use <code>audioContext.currentTime</code> as the single source of temporal truth.</p>
+
+        <pre><code class="language-typescript">private startRenderLoop(): void {
+  const render = () => {
     if (!this.isRunning) return;
 
     // Audio time is the reference
@@ -180,10 +276,14 @@ export interface Layer {
   };
   render();
 }</code></pre>
-<p>Both engines now share the same clock. When the visual field equation uses <code>t </em> 0.3</code> for animation, that <code>t</code> comes directly from the audio context. Frame-perfect synchronization.</p>
-<h2>The Rendering Approach: Oscilloscope Aesthetic</h2>
-<p>Rather than filling regions with color based on field intensity, Cymatic draws only the edges — the zero-crossings of the field function:</p>
-<pre><code class="language-glsl">// Only draw where field crosses zero
+
+        <p>Both engines now share the same clock. When the visual field equation uses <code>t * 0.3</code> for animation, that <code>t</code> comes directly from the audio context. Frame-perfect synchronization.</p>
+
+        <h2>The Rendering Approach: Oscilloscope Aesthetic</h2>
+
+        <p>Rather than filling regions with color based on field intensity, Cymatic draws only the edges — the zero-crossings of the field function:</p>
+
+        <pre><code class="language-glsl">// Only draw where field crosses zero
 float edgeWidth = 0.08;
 float edgeIntensity = 1.0 - smoothstep(0.0, edgeWidth, abs(v));
 
@@ -193,46 +293,58 @@ float glow = (1.0 - smoothstep(0.0, glowWidth, abs(v))) * 0.3;
 
 vec3 lineColor = vec3(0.6, 0.8, 1.0);  // Light blue
 vec3 color = mix(vec3(0.0), lineColor, edgeIntensity + glow);</code></pre>
-<p>This creates the characteristic Chladni plate look — bright lines on black, like sand collecting at nodal lines, or the phosphor traces of an oscilloscope. It's both aesthetically clean and physically meaningful.</p>
-<h2>Reflections: The Bridge Between Worlds</h2>
-<p>Building Cymatic reminded me why I fell in love with music in the first place. Not the performance aspect, but the underlying logic — how simple mathematical relationships create emotional responses. A suspended chord creates tension because of frequency ratios. Resolution feels satisfying because the ratios simplify.</p>
-<p>As a developer, I get to explore these relationships in ways that weren't possible as a teacher. I can make the math visible, interactive, immediate. A student could adjust a ratio slider and simultaneously hear the interval change and see the pattern transform.</p>
-<p>The project also reinforced something I've come to believe about career changes: you don't leave your past expertise behind. My years of teaching harmony gave me intuitions about this project that pure technical skill couldn't. Understanding why the 45/32 tritone ratio sounds unstable helped me predict how its visual pattern would look — restless, asymmetric, never quite settling.</p>
-<h2>Technical Highlights</h2>
-<p>For those interested in the implementation details:</p>
-<p>- <strong>Zero external dependencies</strong> for audio or graphics — pure Web APIs<br>- <strong>Immutable state architecture</strong> with pub-sub pattern<br>- <strong>WebGL2</strong> with GLSL ES 3.0 shaders<br>- <strong>Up to 8 simultaneous harmonic layers</strong><br>- <strong>High DPI canvas support</strong> for retina displays<br>- <strong>Property-based testing</strong> with fast-check for edge cases</p>
-<h2>Try It</h2>
-<p><a href="https://cymatic-audiovisual.netlify.app/" target="_blank" rel="noopener noreferrer">Launch Cymatic</a> and explore the relationship between sound and geometry. Start with simple intervals — the octave, perfect fifth, major third. Then combine them and watch complexity emerge from simplicity.</p>
-<p>That emergence is what cymatics is really about. And maybe, in some small way, it's what music has always been about.</p>
-                </div>
 
-                <footer class="article-footer">
-                    <a href="../" class="back-link">
-                        ← Back to all posts
-                    </a>
-                </footer>
-            </div>
-        </div>
+        <p>This creates the characteristic Chladni plate look — bright lines on black, like sand collecting at nodal lines, or the phosphor traces of an oscilloscope. It's both aesthetically clean and physically meaningful.</p>
+
+        <h2>Reflections: The Bridge Between Worlds</h2>
+
+        <p>Building Cymatic reminded me why I fell in love with music in the first place. Not the performance aspect, but the underlying logic — how simple mathematical relationships create emotional responses. A suspended chord creates tension because of frequency ratios. Resolution feels satisfying because the ratios simplify.</p>
+
+        <p>As a developer, I get to explore these relationships in ways that weren't possible as a teacher. I can make the math visible, interactive, immediate. A student could adjust a ratio slider and simultaneously hear the interval change and see the pattern transform.</p>
+
+        <p>The project also reinforced something I've come to believe about career changes: you don't leave your past expertise behind. My years of teaching harmony gave me intuitions about this project that pure technical skill couldn't. Understanding why the 45/32 tritone ratio sounds unstable helped me predict how its visual pattern would look — restless, asymmetric, never quite settling.</p>
+
+        <h2>Technical Highlights</h2>
+
+        <p>For those interested in the implementation details:</p>
+
+        <ul>
+            <li>Zero external dependencies for audio or graphics — pure Web APIs</li>
+            <li>Immutable state architecture with pub-sub pattern</li>
+            <li>WebGL2 with GLSL ES 3.0 shaders</li>
+            <li>Up to 8 simultaneous harmonic layers</li>
+            <li>High DPI canvas support for retina displays</li>
+            <li>Property-based testing with fast-check for edge cases</li>
+        </ul>
+
+        <h2>Try It</h2>
+
+        <p><a href="https://cymatic-audiovisual.netlify.app/" target="_blank" rel="noopener noreferrer">Launch Cymatic</a> and explore the relationship between sound and geometry. Start with simple intervals — the octave, perfect fifth, major third. Then combine them and watch complexity emerge from simplicity.</p>
+
+        <p>That emergence is what cymatics is really about. And maybe, in some small way, it's what music has always been about.</p>
     </article>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Pedro Henrique França. <a href="../../">Back to home</a></p>
-        </div>
-    </footer>
-
-    <script src="../../js/theme-module.js"></script>
-    <script src="../../js/language-module.js"></script>
-    <script src="../../js/main.js"></script>
-
-    <!-- Prism.js for syntax highlighting -->
+    
+    <!-- Prism.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-glsl.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+        
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
 </body>
 </html>
