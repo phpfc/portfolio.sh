@@ -2,7 +2,7 @@
 
 Personal portfolio website.
 
-**Live:** [pedrofranca.dev](https://pedrofranca.dev)
+**Live:** [phfranca.com](https://phfranca.com)
 
 ## Contact
 
