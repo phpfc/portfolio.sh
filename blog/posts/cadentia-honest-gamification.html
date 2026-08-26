@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Building Cadentia: a browser-based music education platform where every reward is earned through real practice, and the server is the only thing you can trust.">
+    <title>Cadentia: Gamification You Can't Fake - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">August 26, 2025</p>
+        <h1>Cadentia: Gamification You Can't Fake</h1>
+
+        <p>Most gamified learning apps have the same quiet lie at their core: the points don't mean anything. You can farm them, skip past the work, or let a streak counter tick up while you learn nothing. I wanted to build the opposite — a music education platform where every coin, every badge, every level exists because someone actually practiced. <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">Cadentia</a> is that platform: you learn music theory, ear training, and reading in the browser, you practice piano against automatic evaluation, and the rewards you earn are provably real.</p>
+
+        <p>That single constraint — <em>no status without study</em> — turned out to shape almost every technical decision in the system. This is the story of the architecture that falls out of taking it seriously.</p>
+
+        <h2>The Invariant That Runs Everything</h2>
+
+        <p>Before writing a line of product code, I wrote down a set of invariants the system would hold in every phase, no exceptions. A few of them do most of the work:</p>
+
+        <ul>
+            <li><strong>The server is the source of truth.</strong> Data is loaded server-first through the framework's loaders and actions — never mirrored into a global client store and manually kept in sync.</li>
+            <li><strong>Rewards are granted exclusively by the server.</strong> The client evaluates a performance for immediate feedback, but nothing that produces currency, XP, or progress is trusted until the server independently validates and records it.</li>
+            <li><strong>The economy is an immutable ledger.</strong> From the very first coin, every transaction is an append-only row. A balance is <em>derived</em>, never edited.</li>
+            <li><strong>No audio ML.</strong> Performance is evaluated through MIDI, not by listening. Audio is capture and playback only.</li>
+        </ul>
+
+        <p>These read like principles, but they're really engineering constraints with teeth. "Rewards are granted exclusively by the server" means the client cannot be trusted to score a practice session — which means the evaluator has to exist twice, and the two copies have to agree.</p>
+
+        <h2>Evaluating Practice Without Trusting the Client</h2>
+
+        <p>When you play a scale on a MIDI keyboard, Cadentia needs to tell you instantly whether you nailed it — right notes, right timing. That feedback has to be immediate, so it runs in the browser. But if the browser is also the thing that decides you earned 40 coins, then a few lines of forged JSON buys you the whole economy.</p>
+
+        <p>So the evaluator is mirrored: the same scoring logic exists on the client (for feedback) and in the <code>practice</code> module on the server (for truth). The client submits the raw MIDI events it captured plus its own score. The server re-runs evaluation on those events and compares. If the numbers don't match — if a client claims 100 on a session the server scores at 53 — the submission is flagged, credited zero, and produces no progress.</p>
+
+        <pre><code class="language-typescript">// The client's self-reported score is a hint, never the truth.
+const serverScore = evaluate(submission.events, exercise.expectedNotes);
+
+if (Math.abs(serverScore - submission.clientScore) > TOLERANCE) {
+  // Numbers disagree — someone's lying, or something drifted.
+  await this.flag(session, { clientScore, serverScore });
+  return { status: 'FLAGGED', reward: 0 };
+}
+
+// Only the server-computed result is allowed to touch the ledger.
+return this.settle(session, serverScore);</code></pre>
+
+        <p>To keep the two evaluators honest, they share convergence fixtures — inputs with known outputs that both implementations must produce. If someone changes the scoring rule on one side and forgets the other, the fixtures fail in CI. The mirror can't silently drift apart.</p>
+
+        <p>There's a nice side effect I didn't design but got for free: a plausibility floor on session duration caught a forged submission during a smoke test. A three-second "session" that claimed a full scale was rejected before evaluation even ran — the anti-forgery logic validated itself by accident.</p>
+
+        <h2>The Economy Is a Ledger, Not a Number</h2>
+
+        <p>The obvious way to build an in-app economy is a <code>balance</code> column you increment and decrement. It's also the wrong way, because the moment you can <code>UPDATE</code> a balance, the balance stops being trustworthy — and in a system whose entire pitch is "the rewards are real," a trustworthy balance is the product.</p>
+
+        <p>So there is no balance column. There's a ledger of immutable transactions, and the balance is a sum:</p>
+
+        <pre><code class="language-typescript">// Earning: a positive line, granted only by the server.
+await ledger.append({
+  userId,
+  amount: +50,
+  reason: 'NODE_MASTERED',
+  // Structural idempotency: the same mastery can't pay twice.
+  idempotencyKey: `node-mastered:${userId}:${nodeId}`,
+});
+
+// Spending in the shop: a negative line, under an advisory lock
+// with a balance re-check inside the transaction.
+await ledger.append({
+  userId,
+  amount: -30,
+  reason: 'COSMETIC_PURCHASE',
+});
+
+// The balance is derived, never stored.
+const balance = await ledger.sum(userId);</code></pre>
+
+        <p>This buys real properties. Every coin is auditable back to the exact practice session that minted it. Idempotency keys make double-grants structurally impossible — mastering a node pays exactly once, no matter how many times the event is reprocessed. And when a bug once paid a bonus it shouldn't have, the fix didn't reverse the transaction; it left the erroneous line in place (the ledger is immutable) and corrected the rule going forward. The history stays honest even about its own mistakes.</p>
+
+        <p>Purchases race, of course — two tabs, one balance. An advisory lock per user plus a balance re-check inside the transaction guarantees exactly one of two concurrent buys succeeds, and the balance never goes negative.</p>
+
+        <h2>Almost No Client State</h2>
+
+        <p>The frontend is React Router 7 in framework mode — server-first by design. The rule I held to is that global client state should be roughly zero: ephemeral UI state lives in the component or in the URL, and anything the server owns is loaded through a loader, not cached in a store I have to invalidate by hand.</p>
+
+        <p>The one place that earns real client-side machinery is the practice session itself, and it's modeled as an explicit state machine with named states — idle → countdown → playing → evaluating → result. Using XState here isn't decoration; a practice session has genuinely illegal transitions (you can't be evaluating before you've played), and encoding them as a machine makes those bugs unrepresentable instead of merely unlikely.</p>
+
+        <pre><code class="language-typescript">// The session is a machine, not a pile of booleans.
+const practiceMachine = setup({ /* ... */ }).createMachine({
+  initial: 'idle',
+  states: {
+    idle:       { on: { START: 'countdown' } },
+    countdown:  { on: { GO: 'playing' } },
+    playing:    { on: { STOP: 'evaluating' } },
+    evaluating: { on: { SCORED: 'result' } },
+    result:     { on: { AGAIN: 'countdown', EXIT: 'idle' } },
+  },
+});</code></pre>
+
+        <h2>Two Repos, One Contract</h2>
+
+        <p>The backend (NestJS + Prisma + PostgreSQL) and the frontend (React Router) are separate repositories, deliberately. No monorepo. The contract between them is the HTTP API, described by an OpenAPI spec that Nest generates from decorators — and the frontend's TypeScript client is generated from that spec with orval, never hand-written.</p>
+
+        <p>The payoff is that the contract can't quietly rot. If I remove an endpoint or change a shape on the server, regenerating the client surfaces the break at compile time on the web side. The two codebases stay in lockstep without me maintaining a shared types package by hand across a repo boundary.</p>
+
+        <p>It also imposes discipline I've come to appreciate: because the client is generated, the server's Swagger decorators aren't an afterthought — they <em>are</em> the interface. Getting the OpenAPI right is getting the frontend's types right.</p>
+
+        <h2>Content You Can Trust, Reputation You Have to Earn</h2>
+
+        <p>The same "no status without study" ethic extends to the library. Content lives in three tiers — golden standard, verified, and new — and promotion between tiers is a curation act, never an automatic consequence of popularity. Community appreciation is a <em>signal</em> that informs a curator, never a gate that admits content on its own. And you can only appreciate an exercise you've actually practiced, which keeps the signal tied to real engagement rather than drive-by voting.</p>
+
+        <p>Contributing content earns reputation, but reputation is kept strictly separate from currency and XP — you can't buy your way to standing, and the person who reviews their own submission earns nothing from it. Every anti-farm decision points the same direction: the numbers on your profile should mean you did the work.</p>
+
+        <h2>What I Took From It</h2>
+
+        <p>The interesting thing about a hard constraint is how much design it does for you. "No status without study" sounds like a product principle, but held rigorously it dictates a mirrored evaluator, an immutable ledger, server-granted rewards, and a client you assume is adversarial. I didn't set out to build all of that — I set out to make gamification that couldn't be faked, and the architecture is just what that honesty costs.</p>
+
+        <p>Cadentia is live at <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">cadentia.club</a>. If you play a scale on it and earn a coin, you can follow that coin all the way back to the exact moment your fingers hit the keys. That traceability isn't a feature bolted on top — it's the whole point.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

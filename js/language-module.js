@@ -9,6 +9,12 @@ window.LanguageModule = {
     // Current language
     currentLanguage: 'en',
 
+    // Resume PDF per language
+    resumeFiles: {
+        'en': 'Pedro Henrique França - Full Stack Developer.pdf',
+        'pt': 'Pedro Henrique França - Desenvolvedor Full Stack.pdf'
+    },
+
     // Translation data
     translations: {
         'en': {
@@ -23,6 +29,7 @@ window.LanguageModule = {
             'hero.title': 'Pedro Henrique França',
             'hero.subtitle': 'Software Developer',
             'hero.description': 'Building maintainable systems with attention to architecture and engineering fundamentals. Focused on mobile and backend development.',
+            'hero.resume': 'Resume',
 
             // About Section
             'about.title': 'About',
@@ -123,6 +130,7 @@ window.LanguageModule = {
             'hero.title': 'Pedro Henrique França',
             'hero.subtitle': 'Desenvolvedor de Software',
             'hero.description': 'Construindo sistemas sustentáveis com atenção à arquitetura e fundamentos de engenharia. Focado em desenvolvimento mobile e backend.',
+            'hero.resume': 'Currículo',
 
             // About Section
             'about.title': 'Sobre',
@@ -294,6 +302,14 @@ window.LanguageModule = {
                 element.textContent = translations[key];
             }
         });
+
+        // Update resume download link to the language-specific PDF
+        const resumeLink = document.getElementById('resume-link');
+        const resumeFile = this.resumeFiles[language];
+        if (resumeLink && resumeFile) {
+            resumeLink.setAttribute('href', encodeURI(resumeFile));
+            resumeLink.setAttribute('download', resumeFile);
+        }
 
         // Update language toggle button label
         const languageToggle = document.getElementById('language-toggle');
