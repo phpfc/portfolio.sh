@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Building Cadentia: a browser-based music education platform where every reward is earned through real practice, and the server is the only thing you can trust.">
-    <title>Cadentia: Gamification You Can't Fake - Pedro França</title>
+    <meta name="description" content="Building Cadentia end to end: a free, browser-based music education platform. The architecture, the NestJS + React Router stack, and the Railway infrastructure behind a solo project shipped to production.">
+    <title>Cadentia: Building Free Music Education, End to End - Pedro França</title>
     <link rel="icon" href="../../favicon.svg">
 
     <!-- Prism.js for syntax highlighting -->
@@ -139,119 +139,87 @@
 
     <article>
         <p class="meta">August 26, 2025</p>
-        <h1>Cadentia: Gamification You Can't Fake</h1>
+        <h1>Cadentia: Building Free Music Education, End to End</h1>
 
-        <p>Most gamified learning apps have the same quiet lie at their core: the points don't mean anything. You can farm them, skip past the work, or let a streak counter tick up while you learn nothing. I wanted to build the opposite — a music education platform where every coin, every badge, every level exists because someone actually practiced. <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">Cadentia</a> is that platform: you learn music theory, ear training, and reading in the browser, you practice piano against automatic evaluation, and the rewards you earn are provably real.</p>
+        <p>Good music education is expensive and gate-kept. Private teachers, method books, apps that lock the useful half behind a subscription — the knowledge itself isn't scarce, but access to it is. I spent years around music before I wrote code professionally, and that gap always bothered me. <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">Cadentia</a> is my answer to it: a browser-based platform where you learn music theory, ear training, sight-reading, and piano technique for free, practicing against automatic evaluation, with the core curriculum built on public-domain material so nothing essential is ever paywalled.</p>
 
-        <p>That single constraint — <em>no status without study</em> — turned out to shape almost every technical decision in the system. This is the story of the architecture that falls out of taking it seriously.</p>
+        <p>It's also a project I took from an empty repository to production entirely on my own — backend, frontend, database, infrastructure, deployment, the didactic content itself. This post is about how it's built and how it runs. I want to talk less about product features and more about the engineering underneath: the stack, the contract between the two codebases, and the infrastructure on Railway that keeps it online.</p>
 
-        <h2>The Invariant That Runs Everything</h2>
+        <h2>Why "Free" Is an Architecture Decision, Not a Pricing Page</h2>
 
-        <p>Before writing a line of product code, I wrote down a set of invariants the system would hold in every phase, no exceptions. A few of them do most of the work:</p>
+        <p>Free access isn't a checkbox you flip at launch — it's a constraint that decides how you build. If the mission is that no one is priced out of learning music, then the expensive, proprietary shortcuts are off the table by design:</p>
 
         <ul>
-            <li><strong>The server is the source of truth.</strong> Data is loaded server-first through the framework's loaders and actions — never mirrored into a global client store and manually kept in sync.</li>
-            <li><strong>Rewards are granted exclusively by the server.</strong> The client evaluates a performance for immediate feedback, but nothing that produces currency, XP, or progress is trusted until the server independently validates and records it.</li>
-            <li><strong>The economy is an immutable ledger.</strong> From the very first coin, every transaction is an append-only row. A balance is <em>derived</em>, never edited.</li>
-            <li><strong>No audio ML.</strong> Performance is evaluated through MIDI, not by listening. Audio is capture and playback only.</li>
+            <li><strong>No managed backend-as-a-service.</strong> No Supabase, no Firebase. Auth, data, and business logic are all application code I own, running on infrastructure I can reason about and swap out. Vendor lock-in is a slow tax, and a free project can't afford to have its economics dictated by someone else's pricing tier.</li>
+            <li><strong>No audio ML for evaluation.</strong> Grading a performance by listening would mean models, GPUs, and a compute bill that scales with every practice session. Instead, evaluation runs on MIDI — deterministic, cheap, and runnable in a plain Node process. Audio is capture and playback only.</li>
+            <li><strong>Public-domain core.</strong> The foundational curriculum is copyright-free, so the thing that makes the platform valuable can't be taken away or licensed out from under it.</li>
         </ul>
 
-        <p>These read like principles, but they're really engineering constraints with teeth. "Rewards are granted exclusively by the server" means the client cannot be trusted to score a practice session — which means the evaluator has to exist twice, and the two copies have to agree.</p>
+        <p>Every one of those choices trades convenience for independence, which is exactly the trade a self-funded, free platform has to keep making.</p>
 
-        <h2>Evaluating Practice Without Trusting the Client</h2>
+        <h2>The Stack</h2>
 
-        <p>When you play a scale on a MIDI keyboard, Cadentia needs to tell you instantly whether you nailed it — right notes, right timing. That feedback has to be immediate, so it runs in the browser. But if the browser is also the thing that decides you earned 40 coins, then a few lines of forged JSON buys you the whole economy.</p>
+        <p>Cadentia is TypeScript from end to end, split across two independent repositories with no monorepo tying them together.</p>
 
-        <p>So the evaluator is mirrored: the same scoring logic exists on the client (for feedback) and in the <code>practice</code> module on the server (for truth). The client submits the raw MIDI events it captured plus its own score. The server re-runs evaluation on those events and compares. If the numbers don't match — if a client claims 100 on a session the server scores at 53 — the submission is flagged, credited zero, and produces no progress.</p>
+        <p><strong>Backend — <code>api</code>:</strong> NestJS on Node 22, organized into domain modules (auth, content, paths, practice, economy, curation, profiles, recordings, and more), each with a clean controller → service → repository boundary. Prisma is the ORM, talking to PostgreSQL through the <code>pg</code> adapter. Input validation is enforced at every route with class-validator DTOs. Auth is built in-house — bcrypt, JWT with server-side refresh tokens delivered as httpOnly cookies, Google SSO layered on via <code>google-auth-library</code>. Helmet, a throttler for rate limits, and pino for structured logging round out the production hardening.</p>
 
-        <pre><code class="language-typescript">// The client's self-reported score is a hint, never the truth.
-const serverScore = evaluate(submission.events, exercise.expectedNotes);
+        <p><strong>Frontend — <code>web</code>:</strong> React Router 7 in framework mode — server-first, so data loads through loaders and actions rather than a client-side global store. The UI is shadcn/ui on Tailwind with lucide icons. The genuinely domain-specific parts are the interesting ones: <code>webmidi</code> for keyboard input, <code>tone</code> for synthesis and reference playback, OpenSheetMusicDisplay for rendering scores from MusicXML, and XState for the one place that truly needs a state machine — the practice session, with its named states from idle through countdown, playing, evaluating, and result.</p>
 
-if (Math.abs(serverScore - submission.clientScore) > TOLERANCE) {
-  // Numbers disagree — someone's lying, or something drifted.
-  await this.flag(session, { clientScore, serverScore });
-  return { status: 'FLAGGED', reward: 0 };
-}
+        <h2>One Contract, Generated Not Written</h2>
 
-// Only the server-computed result is allowed to touch the ledger.
-return this.settle(session, serverScore);</code></pre>
+        <p>The two repos never import from each other. The only thing between them is the HTTP API, and I refuse to describe that API twice. NestJS generates an OpenAPI spec from its Swagger decorators; the frontend's entire TypeScript client is generated from that spec with orval. Nobody hand-writes a fetch wrapper or a response type.</p>
 
-        <p>To keep the two evaluators honest, they share convergence fixtures — inputs with known outputs that both implementations must produce. If someone changes the scoring rule on one side and forgets the other, the fixtures fail in CI. The mirror can't silently drift apart.</p>
+        <p>The payoff is that the contract can't silently rot. Remove an endpoint or change a response shape on the server, regenerate, and the break surfaces as a compile error on the web side instead of a runtime surprise in production. It also enforces a healthy discipline: because the client is generated, the Swagger decorators aren't documentation-after-the-fact — they <em>are</em> the interface. Getting the OpenAPI right is getting the frontend's types right.</p>
 
-        <p>There's a nice side effect I didn't design but got for free: a plausibility floor on session duration caught a forged submission during a smoke test. A three-second "session" that claimed a full scale was rejected before evaluation even ran — the anti-forgery logic validated itself by accident.</p>
+        <p>One scar worth recording: the OpenAPI export step once failed silently on a TypeScript cast error and shipped a stale spec. Now the export always checks for <code>"Found N error(s)"</code> before it's trusted. Generated contracts are only as good as the generation step's failure modes.</p>
 
-        <h2>The Economy Is a Ledger, Not a Number</h2>
+        <h2>The Infrastructure: Running It on Railway</h2>
 
-        <p>The obvious way to build an in-app economy is a <code>balance</code> column you increment and decrement. It's also the wrong way, because the moment you can <code>UPDATE</code> a balance, the balance stops being trustworthy — and in a system whose entire pitch is "the rewards are real," a trustworthy balance is the product.</p>
+        <p>The whole thing runs on Railway, chosen because it gives me container-based deploys and managed networking without the operational weight of raw cloud. Both repositories deploy independently, each from its own Dockerfile, each with its own health check and restart policy.</p>
 
-        <p>So there is no balance column. There's a ledger of immutable transactions, and the balance is a sum:</p>
+        <p>The API is a multi-stage Docker build — dependencies, build, then a lean production image that carries only <code>node_modules</code>, the compiled <code>dist</code>, the generated Prisma client, and the migration files. Migrations run as part of the release, not baked into the image, so a deploy is <code>migrate deploy</code> then boot:</p>
 
-        <pre><code class="language-typescript">// Earning: a positive line, granted only by the server.
-await ledger.append({
-  userId,
-  amount: +50,
-  reason: 'NODE_MASTERED',
-  // Structural idempotency: the same mastery can't pay twice.
-  idempotencyKey: `node-mastered:${userId}:${nodeId}`,
-});
+        <pre><code class="language-toml"># api/railway.toml
+[deploy]
+startCommand = "sh -c 'npx prisma migrate deploy &amp;&amp; node dist/src/main.js'"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3</code></pre>
 
-// Spending in the shop: a negative line, under an advisory lock
-// with a balance re-check inside the transaction.
-await ledger.append({
-  userId,
-  amount: -30,
-  reason: 'COSMETIC_PURCHASE',
-});
+        <p>The <code>/health</code> endpoint (via <code>@nestjs/terminus</code>) gates every deploy — a container that can't answer healthy never takes traffic. Migrations are versioned from day zero and the database can be rebuilt reproducibly from an empty schema, which matters enormously for a project maintained by one person: I never have to remember what state production drifted into.</p>
 
-// The balance is derived, never stored.
-const balance = await ledger.sum(userId);</code></pre>
+        <p>The frontend has its own subtlety. Vite inlines <code>VITE_*</code> variables at build time, so the API URL has to be present when the image is built, not when it runs. Railway passes service variables through as Docker build args, and the Dockerfile threads them into the build stage:</p>
 
-        <p>This buys real properties. Every coin is auditable back to the exact practice session that minted it. Idempotency keys make double-grants structurally impossible — mastering a node pays exactly once, no matter how many times the event is reprocessed. And when a bug once paid a bonus it shouldn't have, the fix didn't reverse the transaction; it left the erroneous line in place (the ledger is immutable) and corrected the rule going forward. The history stays honest even about its own mistakes.</p>
+        <pre><code class="language-dockerfile"># web/Dockerfile — Vite bakes VITE_* into the bundle at build time
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build</code></pre>
 
-        <p>Purchases race, of course — two tabs, one balance. An advisory lock per user plus a balance re-check inside the transaction guarantees exactly one of two concurrent buys succeeds, and the balance never goes negative.</p>
+        <p>Around the two services sits the rest of the stack: <strong>PostgreSQL on Neon</strong> as the primary database, <strong>Cloudflare R2</strong> for all binary assets (MusicXML scores, MIDI recordings, cosmetic sprites) behind an S3-compatible client, <strong>Cloudflare</strong> for DNS and CDN, and <strong>Resend</strong> for transactional email. That last one taught me a real lesson: I built email on generic SMTP first, only to discover Railway blocks outbound SMTP egress below its Pro tier — cold registrations were hanging for two minutes and timing out. I migrated to Resend's HTTP API with short timeouts, and email started working. Infrastructure constraints don't announce themselves; you meet them at 2am when a signup silently fails.</p>
 
-        <h2>Almost No Client State</h2>
+        <p>The other infrastructure scar was proxy-related. Sitting behind Railway's edge, the app was reading the edge machine's address as the client IP — which fragmented rate limiting per edge node and poisoned the audit log with wrong IPs. The fix was getting <code>trust proxy</code> set to the correct number of hops, verified with a temporary, env-gated middleware that logged the forwarded-for chain so I could actually see what the edge was sending. You cannot configure a proxy you can't observe.</p>
 
-        <p>The frontend is React Router 7 in framework mode — server-first by design. The rule I held to is that global client state should be roughly zero: ephemeral UI state lives in the component or in the URL, and anything the server owns is loaded through a loader, not cached in a store I have to invalidate by hand.</p>
+        <h2>Server Is the Source of Truth</h2>
 
-        <p>The one place that earns real client-side machinery is the practice session itself, and it's modeled as an explicit state machine with named states — idle → countdown → playing → evaluating → result. Using XState here isn't decoration; a practice session has genuinely illegal transitions (you can't be evaluating before you've played), and encoding them as a machine makes those bugs unrepresentable instead of merely unlikely.</p>
+        <p>One principle holds the whole system together and shows up everywhere: the server is authoritative, and the client is treated as untrusted. Practice is evaluated in the browser for instant feedback, but the same evaluator runs again on the server on the raw MIDI events before anything is recorded — the two implementations share convergence fixtures in CI so they can't drift apart. Progress, and the ledger-based reward economy behind it, are written only by the server. The client's job is to feel fast; the server's job is to be right.</p>
 
-        <pre><code class="language-typescript">// The session is a machine, not a pile of booleans.
-const practiceMachine = setup({ /* ... */ }).createMachine({
-  initial: 'idle',
-  states: {
-    idle:       { on: { START: 'countdown' } },
-    countdown:  { on: { GO: 'playing' } },
-    playing:    { on: { STOP: 'evaluating' } },
-    evaluating: { on: { SCORED: 'result' } },
-    result:     { on: { AGAIN: 'countdown', EXIT: 'idle' } },
-  },
-});</code></pre>
+        <p>That split is what lets a free, open platform stay coherent. Anyone can open the browser tools and send whatever they want; none of it matters, because the source of truth was never in the browser to begin with.</p>
 
-        <h2>Two Repos, One Contract</h2>
+        <h2>What Building It Solo Taught Me</h2>
 
-        <p>The backend (NestJS + Prisma + PostgreSQL) and the frontend (React Router) are separate repositories, deliberately. No monorepo. The contract between them is the HTTP API, described by an OpenAPI spec that Nest generates from decorators — and the frontend's TypeScript client is generated from that spec with orval, never hand-written.</p>
+        <p>Carrying a project from zero to production alone forces a kind of honesty about scope. There's no one to hand the "boring" half to, so every decision is a decision about what future-me will have to maintain. Reproducible migrations, a generated API contract, health-gated deploys, structured logs — these aren't enterprise ceremony when you're solo, they're survival. They're how one person keeps a real system running without it quietly becoming a house of cards.</p>
 
-        <p>The payoff is that the contract can't quietly rot. If I remove an endpoint or change a shape on the server, regenerating the client surfaces the break at compile time on the web side. The two codebases stay in lockstep without me maintaining a shared types package by hand across a repo boundary.</p>
+        <p>And the mission kept the engineering grounded. "Free access to music education" isn't a slogan on the landing page; it's the reason there's no BaaS bill, no audio-ML compute, no paywall on the core. The architecture is the mission, made concrete.</p>
 
-        <p>It also imposes discipline I've come to appreciate: because the client is generated, the server's Swagger decorators aren't an afterthought — they <em>are</em> the interface. Getting the OpenAPI right is getting the frontend's types right.</p>
-
-        <h2>Content You Can Trust, Reputation You Have to Earn</h2>
-
-        <p>The same "no status without study" ethic extends to the library. Content lives in three tiers — golden standard, verified, and new — and promotion between tiers is a curation act, never an automatic consequence of popularity. Community appreciation is a <em>signal</em> that informs a curator, never a gate that admits content on its own. And you can only appreciate an exercise you've actually practiced, which keeps the signal tied to real engagement rather than drive-by voting.</p>
-
-        <p>Contributing content earns reputation, but reputation is kept strictly separate from currency and XP — you can't buy your way to standing, and the person who reviews their own submission earns nothing from it. Every anti-farm decision points the same direction: the numbers on your profile should mean you did the work.</p>
-
-        <h2>What I Took From It</h2>
-
-        <p>The interesting thing about a hard constraint is how much design it does for you. "No status without study" sounds like a product principle, but held rigorously it dictates a mirrored evaluator, an immutable ledger, server-granted rewards, and a client you assume is adversarial. I didn't set out to build all of that — I set out to make gamification that couldn't be faked, and the architecture is just what that honesty costs.</p>
-
-        <p>Cadentia is live at <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">cadentia.club</a>. If you play a scale on it and earn a coin, you can follow that coin all the way back to the exact moment your fingers hit the keys. That traceability isn't a feature bolted on top — it's the whole point.</p>
+        <p>Cadentia is live at <a href="https://cadentia.club" target="_blank" rel="noopener noreferrer">cadentia.club</a>. Open it, plug in a keyboard, and learn something for free.</p>
     </article>
 
     <!-- Prism.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-toml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-docker.min.js"></script>
 
     <script>
         // Theme toggle

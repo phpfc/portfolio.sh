@@ -85,6 +85,9 @@ window.LanguageModule = {
 
             // Projects Section
             'projects.title': 'Projects',
+            'projects.cadentia.title': 'Cadentia',
+            'projects.cadentia.subtitle': 'Free Music Education Platform',
+            'projects.cadentia.desc-1': 'Free, browser-based music education platform — theory, ear training, sight-reading, and piano practice with automatic MIDI evaluation. Solo project taken from zero to production: NestJS + Prisma + PostgreSQL backend and a server-first React Router 7 frontend, with the API client generated from OpenAPI. Runs on Railway (Docker, Neon, Cloudflare R2/CDN, Resend).',
             'projects.cleanser.title': 'Cleanser',
             'projects.cleanser.subtitle': 'macOS Storage Cleanup Tool',
             'projects.cleanser.desc-1': 'High-performance CLI tool that helps macOS users reclaim storage space by intelligently identifying and removing unnecessary files. Features dynamic pattern-based discovery to detect cache directories, build artifacts, and duplicate files across the filesystem using parallel SHA-256 hashing.',
@@ -101,6 +104,9 @@ window.LanguageModule = {
             'writing.title': 'Writing',
             'writing.intro': 'Thoughts on software architecture, system design, and engineering practices.',
             'writing.view-all': 'View all posts →',
+            'writing.cadentia.date': 'August 26, 2025',
+            'writing.cadentia.title': 'Cadentia: Building Free Music Education, End to End',
+            'writing.cadentia.excerpt': 'A free, browser-based music education platform I took from zero to production solo. The stack, the generated API contract, and the Railway infrastructure behind it.',
             'writing.cymatic.date': 'January 15, 2025',
             'writing.cymatic.title': 'Building Cymatic: Where Music Theory Meets WebGL',
             'writing.cymatic.excerpt': 'From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound. Exploring cymatics, harmonic ratios, and real-time audio-visual synchronization.',
@@ -186,6 +192,9 @@ window.LanguageModule = {
 
             // Projects Section
             'projects.title': 'Projetos',
+            'projects.cadentia.title': 'Cadentia',
+            'projects.cadentia.subtitle': 'Plataforma de Educação Musical Gratuita',
+            'projects.cadentia.desc-1': 'Plataforma de educação musical gratuita, no navegador — teoria, percepção, leitura à primeira vista e prática de piano com avaliação automática via MIDI. Projeto pessoal levado do zero à produção sozinho: backend NestJS + Prisma + PostgreSQL e frontend React Router 7 server-first, com o cliente da API gerado a partir do OpenAPI. Roda na Railway (Docker, Neon, Cloudflare R2/CDN, Resend).',
             'projects.cleanser.title': 'Cleanser',
             'projects.cleanser.subtitle': 'Ferramenta de Limpeza de Armazenamento para macOS',
             'projects.cleanser.desc-1': 'Ferramenta CLI de alta performance que ajuda usuários macOS a recuperar espaço de armazenamento identificando e removendo arquivos desnecessários de forma inteligente. Possui descoberta dinâmica baseada em padrões para detectar diretórios de cache, artefatos de build e arquivos duplicados através do sistema usando hashing SHA-256 paralelo.',
@@ -202,6 +211,9 @@ window.LanguageModule = {
             'writing.title': 'Escrita',
             'writing.intro': 'Reflexões sobre arquitetura de software, design de sistemas e práticas de engenharia.',
             'writing.view-all': 'Ver todos os posts →',
+            'writing.cadentia.date': '26 de Agosto, 2025',
+            'writing.cadentia.title': 'Cadentia: Construindo Educação Musical Gratuita, de Ponta a Ponta',
+            'writing.cadentia.excerpt': 'Uma plataforma de educação musical gratuita, no navegador, que levei do zero à produção sozinho. A stack, o contrato de API gerado e a infraestrutura na Railway por trás dela.',
             'writing.cymatic.date': '15 de Janeiro, 2025',
             'writing.cymatic.title': 'Construindo Cymatic: Onde Teoria Musical Encontra WebGL',
             'writing.cymatic.excerpt': 'De professor de música a desenvolvedor: construindo um sintetizador audiovisual no navegador que visualiza a ciência do som. Explorando cimática, proporções harmônicas e sincronização áudio-visual em tempo real.',
