@@ -159,16 +159,52 @@
         const postsContainer = document.getElementById('posts');
         const posts = [
             {
+                slug: 'building-software-with-ai-agents',
+                title: 'Building Software With AI Agents: Specs, Gates, and a Lessons File',
+                excerpt: 'Most of the code I shipped this year was not typed by me. The loop, the decisions, the guardrails and the failures behind building production software with AI agents.',
+                date: '2026-10-29'
+            },
+            {
+                slug: 'green-tests-corrupted-answers',
+                title: '847 Green Tests and Corrupted Answers',
+                excerpt: 'A resume bug that passed 847 unit tests, a grading incident, and a design that treats the exam attempt as fact and the grade as interpretation.',
+                date: '2026-10-29'
+            },
+            {
+                slug: 'one-exam-engine-three-hosts',
+                title: 'One Exam Engine, Three Hosts: Shipping a Shared SDK Behind a Canary',
+                excerpt: 'Taking a TypeScript exam SDK from an empty repository to production in a PHP monolith, a React LMS and a Flutter app, behind a fail-closed canary.',
+                date: '2026-10-29'
+            },
+            {
+                slug: 'one-endpoint-96-percent-of-the-cdn',
+                title: '96% of the CDN Traffic Was One Endpoint',
+                excerpt: 'Cost forensics from the AWS bill to app behavior: a mobile sync that re-downloaded a 27 MB catalog twenty times per lesson, and an Aurora storage switch.',
+                date: '2026-10-29'
+            },
+            {
+                slug: 'the-outage-at-1311',
+                title: 'The Outage That Happened Every Day at 13:11',
+                excerpt: 'A daily staging outage traced to an account-wide patch scan, fixed with a five-line systemd drop-in and proof that production stayed byte-identical.',
+                date: '2026-10-29'
+            },
+            {
+                slug: 'rules-catalog-auth-bypass',
+                title: 'A 500-Rule Catalog That Found an Auth Bypass',
+                excerpt: 'Turning implicit behavior into numbered, tested rules: the method, three catalogs, and the security bugs that writing the rules down exposed.',
+                date: '2026-10-29'
+            },
+            {
                 slug: 'cadentia-honest-gamification',
                 title: 'Cadentia: Building Free Music Education, End to End',
                 excerpt: 'A free, browser-based music education platform I took from zero to production solo. The stack, the generated API contract, and the Railway infrastructure behind it.',
-                date: '2025-08-26'
+                date: '2026-08-26'
             },
             {
                 slug: 'cymatic-audiovisual-synthesizer',
                 title: 'Building Cymatic: Where Music Theory Meets WebGL',
                 excerpt: 'From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound.',
-                date: '2025-01-15'
+                date: '2026-01-15'
             },
             {
                 slug: 'mobile-stack-unification',
@@ -188,7 +224,7 @@
             const postEl = document.createElement('div');
             postEl.className = 'post';
             postEl.innerHTML = `
-                <p class="meta">${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p class="meta">${new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</p>
                 <h2><a href="posts/${post.slug}.html">${post.title}</a></h2>
                 <p>${post.excerpt}</p>
             `;

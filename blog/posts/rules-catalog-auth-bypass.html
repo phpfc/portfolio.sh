@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Turning implicit system behavior into a reviewable, executable catalog of rules mapped 1:1 to tests: the method, three catalogs built with AI agents, and the authentication bypass one of them surfaced.">
+    <title>A 500-Rule Catalog That Found an Auth Bypass - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>A 500-Rule Catalog That Found an Auth Bypass</h1>
+
+        <p>Every system I've worked on has rules nobody wrote down. Which requests skip authentication. What happens to an unfinished exam when the timer runs out. Whether a field on the profile form is something a user may change or something only an admin may touch. The rules exist, because the code enforces them every day, but they live as side effects scattered across files, and the only way to learn one is to read the code or break it.</p>
+
+        <p>Over the past two months, at a Brazilian financial-education company, I turned that implicit behavior into catalogs: numbered, reviewable rules, each one mapped to a test that proves it. I built three, for our exam SDK, for the rewrite of a classic financial calculator emulator, and for the course platform (LMS). The last one, 500 rules long, surfaced an authentication bypass in production. This post is about the method and what it found.</p>
+
+        <h2>What Counts as a Rule</h2>
+
+        <p>A rule is one verifiable assertion with exact values. Not "the checkout looks right", but the exact string, the exact status code, the exact number. Every rule has three parts: an ID, the assertion, and the authority it comes from. Here's the shape (the rows are illustrative):</p>
+
+        <pre><code class="language-markdown">| ID              | Rule                                                        | Reference                        |
+|-----------------|-------------------------------------------------------------|----------------------------------|
+| R-E2E-LOGIN-04  | A protected route called without a session returns 401      | characterization                 |
+|                 | and never reaches the handler                               |                                  |
+| R-LOGIC-CART-07 | The order total is rounded half-up to 2 places after        | web app file:line;               |
+|                 | discounts, never per item. Decision: the web app wins;      | mobile app file:line             |
+|                 | the mobile app rounds per item                              |                                  |
+| R-E2E-REPORT-06 | [DEFECT] Current: the exported total includes cancelled     | export file:line;                |
+|                 | orders. Desired: cancelled orders are excluded              | owner decision, 2026-10-05       |</code></pre>
+
+        <p>The ID encodes the kind of rule and its area: <code>R-</code>, then the layer (<code>LOGIC</code> for pure logic, <code>COMP</code> for component behavior, <code>UI</code> for visual values like markup and compiled CSS, <code>E2E</code> for complete flows), then a short area token, then a number that is never reused. The layer decides the tool: logic rules become plain unit tests, component rules become Testing Library tests, end-to-end rules run in a real browser. And every test cites the full ID in its title. That one convention is what makes the rest possible: the catalog and the test suite can be cross-checked by a script, 1:1.</p>
+
+        <h2>Authority Is a Decision, Not a Default</h2>
+
+        <p>The most important column is the last one. Each rule cites where it comes from: a file and line in a reference implementation, a page in a primary source, a dated decision, or "characterization", meaning the system's current behavior is being written down for the first time. What a rule can never treat as the definition of correct is "whatever the code does today".</p>
+
+        <p>When there are several references, authority is assigned per axis, never to one implementation globally. One codebase can be right about branding and wrong about mobile behavior. I write that down as an explicit table before any rule is extracted. When sources still disagree and the table doesn't settle it, the rule decides anyway and records its reasoning inline, in a line that starts with <code>Decision:</code>. Extraction never stops to ask. I review the decisions in batches and veto the ones I disagree with. Every recorded decision is a point someone can argue with, and that's the point.</p>
+
+        <p>There's a corollary I care about: cataloging is not endorsing. The catalog records what the system does, and sometimes what it does is wrong. When an extractor finds behavior that looks broken, it flags the rule "to confirm with the owner". Only a human promotes it to a defect, and a defect rule has two halves: <em>Current</em>, what the code does, and <em>Desired</em>, what it should do.</p>
+
+        <h2>Defect Tests That Go Red When the Bug Is Fixed</h2>
+
+        <p>A defect rule still needs a test, and that test asserts the <em>desired</em> behavior, so today it fails. It's marked as an expected failure (<code>test.fail()</code> in Playwright, <code>it.failing</code> in Jest), which keeps CI green while the bug exists:</p>
+
+        <pre><code class="language-typescript">// Rule tagged [DEFECT]: assert the DESIRED behavior, expect it to fail today.
+test.fail('R-E2E-REPORT-06 — exported total excludes cancelled orders', async ({ page }) =&gt; {
+  await page.goto(reportUrl);
+  await expect(page.getByTestId('export-total')).toHaveText('R$ 900,00');
+});</code></pre>
+
+        <p>The interesting moment is the fix. When someone corrects the code, the test starts passing, and an expected failure that passes is reported as a failure. The suite goes red because the bug is gone. Whoever made the fix has to turn it into a normal test and remove the defect tag from the rule, in the same pull request. No fix lands without updating the catalog and the test, and no catalogued defect gets quietly forgotten. The list of defect rules <em>is</em> the fix backlog, each item with its test already written and waiting.</p>
+
+        <h2>A Gate That Fails in Both Directions</h2>
+
+        <p>The coverage gate runs inside the normal test command and checks the catalog against the test titles both ways. A rule with no test fails. A test citing an ID that doesn't exist also fails, which catches typos, renumbered rules, and tests that outlived the behavior they described.</p>
+
+        <pre><code class="language-javascript">const defined = idsDefinedIn(catalogShards);  // IDs that open a table row
+const cited   = idsCitedIn(testTitles);       // IDs named in test titles
+
+const phantom   = [...cited].filter(id =&gt; !defined.has(id));
+const uncovered = [...defined].filter(id =&gt; !cited.has(id) &amp;&amp; isActiveArea(id));
+
+if (phantom.length)   fail('tests cite rules that do not exist', phantom);
+if (uncovered.length) fail('rules without a test', uncovered);</code></pre>
+
+        <p>It starts lenient. A catalog comes before its tests by design, so areas are either active or pending: active areas require a test for every rule, pending ones are exempt until someone writes their tests. Phantom IDs fail in any mode. When extraction is over, the gate flips to strict. There's also a small tooling test that runs the extractor against the real catalog files and asserts the result isn't empty, because a regex that silently stops matching after a format change would turn the gate into a rubber stamp.</p>
+
+        <h2>Shards, So Agents Can Work in Parallel</h2>
+
+        <p>Most of the extraction is done by AI agents, several at a time. That only works if they never write to the same file. So the catalog is sharded by area: one file per area, one agent per area, and that agent is the exclusive owner of its shard while it works. I learned this the usual way, from a collision. A single monolithic catalog is only safe when writes are strictly sequential. Approval is incremental too: after an area is extracted I review it, and no test for that area gets written before I approve its rules.</p>
+
+        <h2>Three Catalogs</h2>
+
+        <p><strong>The exam SDK.</strong> Our exam SDK replaced exam logic that had been duplicated across five codebases, so its catalog has five reference implementations, each authoritative on a different axis: the legacy web app on branding and production behavior, the Flutter app on mobile UX, the course platform on visual hierarchy and animation. It started at 104 rules and grew to 373 across 20 areas, and the gate fails the test command on any gap.</p>
+
+        <p><strong>The calculator emulator.</strong> The existing app was about 4,100 lines of untested JavaScript. The function that solves for the number of periods was a stub that returned 0, and several functions printed on the keypad had no code behind them. The code could not be the authority, so the catalog was built from the official 220-page manual. Even that needed validating: the table of contents was laid out against slightly different pagination than the final PDF, so printed and physical page numbers drift apart, from 0 at the start to +7 by the appendices. I kept an offset table and cited physical pages, each one confirmed by opening it.</p>
+
+        <p>The result was 429 rules (342 logic, 29 component, 52 UI, 6 end-to-end) in 20 areas, with 76 recorded decisions. It found errata in the manual itself: an error condition printed without its minus sign while the four sibling keys in the same table carry it, and a worked example whose key sequence contradicts a definition two lines above it on the same page. It also found a real bug in the existing app. The manual shows the count of amortized payments accumulating, 12 after the first call and 24 after the second; the app subtracted instead. The new core is being built test-first against the catalog, with 199 rule IDs already cited in tests, and the legacy code only goes away after full coverage and a check in the browser.</p>
+
+        <p><strong>The course platform.</strong> The LMS catalog is the largest: 20 shards, 500 rules, 52 of them tagged as defects. On October 26 the gate counted 332 of the 500 rules covered, backed by 50 Playwright specs, 47 component rule tests and 741 Jest tests. The end-to-end layer runs the whole chain for real: a browser, the React front end, the NestJS API, our SSO, the identity provider behind it, and the database.</p>
+
+        <h2>What the LMS Catalog Surfaced</h2>
+
+        <p>Writing rules forces exact answers to questions nobody asks out loud. "Which requests skip authentication?" has to become a list of paths and methods. For the LMS, the honest answer wasn't a list. Four findings stand out, and all four are fixed in production:</p>
+
+        <ol>
+            <li><strong>Authentication bypass.</strong> The global auth guard decided whether a request was public by substring matching on the URL, and a query parameter could make any request look public. A protected route reached that way skipped authentication entirely. Public access is now granted only on an exact path and method.</li>
+            <li><strong>Password hash in responses.</strong> The edit-user handlers returned the full user row, password hash included. Both now strip it.</li>
+            <li><strong>Insecure direct object reference (IDOR).</strong> An endpoint returned any user's access-group row, including the password hash and national ID number, and the bypass above meant it didn't even need a login. It's now admin-only, and the sensitive fields are stripped.</li>
+            <li><strong>Mass assignment.</strong> The profile-edit endpoint spread the request body straight into the update, so a user could write any column on their own account. It now accepts a whitelist of profile fields; everything else stays on the admin-only route.</li>
+        </ol>
+
+        <p>None of these looked dramatic in the code. They were small conveniences, a substring check instead of an equality, a spread instead of a pick, that only showed their real shape when someone had to write down the rule they implemented. The first and the third also compounded each other, which is the kind of thing you only see when the rules for both areas sit side by side.</p>
+
+        <p>The security fixes are on main. The catalog itself is still in progress on a branch: more areas need their tests before the gate goes strict. The 52 defect rules have their tests too, pinning known gaps until they're fixed.</p>
+
+        <h2>Why This Works With AI Agents</h2>
+
+        <p>Part of it is volume. Five hundred rules with exact values and citations is not something I would write by hand in a month alongside everything else. Agents extract in parallel and write tests in parallel, and the method is shaped around that: sharded files so they don't collide, IDs so their output can be checked by a script, a gate so "done" is a number instead of a feeling.</p>
+
+        <p>What the agents don't own is judgment. I own the authority table, the area list, the approvals, the recorded decisions, and the call on what counts as a defect. That split is the part I'd keep even without agents. The code is a witness, not a judge, and someone has to be accountable for what "correct" means.</p>
+
+        <p>After the third catalog I generalized the method into a reusable skill: the ID grammar, the authority table, sharding, recorded decisions, the lenient-then-strict gate, red-when-fixed tests. I validated it RED-GREEN on another repository, the same way I'd validate code: first the run that gets it wrong without the skill, then the run that gets it right with it. The next system starts from the contract instead of a blank page.</p>
+
+        <p>The auth bypass was found by a catalog demanding an exact answer to a simple question. That's what I keep coming back to. A lot of bugs live in the gap between what a system does and what anyone has said it should do, and writing the rules down closes that gap one row at a time.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

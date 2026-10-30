@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How restored exam answers were corrupted while 847 unit tests stayed green, what that revealed about how a high-stakes exam platform stores attempts, and the attempt model and historical re-grade designed to fix it.">
+    <title>847 Green Tests and Corrupted Answers - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>847 Green Tests and Corrupted Answers</h1>
+
+        <p>I work on the exam platform of a Brazilian financial-education company. Students use it to rehearse for a national financial-certification exam: timed mock exams with multiple-choice questions, case studies with child questions, and dialog questions, where each answer moves you to a different node of a conversation graph. The score a student sees there is how they judge whether they are ready for the real thing, so a wrong score is not a cosmetic bug.</p>
+
+        <p>Since July, a large part of my work has come down to one plain question: when a student answers something, do we keep what they did? The honest answer turned out to be "mostly not", and for a while the test suite said otherwise.</p>
+
+        <h2>Four Ways to Save Progress</h2>
+
+        <p>Exam progress (which questions you drew, what you answered, where you stopped) had been implemented four different ways across our hosts: the web platform, a legacy PHP monolith (CodeIgniter 3); the course platform (LMS); and our apps. Resuming on another device was flaky. One bug had reached production: in an unfinished dialog, if you resumed, left the question and came back, the screen landed on the dialog's first step, already answered, instead of the first unanswered one. Answering there truncated the conversation history and erased every answer after it.</p>
+
+        <p>The front-end logic lived in a single JavaScript file of about 4,200 lines, with not one test. Real-browser end-to-end tests were off the table too, because the local environment pointed at the production database. So the first job was not fixing anything. It was building a way to see.</p>
+
+        <h2>Characterize Before Extracting</h2>
+
+        <p>The rule I set comes from Michael Feathers' work on legacy code: never move critical code before pinning down what it does. For each slice of the file, I wrote Vitest tests under jsdom that captured the current behavior, bugs included, treating each function as a black box with stubbed <code>localStorage</code>, <code>window</code> and jQuery. Only then did the logic move into pure modules, with those characterization tests proving nothing changed. Only then did bugs get fixed.</p>
+
+        <p>Unit tests were not enough, and the dialog bug proved it. A first fix corrected the rendering and made the symptom disappear in the current session. It failed on reload, because the answer never reached storage, so I reverted it. The bug needed a test that crossed the whole cycle: click, change handler, storage, reload, restore, render. I built a harness that boots the real bundle in jsdom against a mock server, drives it with real events, and implements <code>reload()</code> by discarding the DOM and the JavaScript scope and booting again from whatever storage holds. One invariant governs every scenario: any test that answers something must verify persistence through a reload. The real fix was in navigation: entering an unfinished dialog from outside now lands on its frontier, the first unanswered step. Along the way I found that the resume-token script had never run in one of our two exam bundles.</p>
+
+        <p>That token is a compact binary format, saved through a session-authenticated endpoint, throttled to once every 20 seconds and flushed with <code>sendBeacon</code> when the page is hidden:</p>
+
+        <pre><code class="language-plaintext">header   66 bits   version 8 | exam id 24 | timer 18 | position 8 | entry count 8
+entry    25 bits   question id 20 | dialog step 1 | corrected 1 | answer 3
+trailer  4 bytes   first 4 bytes of SHA-256(payload)</code></pre>
+
+        <p>Its test is a round trip: encode in JavaScript, decode in PHP, compare.</p>
+
+        <h2>847 Green Tests</h2>
+
+        <p>Later the exam interface moved into a cross-platform SDK in TypeScript and React that our hosts embed, and progress went server-side: one token owned by the SDK, with each host providing only an adapter. Resume across devices was still unreliable, so I wrote the requirement down as plainly as I could: resuming must bring back the identical exam, with the same questions and the same alternatives in the same positions, and in dialogs the path walked and every child answer. Debugging against that turned up five root causes:</p>
+
+        <ol>
+            <li>The token stored the displayed position of an answer where the contract expected its canonical rank.</li>
+            <li>Child questions were never written to the token.</li>
+            <li>A dialog's conversation state was not rebuilt on resume.</li>
+            <li>Nothing froze the displayed order, and the backend reshuffled alternatives on every fetch.</li>
+            <li>Saves were throttled to 20 seconds; the requirement was a save per interaction.</li>
+        </ol>
+
+        <p>The first one is the one I keep thinking about. The contract says the stored answer is the rank of the chosen alternative among the question's alternatives sorted by id. The SDK wrote the index of the alternative on screen, into a variable named <code>canonicalIndex</code>. The name said the right thing; the value was something else. Combine that with cause four: on resume the server shuffled the alternatives again, the decoder mapped the stored number back to an id, and the student got back an answer they had not chosen, with its correction state corrupted along with it.</p>
+
+        <p>Meanwhile, 847 unit tests were green. They checked that the restored answer sat in the same position as the saved one, and the mock server returned the same questions in the same order every time. In the test world, position and identity were the same thing. In production they were not.</p>
+
+        <pre><code class="language-typescript">// What the suite checked: same slot after resume.
+expect(resumed.selectedIndex).toBe(saved.selectedIndex);
+
+// What the student cares about: same alternative after resume,
+// against a mock that reshuffles on every fetch, as production does.
+expect(resumed.selectedAlternativeId).toBe(saved.selectedAlternativeId);</code></pre>
+
+        <p>Token v2 fixes the format rather than the symptom. Each entry grows to 33 bits with an 8-bit permutation: four 2-bit slots, where slot <em>i</em> holds the canonical rank of the alternative shown at position <em>i</em>. That freezes the order the student actually saw. The decoder checks that the slots form a valid permutation and falls back to canonical order, per question, when they do not. The token now carries child questions, the dialog state is rebuilt from it, and every interaction triggers an immediate, serialized save. A shared fixture runs in both directions, TypeScript encoding for PHP to decode and PHP encoding for TypeScript, and the test catalog now has a rule that says it outright: the stored answer is a canonical rank, never a displayed position.</p>
+
+        <h2>An Incident in Grading</h2>
+
+        <p>In October, while the SDK was still rolled out to a small slice of students, a different bug landed: for dialog questions, it submitted only the first node. The backend graded what it received, and 179 attempts from 32 students had their dialogs counted as wrong. The SDK was fixed. We scoped the damage with a regular expression over the JSON column where answers are stored, a detail that mattered later.</p>
+
+        <p>The incident itself was the easy part. What it revealed about the system was not.</p>
+
+        <h2>What We Actually Store</h2>
+
+        <p>I went back through the code and ran read-only queries against production. The findings were structural:</p>
+
+        <ul>
+            <li><strong>The stored attempt is a lossy projection.</strong> For each question we keep a 0 or a 1. The alternative the student chose exists during the exam, inside the progress token, and the token is deleted on submission. For every finished attempt, the choice is gone.</li>
+            <li><strong>The answer key is unversioned.</strong> Results are recalculated against the questions as they are today, and the results page writes the recalculated grade back. Saving a question deletes and reinserts its alternatives, so their ids change on every edit. In the last 30 days, 246 questions were edited and 73 had their answer key changed.</li>
+            <li><strong>Each host rebuilds results its own way.</strong> Web, app and LMS assemble result payloads with different logic and forget different things.</li>
+            <li><strong>The server doesn't grade.</strong> The 0 or 1 is computed on the client and stored as is, so the server has nothing of its own to recompute from.</li>
+        </ul>
+
+        <p>Scale makes this matter: about 2,200 attempts a day, in an attempts table of 14.4 million rows and 10.7 GB. And token v2 was already too small: 13 active questions have more than four alternatives, which the permutation cannot represent.</p>
+
+        <h2>The Attempt as Fact, the Grade as Interpretation</h2>
+
+        <p>The design that came out of this separates two things the system had always merged. What the student did, and what they were shown, are facts, and facts are immutable. The verdict and the score are interpretations: derived, tied to the rule that produced them, and recomputable.</p>
+
+        <ul>
+            <li><strong>Content versions.</strong> Each question as served becomes a canonical document addressed by its SHA-256 hash, written once and shared across attempts. It is captured when the backend serves the question, not when someone edits it, so it holds no matter who changed the content: an admin, an AI reviewer, an import or a manual SQL statement.</li>
+            <li><strong>An identity-based attempt record.</strong> A JSON document with a versioned schema, immutable, one per attempt. It references alternatives by id, records the displayed order as an explicit list of ids, and keeps the dialog path in visit order, the free text, and the content version of every question served.</li>
+            <li><strong>Append-only server grades.</strong> The server computes the grade from the record and the versions. A re-grade is a new row, never an overwrite, and the legacy columns become a projection of it.</li>
+            <li><strong>Golden vectors.</strong> The SDK owns the grading rule. Its test vectors, built from real payloads plus edge cases, run in both TypeScript and PHP, so neither side can drift alone.</li>
+            <li><strong>Ingest beside the legacy row.</strong> The record is stored next to the existing attempt row, validated, and annotated when something does not check out. It never fails a submission.</li>
+        </ul>
+
+        <p>A multiple-choice item in the record looks like this, with the question, the content version served, the ids as displayed, and the id picked. There is no position anywhere:</p>
+
+        <pre><code class="language-json">{ "kind": "mcq", "q": 4711, "v": 902,
+  "order": [5103, 5101, 5104, 5102], "pick": 5101 }</code></pre>
+
+        <p>I weighed a bigger binary token, an event log and a row per answer. JSON won on identity, on forensics (the incident above was scoped with a query, not a decoder) and on schema evolution. Size did not decide it: roughly 3 GB a year. The rollout is phased and additive. The first phase only creates new tables, applied by hand from a runbook, and the server becomes the grading authority only after a shadow period with zero unexplained divergence from the client's grades.</p>
+
+        <h2>Re-grading the Past</h2>
+
+        <p>Surveying stored answers for the design turned up an older bug. Dialog steps were stored in two dialects: the web stored the rank of the chosen letter as a string, "1" to "4", while our native Flutter app stored a JSON number per step, where 1 means the student picked the right alternative at that node. The PHP grader read the app's 1 as the letter A. In a sample of the 20,000 most recent attempts, the app had recorded about 7,800 dialogs as correct, and the grader approved 124.</p>
+
+        <p>The fix for new attempts is small. The past is harder. I wrote a generator that only reads production, in read-only transactions, and emits SQL instead of running it. Every statement is guarded and idempotent:</p>
+
+        <pre><code class="language-sql">UPDATE attempts SET score = 79.59
+WHERE id = 1001 AND score = 75.51;</code></pre>
+
+        <p>If the row has already changed, it is not touched, and running the file a second time changes nothing. Scope is decided row by row from the data: an attempt is eligible only if its stored score is exactly what the old code computes and its denominator is the canonical question count, so the only difference is how the flag is read. Attempts whose dialog was edited on or after the attempt day stay out, because today's graph may not be the one the student saw. That is the unversioned answer key again, and it keeps 1,099 attempts out of the files. Another 15,731 were graded under older counting rules; recomputing them would move grades for reasons unrelated to this bug, and lower 4,347 of them, so they stay as they are.</p>
+
+        <p>The result: 31,211 attempts for 3,846 students would be corrected, by +6.68 percentage points on average, with zero decreases. The generator mirrors the grading rule, so I checked the mirror against the real production PHP grader, both old and fixed, with 24,000 random cases on PHP 8.3 and 8.5: 0 divergences. 320 real rows replayed through the real PHP models matched. On a scratch MySQL, the first run changed 31,211 rows and the second changed 0. A scan of every output file for personal data found nothing.</p>
+
+        <p>None of this has run in production yet. The grader fix is not merged, the SQL has not been executed, and the attempt model's tables do not exist. The re-grade writes its audit rows into the new append-only grades table, so the two ship together. They are designed and validated, and that is all I will claim for them today.</p>
+
+        <h2>What the Tests Should Have Said</h2>
+
+        <p>Most of this was implemented by AI coding agents working from my specs, under my review. That moved my effort from writing code to deciding what "correct" means and proving it, and two lessons came out of it.</p>
+
+        <p>First, a test should assert what the user would notice, not the representation the code happens to use. 847 tests proved that a number survived a round trip. None proved that the student got their own answer back, and the mock guaranteed the difference could never show. Asserting identity, with fakes that behave like production, would have caught it on the first day.</p>
+
+        <p>Second, a grade is derived data. If you store only the derived value, every bug in the derivation becomes permanent, and every edit to the answer key quietly rewrites history. Store the facts, version what they were judged against, and a grade becomes something you can recompute, audit and correct.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

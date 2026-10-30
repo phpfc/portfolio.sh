@@ -3,48 +3,83 @@
   <!-- Homepage -->
   <url>
     <loc>https://phfranca.com/</loc>
-    <lastmod>2026-02-09</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
+
   <!-- Blog Index -->
   <url>
     <loc>https://phfranca.com/blog/</loc>
-    <lastmod>2026-02-09</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
   <!-- Blog Posts -->
+  <url>
+    <loc>https://phfranca.com/blog/posts/building-software-with-ai-agents.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/green-tests-corrupted-answers.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/one-exam-engine-three-hosts.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/one-endpoint-96-percent-of-the-cdn.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/the-outage-at-1311.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/rules-catalog-auth-bypass.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://phfranca.com/blog/posts/cadentia-honest-gamification.html</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <url>
     <loc>https://phfranca.com/blog/posts/cymatic-audiovisual-synthesizer.html</loc>
     <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <url>
-    <loc>https://phfranca.com/blog/posts/microservices-architecture.html</loc>
-    <lastmod>2026-02-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
+
   <url>
     <loc>https://phfranca.com/blog/posts/mobile-stack-unification.html</loc>
     <lastmod>2026-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <url>
-    <loc>https://phfranca.com/blog/posts/rust-system-tools.html</loc>
-    <lastmod>2026-02-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
+
   <url>
     <loc>https://phfranca.com/blog/posts/vendor-independent-auth.html</loc>
     <lastmod>2026-02-09</lastmod>

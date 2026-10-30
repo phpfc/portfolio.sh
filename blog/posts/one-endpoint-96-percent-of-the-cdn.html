@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cloud cost forensics from the AWS bill down to app behavior: a refuted hypothesis, a CDN compression fix that was about speed, a mobile sync endpoint that moved 96% of the bytes, and an Aurora storage change measured before and after.">
+    <title>96% of the CDN Traffic Was One Endpoint - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 6px 10px;
+            border-bottom: 1px solid #d9d5cc;
+        }
+
+        body.dark th, body.dark td {
+            border-bottom-color: #3d3a36;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>96% of the CDN Traffic Was One Endpoint</h1>
+
+        <p>Between June and September, the AWS bill at the Brazilian financial-education company where I work went up 24.6%, from US$1,690 to about US$2,106 a month. It was steady at roughly US$70 a day and it wasn't going to fix itself. There had been a cost audit in July, and nothing in it had been carried out. On top of that, the reserved instance on our main database had expired, and the database had been running at on-demand rates for about 19 months before anyone noticed.</p>
+
+        <p>That last detail told me what kind of problem this was. We had plenty of knowledge about the bill. What we didn't have was anyone who owned the follow-through. So I took it on and treated it like any other engineering problem: measure, attribute, change one thing, verify. The biggest line on the bill turned out to come from the app, not the infrastructure.</p>
+
+        <h2>The First Hypothesis Was About Me</h2>
+
+        <p>An audit at the start of October opened with a suspect: an onboarding commit of mine whose timing matched a 27× jump in Aurora read IOPS. On a chart it looked convincing. Then the audit ran EXPLAIN on the queries involved and checked them against real traffic, and the numbers were off by orders of magnitude. At our request volume, those queries couldn't produce anything close to that many reads.</p>
+
+        <p>The same audit did find a real problem in my code: a query I had written that ran on every request with no cache. A matching curve on a cost chart is a lead, not a finding, and an audit is only worth trusting if it can say "not you" in one place and "this one is you" in another.</p>
+
+        <h2>The Compression That Wasn't Happening</h2>
+
+        <p>The course platform (LMS) is a single-page app behind CloudFront, and its JavaScript and CSS were served with the managed <code>CachingDisabled</code> policy. CloudFront charges for every gigabyte it delivers, cache hit or not, so caching on its own barely moves the bill. Compression does. The catch is that CloudFront only compresses when the TTL is above zero, so <code>CachingDisabled</code> quietly switches off gzip and brotli, and the "compress" setting on those behaviors had been doing nothing.</p>
+
+        <p>I measured it in production by requesting the assets with <code>Accept-Encoding: br, gzip</code>. The main bundle went from 3.86 MB to 0.92 MB with brotli, the stylesheet from 563 KB to 63 KB, and the whole initial load from 4.42 MB to 0.98 MB, a 78% cut. I was sure I'd found the problem.</p>
+
+        <p>Then I pulled the distribution's Popular Objects report. JavaScript and CSS added up to 81.8 GB, about 2% of all bytes delivered. Cutting 78% of 2% saves about US$7 a month. It's still a good change, because the app loads faster, but it's a performance fix and not a cost fix. I wrote it up that way, gave it the lowest cost priority, and limited it to the two asset behaviors. Vite puts a content hash in every filename, so caching those files is safe.</p>
+
+        <p>I also wrote down why the default behavior must not be cached. It serves <code>index.html</code> and, through custom error responses, every deep route of the SPA. If you cache it, deep routes keep serving the old HTML. The deploy only invalidates <code>/index.html</code>, and the old HTML points at bundles that <code>s3 sync --delete</code> just removed. The result is a white screen after every deploy.</p>
+
+        <h2>One Endpoint, 96% of the Bytes</h2>
+
+        <p>The top row of that same report was a bulk-sync endpoint used only by our React Native app. These are the 30-day numbers:</p>
+
+        <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Share of the distribution's bytes</td><td>96%</td></tr>
+            <tr><td>Bytes delivered</td><td>3,861.8 GB</td></tr>
+            <tr><td>Requests</td><td>140,458 (about 4,700/day)</td></tr>
+            <tr><td>Average response</td><td>27.49 MB, uncompressed</td></tr>
+            <tr><td>Incomplete downloads</td><td>7,150</td></tr>
+            <tr><td>Attributed cost</td><td>~US$421/month</td></tr>
+        </table>
+
+        <p>In September, US$442 of the roughly US$493 we paid for CloudFront was data transfer out. Everything else on the distribution came to no more than about US$20 a month. The same endpoint explained the memory peaks on the backend, which reached 234% of the container's memory reservation. They followed traffic volume, so it wasn't a leak.</p>
+
+        <h2>Three Causes, Multiplied</h2>
+
+        <p>No single mistake explains the 96%. Three moderate ones multiplied each other:</p>
+
+        <ol>
+            <li><strong>The full catalog, uncompressed.</strong> Every call returned every active course with its modules and lessons, including long descriptions and per-lesson markers. The catalog was the same for every user. The backend had no compression middleware, and CloudFront only compresses responses up to 10 MB, so 27 MB went to the phone raw. The endpoint even accepted a <code>lastSync</code> parameter for incremental sync, and nothing ever read it.</li>
+            <li><strong>A full re-pull every 5% of a lesson.</strong> The player saved progress every 5 percentage points of video. Each save scheduled a background sync, and the sync pushed the pending change and then downloaded the whole catalog again. That's about 20 catalog downloads per lesson watched. A guard stopped syncs from running at the same time, but nothing stopped them from running one after another.</li>
+            <li><strong>A 30-second client timeout.</strong> Downloading 27.5 MB on a mobile connection in 30 seconds is tight. When the timeout fired, we had already paid for the transfer and the app threw it away, which matches the 7,150 incomplete downloads.</li>
+        </ol>
+
+        <h2>Fixing Both Sides Without Breaking the Stores</h2>
+
+        <p>The hard constraint was the app versions already in the stores. People don't update right away, so the response contract had to stay exactly the same: same route, same shape, and the descriptions and markers had to stay because offline mode depends on them. I also kept CDN, load balancer and container configuration out of scope. The fix had to live entirely in code.</p>
+
+        <p>On the server, I measured before writing any code. I ran the endpoint against a local copy and compressed the output:</p>
+
+        <pre><code class="language-bash">wc -c bulk.json
+gzip -6 -c bulk.json | wc -c
+brotli -c -q 5 bulk.json | wc -c</code></pre>
+
+        <p>Gzip cut 56.5% and brotli 64.4%. That's well short of the 80–90% the plan had assumed on the grounds that JSON like this usually compresses that well. The plan had said to confirm the real ratio before quoting any savings, and that rule kept me from quoting a number that was far too optimistic.</p>
+
+        <p>Compression at the origin was the first change. The second was a catalog cache per tenant, with a five-minute TTL and single-flight loading: when the cache is cold and many requests arrive together, one of them runs the nested query and the others wait for its result. Server time for the catalog went from 1,415 ms to 25 ms. Each user's progress and ratings are still fetched on every call. The trade-offs, both accepted: a course edit can take up to five minutes to reach the app, and each container keeps its own copy.</p>
+
+        <p>In the app, background sync now only pushes progress. The catalog is pulled at most once per interval, and the existing merge, where the higher progress value wins, keeps local progress safe. Code review caught one bug: on a cold start, the first pull ran before a user scope existed, so it was fetching data for a user it didn't have yet. We fixed it before shipping. The server change helped every app version in the stores immediately. The app change only helps as people update.</p>
+
+        <h2>The Database Change I Did Make</h2>
+
+        <p>The audit also pointed at the database itself. In September, I/O was 65% of our Aurora cost, and AWS recommends I/O-Optimized storage once I/O passes 25%. We were doing about 1.0 to 1.15 billion I/O operations a month, steady since July. Here are the prices:</p>
+
+        <table>
+            <tr><th>Component</th><th>Standard</th><th>I/O-Optimized</th></tr>
+            <tr><td>Instance</td><td>US$0.153/h</td><td>US$0.199/h</td></tr>
+            <tr><td>Storage</td><td>US$0.19/GB-month</td><td>US$0.428/GB-month</td></tr>
+            <tr><td>I/O</td><td>US$0.28 per million</td><td>included</td></tr>
+        </table>
+
+        <p>For us, I/O-Optimized added US$68.09 a month in instance and storage. At US$0.28 per million operations, that breaks even at 243 million operations a month. We were running about four times above that, so I/O would have to drop by about 78% before the switch stopped paying for itself.</p>
+
+        <p>Before touching anything, I read up on the pricing and reversibility rules. Only instance classes with local NVMe storage need a restart for this change, and ours has none. Going back to Standard is allowed at any time; the once-every-30-days limit only applies to switching into I/O-Optimized. The change doesn't touch data, endpoints, credentials or parameters. It only changes how storage is billed.</p>
+
+        <p>I applied it on October 21. It took about 35 seconds, with no reboot and no failover. Connections stayed at 32–34, CPU stayed around 20%, and read and write latency stayed around 1.2 and 1.8 ms. The expected savings are about US$215–260 a month, or US$2.6–3.1k a year. AWS Cost Optimization Hub's independent estimate was US$191.98 a month. Its 14-day window included two October weekends, when I/O is lower, so I treat that as the floor. I also wrote down when to undo it: the course platform's database lives on the same cluster, and the sync fix's cache could cut reads a lot. If I/O stays below about 243 million a month, we switch back.</p>
+
+        <h2>The Decisions That Weren't Mine</h2>
+
+        <p>The rest are finance decisions. I did the analysis and left the call to them:</p>
+
+        <ul>
+            <li><strong>Compute Savings Plan.</strong> A one-year, no-upfront plan saves US$110.70 a month. A three-year, all-upfront plan saves about US$178 a month but needs about US$5,966 paid now. The three-year plan only works out if eligible on-demand spend stays above about US$340 a month for all three years. It's about US$351 today, and one EC2 rightsizing would take US$39 off that. I recommended one year, but whether to spend the cash for the bigger discount is finance's call.</li>
+            <li><strong>Database reservation.</strong> US$763 upfront for about US$46.58 a month in savings on top of I/O-Optimized.</li>
+            <li><strong>A renewal reminder</strong> about 60 days before each commitment expires. It's the cheapest item on the list, and leaving it out is exactly how the last reservation lapsed for 19 months.</li>
+        </ul>
+
+        <h2>Cost Lives in Behavior</h2>
+
+        <p>The infrastructure changes were real, and the Aurora switch is the largest one I've actually made. But the biggest line on the bill wasn't a misconfigured service. It was a product behavior: a progress update that, every 5% of a lesson, downloaded the entire course catalog. No pricing model or reservation fixes that. If I had started by tuning infrastructure, I would have optimized the 2% and missed the 96%. So my rule now is to attribute bytes to endpoints before touching infrastructure.</p>
+
+        <p>One thing is still open: the sync fix is in production on both sides, but I haven't measured its savings yet. I'll compare a full month of the CDN report after the deploy against the baseline above. Until then, the savings are expected, not measured.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

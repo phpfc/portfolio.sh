@@ -104,10 +104,28 @@ window.LanguageModule = {
             'writing.title': 'Writing',
             'writing.intro': 'Thoughts on software architecture, system design, and engineering practices.',
             'writing.view-all': 'View all posts →',
-            'writing.cadentia.date': 'August 26, 2025',
+            'writing.agents.date': 'October 29, 2026',
+            'writing.agents.title': 'Building Software With AI Agents: Specs, Gates, and a Lessons File',
+            'writing.agents.excerpt': 'Most of the code I shipped this year was not typed by me. The loop, the decisions, the guardrails and the failures behind building production software with AI agents.',
+            'writing.tests.date': 'October 29, 2026',
+            'writing.tests.title': '847 Green Tests and Corrupted Answers',
+            'writing.tests.excerpt': 'A resume bug that passed 847 unit tests, a grading incident, and a design that treats the exam attempt as fact and the grade as interpretation.',
+            'writing.sdk.date': 'October 29, 2026',
+            'writing.sdk.title': 'One Exam Engine, Three Hosts: Shipping a Shared SDK Behind a Canary',
+            'writing.sdk.excerpt': 'Taking a TypeScript exam SDK from an empty repository to production in a PHP monolith, a React LMS and a Flutter app, behind a fail-closed canary.',
+            'writing.cdn.date': 'October 29, 2026',
+            'writing.cdn.title': '96% of the CDN Traffic Was One Endpoint',
+            'writing.cdn.excerpt': 'Cost forensics from the AWS bill to app behavior: a mobile sync that re-downloaded a 27 MB catalog twenty times per lesson, and an Aurora storage switch.',
+            'writing.outage.date': 'October 29, 2026',
+            'writing.outage.title': 'The Outage That Happened Every Day at 13:11',
+            'writing.outage.excerpt': 'A daily staging outage traced to an account-wide patch scan, fixed with a five-line systemd drop-in and proof that production stayed byte-identical.',
+            'writing.catalog.date': 'October 29, 2026',
+            'writing.catalog.title': 'A 500-Rule Catalog That Found an Auth Bypass',
+            'writing.catalog.excerpt': 'Turning implicit behavior into numbered, tested rules: the method, three catalogs, and the security bugs that writing the rules down exposed.',
+            'writing.cadentia.date': 'August 26, 2026',
             'writing.cadentia.title': 'Cadentia: Building Free Music Education, End to End',
             'writing.cadentia.excerpt': 'A free, browser-based music education platform I took from zero to production solo. The stack, the generated API contract, and the Railway infrastructure behind it.',
-            'writing.cymatic.date': 'January 15, 2025',
+            'writing.cymatic.date': 'January 15, 2026',
             'writing.cymatic.title': 'Building Cymatic: Where Music Theory Meets WebGL',
             'writing.cymatic.excerpt': 'From music teacher to developer: building a browser-based audiovisual synthesizer that visualizes the science of sound. Exploring cymatics, harmonic ratios, and real-time audio-visual synchronization.',
             'writing.mobile.date': 'December 15, 2024',
@@ -122,7 +140,7 @@ window.LanguageModule = {
             'contact.text': 'I\'m always interested in discussing software architecture, system design, or potential collaborations.',
 
             // Footer
-            'footer.text': '© 2025 Pedro Henrique França. Built with care.'
+            'footer.text': '© 2026 Pedro Henrique França. Built with care.'
         },
         'pt': {
             // Navigation
@@ -211,10 +229,28 @@ window.LanguageModule = {
             'writing.title': 'Escrita',
             'writing.intro': 'Reflexões sobre arquitetura de software, design de sistemas e práticas de engenharia.',
             'writing.view-all': 'Ver todos os posts →',
-            'writing.cadentia.date': '26 de Agosto, 2025',
+            'writing.agents.date': '29 de Outubro, 2026',
+            'writing.agents.title': 'Construindo Software com Agentes de IA: Specs, Gates e um Arquivo de Lições',
+            'writing.agents.excerpt': 'A maior parte do código que entreguei este ano não foi digitada por mim. O ciclo, as decisões, as salvaguardas e as falhas de construir software de produção com agentes de IA.',
+            'writing.tests.date': '29 de Outubro, 2026',
+            'writing.tests.title': '847 Testes Verdes e Respostas Corrompidas',
+            'writing.tests.excerpt': 'Um bug de retomada que passou em 847 testes unitários, um incidente de correção e um desenho que trata a tentativa como fato e a nota como interpretação.',
+            'writing.sdk.date': '29 de Outubro, 2026',
+            'writing.sdk.title': 'Um Motor de Provas, Três Hosts: Levando um SDK Compartilhado à Produção com Canário',
+            'writing.sdk.excerpt': 'Levando um SDK de provas em TypeScript de um repositório vazio à produção num monólito PHP, num LMS em React e num app Flutter, atrás de um canário fail-closed.',
+            'writing.cdn.date': '29 de Outubro, 2026',
+            'writing.cdn.title': '96% do Tráfego da CDN Era Um Único Endpoint',
+            'writing.cdn.excerpt': 'Investigação de custo da fatura AWS até o comportamento do app: um sync mobile que baixava de novo um catálogo de 27 MB vinte vezes por aula, e uma troca de storage no Aurora.',
+            'writing.outage.date': '29 de Outubro, 2026',
+            'writing.outage.title': 'A Queda Que Acontecia Todo Dia às 13:11',
+            'writing.outage.excerpt': 'Uma queda diária da homologação causada por um scan de patches da conta, corrigida com um drop-in systemd de cinco linhas e a prova de que a produção ficou idêntica byte a byte.',
+            'writing.catalog.date': '29 de Outubro, 2026',
+            'writing.catalog.title': 'Um Catálogo de 500 Regras Que Encontrou um Bypass de Autenticação',
+            'writing.catalog.excerpt': 'Transformando comportamento implícito em regras numeradas e testadas: o método, três catálogos e as falhas de segurança que escrever as regras revelou.',
+            'writing.cadentia.date': '26 de Agosto, 2026',
             'writing.cadentia.title': 'Cadentia: Construindo Educação Musical Gratuita, de Ponta a Ponta',
             'writing.cadentia.excerpt': 'Uma plataforma de educação musical gratuita, no navegador, que levei do zero à produção sozinho. A stack, o contrato de API gerado e a infraestrutura na Railway por trás dela.',
-            'writing.cymatic.date': '15 de Janeiro, 2025',
+            'writing.cymatic.date': '15 de Janeiro, 2026',
             'writing.cymatic.title': 'Construindo Cymatic: Onde Teoria Musical Encontra WebGL',
             'writing.cymatic.excerpt': 'De professor de música a desenvolvedor: construindo um sintetizador audiovisual no navegador que visualiza a ciência do som. Explorando cimática, proporções harmônicas e sincronização áudio-visual em tempo real.',
             'writing.mobile.date': '15 de Dezembro, 2024',
@@ -229,7 +265,7 @@ window.LanguageModule = {
             'contact.text': 'Estou sempre interessado em discutir arquitetura de software, design de sistemas ou possíveis colaborações.',
 
             // Footer
-            'footer.text': '© 2025 Pedro Henrique França. Feito com carinho.'
+            'footer.text': '© 2026 Pedro Henrique França. Feito com carinho.'
         }
     },
 

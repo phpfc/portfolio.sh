@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Taking a solo-authored TypeScript exam SDK to production in a legacy PHP monolith, a React LMS and a Flutter app: byte-level compatibility, protected CDN delivery, a security review, and a fail-closed canary.">
+    <title>One Exam Engine, Three Hosts: Shipping a Shared SDK Behind a Canary - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>One Exam Engine, Three Hosts: Shipping a Shared SDK Behind a Canary</h1>
+
+        <p>At a Brazilian financial-education company, I work on our exam platform: timed practice exams for a national financial-certification exam, taken on the web, inside the course platform (LMS), and in our Flutter app. This year I took a TypeScript SDK for those exams from an empty repository in June to production in all three by October. I wrote the specs, made the design calls and reviewed every change; most of the code was written by AI agents working from those specs. This post is about what it took to put a shared library into production, which turned out to be a different job from shipping an app.</p>
+
+        <h2>Five Copies of One Exam</h2>
+
+        <p>Before the SDK, the exam existed five times. A legacy PHP monolith (CodeIgniter 3) with a jQuery front end, the LMS's React app, a React Native app, the Flutter app and a NestJS proxy each carried their own state machine, navigation, timer, progress persistence, answer serialization and scoring. Together that was roughly 12,800 lines of duplicated logic.</p>
+
+        <p>The duplication had stopped being theoretical, and I documented the divergences before writing any code. The Flutter app only counted elapsed time, so it never auto-submitted when the clock ran out. It had none of the exam tools the web had. It graded tree-structured questions as simply right or wrong where the other clients classified the path a student took. Every change to the exam meant three to five reimplementations, each a fresh chance to drift.</p>
+
+        <p>The answer was one repository: a framework-agnostic core in plain TypeScript, a React UI on top, an API client with one adapter per backend, and a thin integration layer per host. It was designed for four consumers and is live in three.</p>
+
+        <h2>The Oldest Host Set the Rules</h2>
+
+        <p>The PHP monolith serves our production web exams, so it went first. The goal was to replace a stack of PHP partials and a 71 KB jQuery bundle with a single script tag: a UMD build of the SDK with React embedded, so the host installs nothing and only calls a mount function. Three constraints made it hard:</p>
+
+        <ul>
+            <li><strong>The shared PHP API could not change.</strong> Other clients depended on it. So the SDK gained a form-encoded HTTP client and a CodeIgniter adapter next to the JSON client the NestJS backend uses. The library adapts to the backend; the backend does not move for the library.</li>
+            <li><strong>The resume token had to match byte for byte.</strong> It is a compact binary format that the PHP side decodes, so the TypeScript encoder had to produce exactly what the PHP decoder expects, proven by a shared fixture checked in both languages.</li>
+            <li><strong>In-flight progress had to survive the deploy.</strong> Students would be mid-exam with progress saved in localStorage by the old jQuery code. The SDK reads that legacy shape and normalizes it at read time instead of asking anyone to start over.</li>
+        </ul>
+
+        <h2>500 Tests, Three Bugs They Could Not See</h2>
+
+        <p>When the first integration ran end to end, the SDK had more than 500 unit tests, all green, all on synthetic fixtures. The first end-to-end run against a real exam from the real database found three bugs none of them had caught:</p>
+
+        <ol>
+            <li>The backend sends some flags as strings. In PHP, <code>"0"</code> is falsy; in JavaScript it is truthy. A flag meaning "this is not an open-answer question" was read as the opposite, and the exam refused to advance.</li>
+            <li>Pressing Enter called the "next" handler directly and skipped the validation a click went through.</li>
+            <li>The adapter already unwrapped the response envelope, and the bootstrap code unwrapped it again, checking a field that was no longer there. Every submission failed.</li>
+        </ol>
+
+        <pre><code class="language-typescript">// PHP: "0" is falsy. JavaScript: "0" is truthy.
+if (question.openAnswer) { /* ... */ }            // wrong for "0"
+if (toBoolish(question.openAnswer)) { /* ... */ } // coerce once, at the boundary</code></pre>
+
+        <p>None of these is exotic. They are what happens when logic moves between runtimes and the tests describe the data you imagined rather than the data the backend sends. The rule I wrote down that day: extracting a feature means testing against the backend's real response shapes, strings and envelopes included, and fixing at the boundary, where one fix protects every host.</p>
+
+        <h2>A Parity Catalog, Briefly</h2>
+
+        <p>"Same behavior everywhere" needs a definition, so I wrote one. Five existing implementations served as references, each authoritative on one axis: the PHP monolith for brand and production web behavior, the Flutter app for mobile UX, the LMS for hierarchy and animation. Wherever they disagreed, the catalog records a "Decision:" entry saying which behavior wins and why. Every rule has an ID that maps one to one to a test, and a coverage check fails the test run if any rule has none. The catalog grew from 104 rules in early September to 373 across 20 areas.</p>
+
+        <h2>Delivering a Bundle You Don't Want Copied</h2>
+
+        <p>The bundle is intellectual property, so it is not public. It sits in a private S3 bucket that only CloudFront can read, through Origin Access Control, and the distribution rejects any request without a valid CloudFront signature. Each host's backend, which already knows who the user is, issues that signature.</p>
+
+        <p>The real decision was signed cookies over signed URLs. Signed URLs work one file at a time. Our bundle includes an embedded financial-calculator emulator that runs in an iframe and loads its own relative files, requests the host backend never sees, so they would arrive unsigned and get a 403. One signed cookie scoped to a path prefix covers the script, the stylesheet and every sub-request the emulator makes.</p>
+
+        <p>Versions are immutable. Each publish uploads the build under a <code>{sha}/</code> path, cached for a year, along with a manifest mapping every entry file to a sha384 hash. Hosts read the manifest, load the pinned path and set Subresource Integrity on the tags, so a browser refuses bytes that don't match. Only the <code>latest/</code> lane moves: it carries a five-minute cache and is invalidated on every publish.</p>
+
+        <p>Two provisioning choices I'd repeat. I reused an existing distribution with one additive path behavior, diffed against a backup of the live config, with the rollback written before the change. And I drafted a formal IAM permission request before mapping each step to its permission and proving that the two roles I already held covered all of them. The step that cost time: with OAC and public access blocked, S3 answers a missing key with 403, not 404, so it doesn't leak which objects exist. Our publish prefix didn't match the path the behavior forwarded, and a path bug spent far too long looking like a permissions bug.</p>
+
+        <h2>An Independent Security Review</h2>
+
+        <p>Before any rollout, the SDK and its backend went through an independent security review. It found real problems:</p>
+
+        <ul>
+            <li><strong>Stored XSS, proven at runtime.</strong> Question content is HTML, and about 20 places rendered it with <code>dangerouslySetInnerHTML</code>. All of them now pass through one DOMPurify gate, with the allowlist calibrated on the tag vocabulary of the real question corpus so sanitizing didn't break a single real question. The test that proved the exploit was inverted into a regression guard.</li>
+            <li><strong>Insecure direct object references.</strong> The backend trusted a customer id sent by the client, and the API key guarding it was baked into served HTML and app binaries, so anyone could read it. The fix is dual authentication: the API key for existing callers, or a session plus a double-submit CSRF header. Identity now comes from the session, never the request, and ownership is checked before data is returned. It spanned four repositories and came with a deploy-order invariant: publish the new bundle, then the backend, then the view that stops sending the key. Mis-order it and live exams fail with 401.</li>
+            <li><strong>Prototype pollution in progress restore.</strong> Saved progress was spread into state unvalidated. One sanitizer now whitelists known fields, strips dangerous keys, builds dictionaries without a prototype and caps recursion.</li>
+        </ul>
+
+        <p>Two other findings went the other way: one was triaged as dormant, and one was accepted as a recorded risk with a condition for revisiting it. Writing those down was part of the work, not a footnote to it.</p>
+
+        <p>The testing pattern I'd reuse anywhere: each finding first became an expected-fail test, 22 of them, documenting the hole. When a fix lands, the expected failure stops happening, the test goes red, and that is the cue to flip it into a normal test.</p>
+
+        <pre><code class="language-typescript">// Before the fix: documents the hole, passes because the assertion fails.
+it.fails('restore drops keys outside the progress schema', () => { /* ... */ });
+
+// After the fix: same body, now a regression guard.
+it('restore drops keys outside the progress schema', () => { /* ... */ });</code></pre>
+
+        <h2>A Canary for Something Live Nowhere</h2>
+
+        <p>In mid-September the SDK was in production nowhere; all the integration work sat on release branches. Before planning stages, I checked how we would undo them, and found a trap: on the release branch, the PHP exam view had already been rewritten into the SDK's bootstrap. "Turning the SDK off" would not have restored what production ran; it would have dropped those exams onto a generic legacy page. So the canary's first task was restoring the legacy path, with a strict acceptance test: flag off must be byte-equivalent to current production. Later I extended that ruling to every host where the legacy had been removed.</p>
+
+        <p>Then the gate. Each host (web, LMS, app) has its own row in a small rollout table, with four modes: off, allowlist, percent, all. Cohorts are deterministic and sticky:</p>
+
+        <pre><code class="language-typescript">// The gate lives in the PHP backend; the shape is the same in any language.
+function sdkEnabled(row: Rollout, user: User): boolean {
+  if (row.mode === 'off') return false;
+  if (row.mode === 'all') return true;
+  if (row.allowlist.matches(user)) return true;
+  if (row.mode !== 'percent') return false;
+  return crc32(SALT + user.customerId) % 100 &lt; row.percent;
+}</code></pre>
+
+        <p>Hashing against a threshold makes cohorts monotonic: a student inside 2% stays inside 20%. And because MySQL's <code>CRC32()</code> and PHP's <code>crc32()</code> compute the same checksum, the cohort is reproducible in plain SQL, with no schema change, which let me compare completion rates between the SDK arm and the legacy arm:</p>
+
+        <pre><code class="language-sql">SELECT COUNT(*) FROM attempts
+WHERE CRC32(CONCAT(@salt, student_id)) % 100 &lt; 20;</code></pre>
+
+        <p>The rest of the safety model:</p>
+
+        <ul>
+            <li><strong>Fail-closed.</strong> A missing table or any database error means off, so the code can deploy before or after the table exists.</li>
+            <li><strong>A pinned sha.</strong> Setting it freezes the web host on a known-good version instantly, without republishing.</li>
+            <li><strong>A crash beacon.</strong> The SDK's mount had no error surface, so a render crash would have been a silent blank exam. An inline script ahead of the SDK tags reports load failures and uncaught errors, and an error boundary in the SDK reports the rest. That beacon is the abort signal.</li>
+            <li><strong>A kill switch that is one UPDATE.</strong> Answers persist server-side per question, so flipping mid-exam costs presentation state, not answers.</li>
+        </ul>
+
+        <p>The stages were dark launch, team allowlist, 20%, then 100%. The first draft of the plan held each stage for 48 hours, ended in a blocking week-long soak and ran the hosts strictly in sequence. With instant reversal and sticky cohorts that caution bought nothing, so I sent it back: gates by criterion, not calendar. The one fixed hold was a real evening peak at the canary stage, because that data has no substitute, and app store review moved off the critical path by validating and submitting the app in parallel.</p>
+
+        <p>One fact reshaped the runbook late: staging and production share one MySQL database. The rollout row is a single control plane for both, so a staging validation flip becomes a production flip the moment the gate code reaches production. The four-mode validation matrix therefore ran strictly before promotion, and the end-to-end suite that exercises the rollout refuses to run against a production base URL.</p>
+
+        <p>On October 16, the gate sat at 2% plus the allowlist, and SDK attempts were about 0.7% of all exam attempts. Small, sticky, and one UPDATE away from zero.</p>
+
+        <h2>Three Hosts, Three Ways to Fail</h2>
+
+        <p>Every host got the same rule: never a blank exam.</p>
+
+        <ul>
+            <li><strong>The LMS</strong> uses a runtime loader with a fallback ladder. It reads the manifest and loads the pinned sha with integrity; if the manifest is unreachable, it loads the last-known-good sha it stored; failing that, the moving lane. The degraded steps drop integrity on purpose, since the point of degrading is to survive. The rollout decision arrives through a backend passthrough that fails closed to the legacy exam.</li>
+            <li><strong>The Flutter app</strong> runs the exam in a WebView. The CloudFront cookies must be injected before the WebView loads, or the bundle request is a blank 403. The bundle loads with SRI, progress lives in an offline-first store, and the gate caches the decision whichever way it goes, so students outside the cohort don't re-fetch it on every screen. Midway through, a Play Console requirement for a newer billing library and target API level forced a Flutter upgrade I hadn't planned for.</li>
+        </ul>
+
+        <p>The app also changed what a release means. Because the exam UI is the CDN bundle, a UI fix reaches installed apps by publishing a new sha, with no store review. Only native plumbing (cookies, manifest fetch, WebView wiring) needs a new binary.</p>
+
+        <h2>What Shipping Means for a Library</h2>
+
+        <p>Shipping an app ends with a deploy. Shipping a library ends when every host can run it, turn it off and roll it back without calling you. That changes what the work is: byte-for-byte compatibility with a decoder I didn't write, an adapter for an API I wasn't allowed to change, a legacy path restored and kept honest so that "off" means something, a delivery chain that degrades instead of going blank, and a rollout anyone can audit in SQL.</p>
+
+        <p>The SDK is now about 16,800 lines of TypeScript with roughly 1,150 tests, and an exam rule changes in one place instead of five. The part I value most is less visible: in each of the three hosts, the safe state is one UPDATE away, and getting there needs no deploy.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

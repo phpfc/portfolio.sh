@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How I build production software in 2026 by directing AI agents instead of typing code: specs with recorded decisions, one task per agent, guardrails, verification with evidence, and a lessons file that turns every mistake into a rule.">
+    <title>Building Software With AI Agents: Specs, Gates, and a Lessons File - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>Building Software With AI Agents: Specs, Gates, and a Lessons File</h1>
+
+        <p>Most of the code I shipped this year was not typed by me. I work at a Brazilian financial-education company that belongs to a larger education group, and the group strongly encourages the responsible use of AI. Over 2026, with a clear turn in September, implementation moved to AI agents running in Claude Code. My job narrowed to four verbs: specify, decide, verify, deliver.</p>
+
+        <p>I don't think developers are going back to typing code. I also don't think that makes the job easier. When an agent can produce a thousand lines in an afternoon, the bottleneck moves somewhere else. What separates a good result from a bad one now is the quality of the specification, the decisions behind it, and the verification after it. This is the process I use for all three, including the parts that broke.</p>
+
+        <h2>The Loop</h2>
+
+        <p>Every non-trivial piece of work goes through the same five steps:</p>
+
+        <ol>
+            <li><strong>Design spec.</strong> What we're building, what we're not, and every decision that shapes it, with its rationale. Specs open with an execution model line, something like "agent sessions, subagent task briefs, multi-repo, Pedro supervising".</li>
+            <li><strong>Implementation plan.</strong> The spec broken into checkable tasks, each small enough for one agent to finish and one reviewer to judge.</li>
+            <li><strong>Subagent execution, one task per agent.</strong> Each task goes to a fresh agent with a focused brief. A clean context per task keeps the main session uncluttered and stops one task's assumptions from leaking into the next.</li>
+            <li><strong>Review.</strong> Each result is checked against the spec, and a final review looks at the whole branch.</li>
+            <li><strong>Verification with evidence.</strong> Tests run, the real-browser end-to-end passes, the output is in front of me. "It should work" is not a status.</li>
+        </ol>
+
+        <p>The rules the agents follow live in a short instruction file at the root of each workspace. A few lines carry most of the weight:</p>
+
+        <pre><code class="language-markdown">### Verification Before Done
+- Never mark a task complete without proving it works
+- Diff behavior between main and your changes when relevant
+- Ask yourself: "Would a staff engineer approve this?"
+- Run tests, check logs, demonstrate correctness</code></pre>
+
+        <p>The plan step is easy to underrate. Once, a spec item read roughly "error boundary plus callback, with tests; document the callback in the README". The plan covered the first half, and the coverage self-check passed because it matched spec sections to tasks, not deliverables to tasks. The final review caught the missing docs. The rule since then: a compound spec item is several checks, one per deliverable noun.</p>
+
+        <h2>Decisions Are the Design</h2>
+
+        <p>An agent fills every gap you leave with a reasonable default. Reasonable defaults, accumulated, become a design nobody chose. So the most important section of any spec I write is the decision table, where each choice I made is recorded as a ruling with its reason.</p>
+
+        <p>The spec for an AI answer-explanation feature in our exam platform recorded 19 of them. Three, paraphrased:</p>
+
+        <pre><code class="language-markdown">| #  | Decision         | Choice                                        | Rationale                          |
+|----|------------------|-----------------------------------------------|------------------------------------|
+| D1 | Free-tier policy | Client is policy-agnostic; quota and paywall  | Policy is a business call; the     |
+|    |                  | states come from the server                   | client ships under any of them     |
+| D2 | Follow-ups       | Predefined chips only, no free text           | Prevents context drift             |
+| D3 | Prompt           | Never refer to alternatives by position       | Alternatives are shuffled          |</code></pre>
+
+        <p>Rulings also overturn things. During the rollout of a shared exam library, the legacy implementation was removed from hosts once the new one had landed. I ruled that a process deviation, and the ruling went into the spec as a dated addendum that explicitly supersedes the earlier sections: every host gets its legacy path back behind a runtime gate, and rollout is controlled per host. The removal wasn't unreasonable. It just wasn't my decision, and the spec is where that difference becomes visible.</p>
+
+        <p>This is also where design credit lives. When someone asks what I designed, I point to the decision tables, not the diffs. The agent wrote the code; the choices in the table are mine, dated and reasoned, and they are what I defend in a review. There's a practical lesson attached. Early on, agents asked for approval section by section, until I told one to stop asking and get to implementation. The rule that came out of it: at most one round of grouped questions per delivery, then decide with judgment, record decision and rationale in the spec, and execute. I veto in review if I disagree.</p>
+
+        <h2>Rules Catalogs as Executable Specs</h2>
+
+        <p>For behavior that has to stay exactly right, I go a step further and write a catalog of rules: each rule is one testable assertion with an ID and a cited authority. This year I built three: 373 rules for the exam library, 500 for the course platform (LMS) with 52 known defects among them, and 429 for the rewrite of a financial-calculator emulator. A separate post covers the method in depth; three properties make it work:</p>
+
+        <ul>
+            <li><strong>Explicit authority per axis.</strong> A reference implementation or a primary source, like the calculator's official manual. Never "what the code does today".</li>
+            <li><strong>A coverage gate in both directions.</strong> A rule without a test fails the build, and so does a test that cites a rule that doesn't exist.</li>
+            <li><strong>Red-when-fixed defect tests.</strong> Known defects get expected-fail tests that assert the desired behavior.</li>
+        </ul>
+
+        <pre><code class="language-typescript">// Titles cite the full rule ID; the gate matches whole tokens.
+it('R-LOGIC-TVM-03: payment sign follows the cash-flow convention', () =&gt; { /* ... */ });
+
+// Known defect: asserts the desired behavior, so it is expected to fail today.
+// Whoever fixes the code sees this go red and promotes it in the same PR.
+it.fails('R-AUTH-07 [DEFECT]: expired session redirects to login', async () =&gt; { /* ... */ });</code></pre>
+
+        <p>Catalogs also let agents work in parallel, one agent per area, each owning its shard. The calculator catalog found errata in the official manual itself and a real bug in the existing app.</p>
+
+        <h2>Guardrails</h2>
+
+        <p>Agents are fast, and speed amplifies whatever can go wrong. These are the standing rules, most of them written after something did:</p>
+
+        <ul>
+            <li><strong>Agents never run migrations.</strong> DDL is applied by hand, following a runbook.</li>
+            <li><strong>Production data is read-only.</strong> Agents can query it to investigate; they never write to it.</li>
+            <li><strong>Infrastructure as code goes up as a preview first, behind a diff gate.</strong> For a Pulumi change that fixed a daily outage in our staging cluster, the first push only ran a preview, and the gate was exact: one update (the launch template), zero creates, replaces or deletes. Mocks proved that with the new setting off, the generated instance configuration was byte-identical to what was already running.</li>
+            <li><strong>A multi-repo feature is switched on only after a full-chain end-to-end test on a local stack.</strong></li>
+            <li><strong>Temporary debug code is never committed.</strong></li>
+            <li><strong>Nothing is "done" without proof.</strong></li>
+        </ul>
+
+        <h2>The Lessons File</h2>
+
+        <p>The mechanism that keeps all of this improving is the simplest one. Ten repositories have a <code>tasks/lessons.md</code>. Every correction I make, and every incident, becomes a written rule: what happened, the pattern behind it, and the rule that prevents it. Agents review the file at the start of each session. A few, paraphrased:</p>
+
+        <ul>
+            <li><strong>A local clone isn't the remote.</strong> An agent claimed a remote branch didn't exist after looking at a shallow, single-branch clone. The branch existed, and it changed the deploy plan. Rule: ask the remote directly (<code>git ls-remote --heads</code>) and check whether the clone is shallow before claiming anything about remote branches.</li>
+            <li><strong>Asserting position isn't asserting identity.</strong> A suite of 847 unit tests and three live end-to-end tests was green while the library saved the displayed position of an answer where the contract required its canonical rank. The variable was called <code>canonicalIndex</code> and held a display index; the name lied. Rule: any state-restoration feature needs an end-to-end test that asserts the identity of what was restored (ids, text, order), not coordinates.</li>
+            <li><strong>Haste never lowers test depth.</strong> I asked an agent to cover as much as possible and finish quickly, then had to add that wanting to finish fast doesn't mean accepting quick fixes or shallow coverage. Rule: speed comes from parallel agents and the right test runner, never from loosening assertions. A test that only checks that something renders does not cover a rule.</li>
+        </ul>
+
+        <p>The file is the long-term memory of the collaboration. Without it, the same mistake comes back in a new session with a new explanation.</p>
+
+        <h2>Throughput, With Quality</h2>
+
+        <p>From May to October 2026: 76 design specs and 73 implementation plans, 100 pull requests, and about 1,000 non-merge commits on default branches. My monthly pull requests went 4, 10, 18, 22, 24, 22. In September alone, the exam library took 252 commits.</p>
+
+        <p>Volume by itself means nothing. What matters is that verification grew with it. The legacy PHP monolith (CodeIgniter 3) behind our exam platform went from 4 test files to 138. The exam library has about 1,150 tests. Every line of work has a spec and a plan I can trace back to.</p>
+
+        <h2>What Failed, and What It Turned Into</h2>
+
+        <p>Four failures this period are mine to own. Each one became a rule.</p>
+
+        <h3>A feature went live without its backend</h3>
+
+        <p>The AI explanation feature crossed three repositories. Two layers were deployed. The third layer's commits lived only on a local branch, and a reset of that branch discarded them. In production, everyone got "not allowed", and I hid the feature until it was fixed. When it came back, there was a second miss: one backend route hadn't been deployed, and behind the CDN a missing route returned the SPA's <code>index.html</code> with a 200, which the frontend rendered as the AI error state.</p>
+
+        <p>Stating the deploy order in a chat message doesn't prevent a partial deploy. What does: a full-chain end-to-end test on the local stack that fails by naming the broken layer, required before the feature is switched on; a check that the needed commits are on the remote, not just in a checkout; and a one-line probe per layer that needs no login:</p>
+
+        <pre><code class="language-bash"># 401 = the route exists. 200 + text/html = the SPA fallback answered.
+curl -s -o /dev/null -w '%{http_code} %{content_type}\n' -X POST https://api.example.com/v1/explain</code></pre>
+
+        <p>Transport failures also stopped being rendered as if they were AI answers.</p>
+
+        <h3>Staging SQL ran against production</h3>
+
+        <p>Content SQL for a seasonal campaign theme on our public site, discounted prices and a new banner, was prepared to run on staging. Staging's env file points at the production database. Production code didn't have the banner's model yet, so the production home page returned 500 and the discounted prices went live. We reverted from the backup. The rules: check the database host first; content SQL only after the code is on main; never mix structure and content SQL in the same "run these".</p>
+
+        <h3>An additive ALTER through the wrong env file</h3>
+
+        <p>An agent applied a column-widening <code>ALTER</code> through the end-to-end env file, believing it pointed at the local stack. It pointed at the shared database. It came out fine only because the change was additive and lossless, and the agent reported it on delivery. The rule: before any DDL or write through a connection string from an env file, print the host (<code>SELECT @@hostname</code>) and classify it as local or shared. Today the stricter rule applies: agents don't run DDL at all.</p>
+
+        <h3>A history rewrite on main</h3>
+
+        <p>An agent ran <code>git commit --amend</code> believing it was on its feature branch. I had switched our shared checkout to main and had already committed and pushed. The amend rewrote my local main, which diverged from the remote, and I had to reset and pull with a conflict waiting. The rule: before any amend, rebase or reset, check the branch and HEAD (<code>git status -sb</code>, <code>git log -1</code>) and whether the commit is already on the remote. If it is, add a new commit on top. Never rewrite.</p>
+
+        <h2>What This Changes About the Job</h2>
+
+        <p>Typing was never the hard part of software, but it used to take most of the hours. Now the hours go to the parts that were always hard: deciding what to build and what not to, writing those decisions precisely enough that a capable agent can't misread them, and designing checks that can't pass while the system is broken. A green suite that asserts positions, a deploy order declared in chat, an env file nobody opened: each of those looked like verification and wasn't.</p>
+
+        <p>So the job shifts toward judgment and evidence. I still read code every day, but as a reviewer holding a spec. When something goes wrong, the fix isn't only the patch; it's the rule that keeps it from happening again, written where the next session will read it. The agents implement. The decisions, the verification, and the scars are mine.</p>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>

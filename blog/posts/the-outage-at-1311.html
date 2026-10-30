@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An SRE incident story: a daily patch scan took a staging ECS cluster down every afternoon at 13:11. The root cause, a systemd cgroup fix, and how I proved production was untouched.">
+    <title>The Outage That Happened Every Day at 13:11 - Pedro França</title>
+    <link rel="icon" href="../../favicon.svg">
+
+    <!-- Prism.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:wght@600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+            line-height: 1.6;
+            color: #000;
+            background: #faf8f3;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.dark {
+            background: #1a1816;
+            color: #e8e6e1;
+        }
+
+        h1, h2, h3 {
+            font-family: Fraunces, "Iowan Old Style", "Palatino Linotype", serif;
+        }
+
+        h1 { font-size: 32px; margin: 40px 0 20px; line-height: 1.2; }
+        h2 { font-size: 24px; margin: 30px 0 10px; }
+        h3 { font-size: 20px; margin: 20px 0 10px; }
+
+        p { margin: 15px 0; }
+
+        a {
+            color: #000;
+            text-decoration: underline;
+        }
+
+        body.dark a { color: #fff; }
+
+        .meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'SF Mono', Monaco, Consolas, monospace;
+            font-size: 14px;
+        }
+
+        body.dark code {
+            background: #1a1a1a;
+        }
+
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        body.dark pre {
+            background: #1a1a1a;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        button {
+            background: none;
+            border: 1px solid #000;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #000;
+        }
+
+        body.dark button {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        body.dark button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        body.dark pre[class*="language-"] {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button id="theme-toggle">Dark</button>
+    </div>
+
+    <p><a href="../">← All posts</a></p>
+
+    <article>
+        <p class="meta">October 29, 2026</p>
+        <h1>The Outage That Happened Every Day at 13:11</h1>
+
+        <p>For a few weeks, our staging environment kept a schedule. Every day at around 13:11 Brasília time, all four services on our staging cluster went down: the exam platform, a legacy course platform, the LMS backend and our SSO. Somewhere between 15:15 and 16:00 they came back on their own. On October 9 the outage lasted about 24 hours. Nobody deployed anything at 13:11, and nothing in the services' own logs explained it.</p>
+
+        <p>I work at a Brazilian financial-education company. This is how I found the cause and fixed it under three constraints: nothing could affect production, the instances could not get bigger, and the job causing the problem was not mine to change.</p>
+
+        <h2>A Clock, Not a Bug</h2>
+
+        <p>An outage that starts at the same minute every day is a scheduled job until proven otherwise. The one I found was an AWS Systems Manager Quick Setup association that scans every instance in the account for missing patches. It is account-wide, it runs once a day (anchored at 13:10 our time), it also runs on every new instance at boot, and it has a two-hour timeout.</p>
+
+        <p>The scan runs <code>dnf</code>, and <code>dnf</code> needs around 500 MB to do its work. Our staging hosts are t3.micro instances: 1 GiB of memory, no swap, and already carrying the containers they exist to run. There is no room for another 500 MB, so the host doesn't crash cleanly. It thrashes, and from there the chain is mechanical:</p>
+
+        <ol>
+            <li>Everything on the host slows to a crawl, including the ECS agent, the SSM agent and the containers that answer health checks.</li>
+            <li>Health checks fail, so ECS marks the tasks unhealthy and replaces them.</li>
+            <li>Replacement capacity arrives as a fresh instance, and a fresh instance runs the patch scan at boot. It hangs the same way.</li>
+            <li>The episode only ends when the association hits its two-hour timeout.</li>
+        </ol>
+
+        <p>That explained the shape of the outage: it started at 13:11 and ended roughly two hours later, plus however long the replacements took to settle. The comparison that confirmed it was already running in the same account. Production uses t3.medium instances, gets the same association on the same schedule, and finishes the same scan in about a minute and a half. Same job, same clock. The only difference was headroom.</p>
+
+        <h2>Three Constraints</h2>
+
+        <p>The obvious fixes were all off the table:</p>
+
+        <ul>
+            <li><strong>No production impact.</strong> Not "low risk". None. Production shares the account, the association and the infrastructure code.</li>
+            <li><strong>No instance upsizing.</strong> Bigger instances would make the problem disappear and the bill grow, and cost was a hard constraint.</li>
+            <li><strong>The association stays as it is.</strong> It covers the whole account, production included.</li>
+        </ul>
+
+        <p>So the question got narrower: can a staging host survive <code>dnf</code> asking for 500 MB it doesn't have, without changing what runs, when it runs, or on what hardware?</p>
+
+        <h2>Following dnf Into Its cgroup</h2>
+
+        <p>The answer came from the kernel. An OOM dump on the EC2 serial console named the control group <code>dnf</code> was running in: <code>task_memcg=/system.slice/amazon-ssm-agent.service</code>. The scan doesn't get a cgroup of its own. It runs as a child of the SSM agent, inside the agent's systemd service.</p>
+
+        <p>That turned a capacity problem into a blast-radius problem. If the agent's cgroup has a memory ceiling, then when <code>dnf</code> grows past it, the kernel kills <code>dnf</code> inside that cgroup within seconds and the rest of the machine never feels it. The containers, the ECS agent and the health checks keep their memory. The whole fix is a systemd drop-in:</p>
+
+        <pre><code class="language-ini"># /etc/systemd/system/amazon-ssm-agent.service.d/90-memory-limit.conf
+[Service]
+MemoryMax=128M
+OOMPolicy=continue</code></pre>
+
+        <p><code>MemoryMax=128M</code> is the ceiling. <code>OOMPolicy=continue</code> is the line I would have missed without the serial console. By default, when the kernel OOM-kills a process inside a service, systemd stops the whole unit. A few days earlier I had watched exactly that on the console: the agent stopped, and systemd only brought it back 90 seconds later. With <code>OOMPolicy=continue</code>, the kernel kills <code>dnf</code> and the agent keeps running, so the host stays reachable and reporting.</p>
+
+        <p>Timing worked in my favor. The instance's user data runs about 12 seconds into boot, and the first association reaches the agent at around 20 seconds, so writing the drop-in from user data and running <code>systemctl daemon-reload</code> puts the limit in place before the boot-time scan starts.</p>
+
+        <h2>Off by Default, Proven Byte for Byte</h2>
+
+        <p>The drop-in lives in our ECS infrastructure stack, a Pulumi program in TypeScript that renders the launch template's user data for both staging and production. The change had to exist in the code without existing in production. So it is switched on by a new, optional config key, and only the staging stack's config file sets it, with one extra line: <code>ssmAgentMemoryMax: 128M</code>. Simplified, the gating looks like this:</p>
+
+        <pre><code class="language-typescript">const memoryMax = config.get("ssmAgentMemoryMax");
+
+function ssmAgentMemoryLimit(memoryMax?: string): string {
+  if (!memoryMax) {
+    return "";
+  }
+
+  const dir = "/etc/systemd/system/amazon-ssm-agent.service.d";
+  const file = `${dir}/90-memory-limit.conf`;
+
+  return `\nmkdir -p ${dir}` +
+    `\necho '[Service]' &gt; ${file}` +
+    `\necho 'MemoryMax=${memoryMax}' &gt;&gt; ${file}` +
+    `\necho 'OOMPolicy=continue' &gt;&gt; ${file}` +
+    `\nsystemctl daemon-reload`;
+}
+
+const userData = pulumi.interpolate`${baseUserData}${ssmAgentMemoryLimit(memoryMax)}`;</code></pre>
+
+        <p>Without the key, the function returns an empty string and the user data is what it was before. But "is what it was before" is a claim, and production was the one place where I wasn't willing to rely on a claim. So I rendered the user data with Pulumi's mocks and compared it with the real launch templates. Without the key, the output was byte-identical to both the current staging and production templates. With it, the only difference was the five appended lines.</p>
+
+        <h2>Shipping It Without Trusting Myself</h2>
+
+        <p>Staging deploys from its own branch; production deploys from <code>main</code>. Nothing went to <code>main</code>, and the rollout was built so each step had to prove itself before the next one started:</p>
+
+        <ol>
+            <li><strong>A preview-only push.</strong> One commit carried the fix. A second switched the staging deploy workflow from <code>up</code> to <code>preview</code> with a diff. Pushing both ran the pipeline without applying anything. The gate was exactly one update, the launch template, and zero creates, replaces or deletes. It showed 1 to update and 28 unchanged. That single update carried two fields, the user data and the image ID, because the stack's AMI lookup resolves to the newest ECS-optimized image.</li>
+            <li><strong>Apply by revert.</strong> A third commit reverted the preview switch, and that push ran the real update: 1 updated, 28 unchanged. The branch's final diff against <code>main</code> is the fix and nothing else.</li>
+            <li><strong>Swap instances in a fixed order.</strong> A launch template only affects new instances, so both hosts had to be replaced. ECS's binpack placement would happily put our SSO on one t3.micro with two other services, roughly 490 to 560 MiB of containers, which doesn't fit even without a scan. So: scale the staging SSO to zero and terminate its emptied host; drain the other host, which brings up a canary on the new template; once the other three services were placed on the canary, its memory fully reserved, scale the SSO back up so it had to land on a fresh instance of its own. The three services moved without going down. The SSO was out for about 17 minutes, against the 15 I had planned.</li>
+            <li><strong>Gate on the canary, then on the SSO's host.</strong> The kernel's OOM report had to show the 131072 kB limit, which is 128 MiB. Kills had to be only <code>CONSTRAINT_MEMCG</code>, and only of <code>dnf</code>, <code>yum</code> and <code>python3</code>. Zero global OOM events, SSM online, the ECS agent connected and all four services healthy. Only then did the old host get terminated.</li>
+        </ol>
+
+        <p>My access profile doesn't include <code>ssm:SendCommand</code>, so I couldn't run a command on the hosts to read <code>memory.max</code> directly. The serial console turned out to be enough. The kernel writes everything I needed into its OOM report, and reading the console output doesn't touch the instance:</p>
+
+        <pre><code class="language-bash">aws ec2 get-console-output --instance-id "$INSTANCE_ID" --latest --output text \
+  | grep -E 'limit 131072kB|CONSTRAINT_MEMCG|global_oom'</code></pre>
+
+        <p>Then production, verified rather than assumed: its launch template still on the same version, the same production instances running, no production deploy run, CloudTrail showing new launch template versions only on the staging template, and <code>main</code> unchanged.</p>
+
+        <h2>What It Looks Like Now</h2>
+
+        <p>I expected the boot scan to fail within a few minutes. It doesn't, quite. The scan retries <code>dnf</code> several times, and at first the kernel kills it every one to two minutes. Those attempts cost 7 to 10% CPU and no extra network traffic, and the association stays <code>InProgress</code> until its two-hour timeout, just as before. The difference is that nothing else on the host notices. Patch compliance in staging still reports failed, as it already did. It just no longer takes the environment down with it.</p>
+
+        <p>There is one trade-off: Session Manager and Run Command sessions on staging hosts also live inside the agent's cgroup, so they get the same 128 MiB. For anything heavy, <code>sudo systemd-run --scope -p MemoryMax=infinity &lt;cmd&gt;</code> runs the command in a scope of its own. Rollback is a revert on the staging branch plus the same swap sequence.</p>
+
+        <p>One check is still open, and it's the one that matters most: the next day's 13:00 to 16:00 window, with the 13:11 scan contained and the exam platform's healthy host count never reaching zero. The new hosts' boot scans already behaved the way the fix intends, but as I write this, that box in my notes is still unticked.</p>
+
+        <h2>A Scar: The Branch That Wasn't There</h2>
+
+        <p>Early in planning I concluded that the staging branch didn't exist. I had looked at <code>git branch -a</code> in a clone that was shallow and single-branch, with a fetch refspec that only covered <code>main</code>, so of course it showed nothing else. The branch was on GitHub, and its existence changed the deploy plan. Now, before I say a remote branch exists or doesn't, I ask the remote:</p>
+
+        <pre><code class="language-bash">git ls-remote --heads origin
+git rev-parse --is-shallow-repository</code></pre>
+
+        <p>A local clone is a cache of the remote, not a statement about it.</p>
+
+        <h2>What I'm Keeping</h2>
+
+        <ul>
+            <li><strong>Small hosts have no margin for anyone else's work.</strong> A t3.micro running containers is fine until a background job you didn't schedule asks for half its memory. The same scan was a 90-second non-event on a t3.medium. On a box that small, every agent and every child process an agent spawns is part of capacity planning.</li>
+            <li><strong>cgroups are a blast-radius tool.</strong> I didn't make <code>dnf</code> smaller or stop it from running. I gave it a box to fail in. A memory ceiling on the service that spawns the work keeps the failure local, and the right <code>OOMPolicy</code> keeps the parent alive.</li>
+            <li><strong>"No change in production" is something to prove, not to say.</strong> Byte-identical rendering against the real templates, a preview gate with an exact expected count, and checks afterwards on the launch template version, CloudTrail and <code>main</code> turned a promise into evidence. It took far longer than writing the five lines, and it's why I could ship them on a Monday afternoon without worrying about the environment I wasn't touching.</li>
+        </ul>
+    </article>
+
+    <!-- Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ini.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeBtn = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('theme') || 'light';
+
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            themeBtn.textContent = 'Light';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeBtn.textContent = isDark ? 'Light' : 'Dark';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    </script>
+</body>
+</html>
