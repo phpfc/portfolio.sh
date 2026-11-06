@@ -191,17 +191,16 @@ if (toBoolish(question.openAnswer)) { /* ... */ } // coerce once, at the boundar
 
         <p>Two provisioning choices I'd repeat. I reused an existing distribution with one additive path behavior, diffed against a backup of the live config, with the rollback written before the change. And I drafted a formal IAM permission request before mapping each step to its permission and proving that the two roles I already held covered all of them. The step that cost time: with OAC and public access blocked, S3 answers a missing key with 403, not 404, so it doesn't leak which objects exist. Our publish prefix didn't match the path the behavior forwarded, and a path bug spent far too long looking like a permissions bug.</p>
 
-        <h2>An Independent Security Review</h2>
+        <h2>A Security Review Before Rollout</h2>
 
-        <p>Before any rollout, the SDK and its backend went through an independent security review. It found real problems:</p>
+        <p>Before any rollout, our engineering manager asked for a second opinion on two questions: was the delivery model sound, and did injecting the bundle into our pages and WebViews introduce or expose vulnerabilities? I ran that review on the SDK and its backend. It found real problems, and two of them show the kind of thing it caught:</p>
 
         <ul>
             <li><strong>Stored XSS, proven at runtime.</strong> Question content is HTML, and about 20 places rendered it with <code>dangerouslySetInnerHTML</code>. All of them now pass through one DOMPurify gate, with the allowlist calibrated on the tag vocabulary of the real question corpus so sanitizing didn't break a single real question. The test that proved the exploit was inverted into a regression guard.</li>
-            <li><strong>Insecure direct object references.</strong> The backend trusted a customer id sent by the client, and the API key guarding it was baked into served HTML and app binaries, so anyone could read it. The fix is dual authentication: the API key for existing callers, or a session plus a double-submit CSRF header. Identity now comes from the session, never the request, and ownership is checked before data is returned. It spanned four repositories and came with a deploy-order invariant: publish the new bundle, then the backend, then the view that stops sending the key. Mis-order it and live exams fail with 401.</li>
             <li><strong>Prototype pollution in progress restore.</strong> Saved progress was spread into state unvalidated. One sanitizer now whitelists known fields, strips dangerous keys, builds dictionaries without a prototype and caps recursion.</li>
         </ul>
 
-        <p>Two other findings went the other way: one was triaged as dormant, and one was accepted as a recorded risk with a condition for revisiting it. Writing those down was part of the work, not a footnote to it.</p>
+        <p>Each finding got a decision: fix now, fix in a later phase, rescope as dormant, or accept as a recorded risk with a condition for revisiting it. Writing those decisions down was part of the work, not a footnote to it.</p>
 
         <p>The testing pattern I'd reuse anywhere: each finding first became an expected-fail test, 22 of them, documenting the hole. When a fix lands, the expected failure stops happening, the test goes red, and that is the cue to flip it into a normal test.</p>
 

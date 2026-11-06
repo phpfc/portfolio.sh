@@ -240,14 +240,14 @@ it.fails('R-AUTH-07 [DEFECT]: expired session redirects to login', async () =&gt
 
         <h3>A feature went live without its backend</h3>
 
-        <p>The AI explanation feature crossed three repositories. Two layers were deployed. The third layer's commits lived only on a local branch, and a reset of that branch discarded them. In production, everyone got "not allowed", and I hid the feature until it was fixed. When it came back, there was a second miss: one backend route hadn't been deployed, and behind the CDN a missing route returned the SPA's <code>index.html</code> with a 200, which the frontend rendered as the AI error state.</p>
+        <p>The AI explanation feature crossed three repositories: the exam backend, the course platform's API and its web front end. On release day, only the front end actually reached production. The exam backend's changes had been committed to a local branch that was later reset, so they never reached the remote. The API's changes were on main, but in that repository a push to main is not a deploy: production only deploys from a release, so every production run that day skipped the deploy, including a commit meant to force one and another meant to hide the feature. For about a day, students in the rollout cohort who asked for an explanation got the AI error state instead, because behind the CDN the missing API route returned the SPA's <code>index.html</code> with a 200. The fix reached production the next afternoon, once the backend changes were recreated and both releases were cut.</p>
 
-        <p>Stating the deploy order in a chat message doesn't prevent a partial deploy. What does: a full-chain end-to-end test on the local stack that fails by naming the broken layer, required before the feature is switched on; a check that the needed commits are on the remote, not just in a checkout; and a one-line probe per layer that needs no login:</p>
+        <p>Stating the deploy order in a chat message doesn't prevent a partial deploy. What does: a full-chain end-to-end test on the local stack that fails by naming the broken layer, required before the feature is switched on; a check that the needed commits are on the remote, not just in a checkout; knowing what actually triggers a production deploy in each repository; and a one-line probe per layer that needs no login:</p>
 
         <pre><code class="language-bash"># 401 = the route exists. 200 + text/html = the SPA fallback answered.
 curl -s -o /dev/null -w '%{http_code} %{content_type}\n' -X POST https://api.example.com/v1/explain</code></pre>
 
-        <p>Transport failures also stopped being rendered as if they were AI answers.</p>
+        <p>One guard was already in place and did its job: the front end only accepted responses carrying an explicit status, so the failure showed up as an error and never as a made-up answer.</p>
 
         <h3>Staging SQL ran against production</h3>
 
